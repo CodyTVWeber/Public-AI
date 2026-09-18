@@ -15,6 +15,7 @@ Ask the user:
    - How would you measure progress? (what signal, command, or data source shows it?)
    - How often does it change? (daily / weekly / per-period)
 3. What is the period cadence for history cards? (weekly, sprint, monthly, etc.)
+4. Do they want this run automatically going forward? If yes, see Step 7 below.
 
 Generate `growth-rules.md` from their answers using the template at the bottom of this file.
 Generate a starter `report.html` if none exists — use `templates/report.html` in this skill's directory as the structural and visual base.
@@ -70,6 +71,16 @@ Run `git -C <public_repo> diff` (staged and unstaged) and show the full output.
 **Do NOT commit** — wait for explicit user approval before running any `git commit` in the public repo.
 
 Output one line: private commit hash + "public repo staged, awaiting your approval".
+
+## Step 7 — Offer to automate with /loop
+
+If the user wants this running on its own cadence (asked at bootstrap, or any time they ask "how do I automate this"), suggest scheduling it with `/loop`:
+
+```
+/loop once a week, run '/insights' and then run '/insights-dash', commit and push.
+```
+
+Substitute the cadence the user actually wants (daily, weekly, per-sprint). Tell them: recurring `/loop` jobs auto-expire after 7 days — a weekly job fires once, then needs to be rescheduled. They can re-run `/loop` after each fire, or ask to make it `durable: true` so it survives a restart (still subject to the 7-day expiry).
 
 ---
 
