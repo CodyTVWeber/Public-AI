@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Task Rollback Bug — Before/After Visualization</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --border: #2a2f3a;
+    --text: #e6e8ec;
+    --muted: #8b93a3;
+    --pending: #3a4050;
+    --success: #2fbf71;
+    --fail: #e5484d;
+    --revert: #f5a623;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .controls { margin-bottom: 28px; display: flex; gap: 12px; align-items: center; }
+  button {
+    background: #2f6fed;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover { background: #4680f5; }
+  button:disabled { background: #3a4050; cursor: not-allowed; }
+  .speed-label { color: var(--muted); font-size: 13px; }
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .panel h2 {
+    font-size: 15px;
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .badge.before { background: rgba(229,72,77,0.15); color: var(--fail); }
+  .badge.after { background: rgba(47,191,113,0.15); color: var(--success); }
+  .panel .desc { color: var(--muted); font-size: 12.5px; margin: 4px 0 16px; line-height: 1.5; }
+  .task-list { display: flex; flex-direction: column; gap: 8px; }
+  .task {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    background: #1d212b;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    transition: background 0.35s ease, border-color 0.35s ease, transform 0.25s ease;
+  }
+  .task .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--pending);
+    flex-shrink: 0;
+    transition: background 0.35s ease, box-shadow 0.35s ease;
+  }
+  .task .name { flex: 1; }
+  .task .status {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'SF Mono', Menlo, monospace;
+    min-width: 84px;
+    text-align: right;
+  }
+  .task.pending .dot { background: var(--pending); }
+  .task.success .dot { background: var(--success); box-shadow: 0 0 8px rgba(47,191,113,0.6); }
+  .task.success .status { color: var(--success); }
+  .task.fail .dot { background: var(--fail); box-shadow: 0 0 8px rgba(229,72,77,0.6); }
+  .task.fail .status { color: var(--fail); }
+  .task.reverted { background: rgba(245,166,35,0.08); border-color: rgba(245,166,35,0.4); transform: translateX(2px); }
+  .task.reverted .status { color: var(--revert); }
+  .log {
+    margin-top: 18px;
+    background: #0c0e12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--muted);
+    min-height: 150px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .log .line { white-space: pre-wrap; }
+  .log .line.err { color: var(--fail); }
+  .log .line.warn { color: var(--revert); }
+  .log .line.ok { color: var(--success); }
+  .summary {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .summary.show { display: block; }
+  .summary.bad { background: rgba(229,72,77,0.12); color: var(--fail); border: 1px solid rgba(229,72,77,0.35); }
+  .summary.good { background: rgba(47,191,113,0.12); color: var(--success); border: 1px solid rgba(47,191,113,0.35); }
+  .code {
+    margin-top: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .code h2 { font-size: 14px; margin: 0 0 10px; }
+  .code-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  pre {
+    background: #0c0e12;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 0;
+  }
+  .code-cols .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .tok-kw { color: #c586c0; }
+  .tok-str { color: #ce9178; }
+  .tok-fn { color: #dcdcaa; }
+  .tok-com { color: #6a9955; }
+  footer { margin-top: 28px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>Optimistic-rollback bug: bucket submit (BUCKET_LIMIT = 3), task #2 fails</h1>
+<div class="subtitle">
+  Illustration of the "I do a bucket of actions and they seem to reset" report. Verified against
+  <code>src/config/constants.ts</code>: <code>BUCKET_LIMIT = 3</code>, so a real bucket submit fires at most
+  3 concurrent mutations — the worst case here (2 of 3 siblings wiped) is the actual real-world ceiling, not a
+  dramatized one. Left = current code (<code>src/hooks/useTaskTransitions.ts</code>, wholesale
+  <code>onError</code> rollback). Right = fixed code (scoped per-task rollback). Same simulated network outcome
+  on both sides — only the rollback logic differs.
+</div>
+
+<div class="controls">
+  <button id="playBtn" onclick="runAnimation()">▶ Run simulation</button>
+  <button id="resetBtn" onclick="resetAll()" disabled>↺ Reset</button>
+  <span class="speed-label">3 tasks submitted concurrently (bucket max) · task #2 rejects after #1 and #3 already succeeded</span>
+</div>
+
+<div class="panels">
+  <div class="panel">
+    <h2>Before fix <span class="badge before">BUG</span></h2>
+    <div class="desc">
+      Each mutation's <code>onMutate</code> snapshots the <b>entire</b> task array. When #2's <code>onError</code>
+      fires, it replaces the whole cache with its own stale snapshot — wiping out #1 and #3, which already succeeded.
+    </div>
+    <div class="task-list" id="before-list"></div>
+    <div class="log" id="before-log"></div>
+    <div class="summary" id="before-summary"></div>
+  </div>
+
+  <div class="panel">
+    <h2>After fix <span class="badge after">FIXED</span></h2>
+    <div class="desc">
+      Each mutation's <code>onMutate</code> only remembers its own <code>previousStatus</code>. When #2's
+      <code>onError</code> fires, it reverts only task #2 via <code>setInstanceStatus</code> — #1 and #3 are untouched.
+    </div>
+    <div class="task-list" id="after-list"></div>
+    <div class="log" id="after-log"></div>
+    <div class="summary" id="after-summary"></div>
+  </div>
+</div>
+
+<div class="code">
+  <h2>The actual diff (<code>src/hooks/useTaskTransitions.ts</code>)</h2>
+  <div class="code-cols">
+    <div>
+      <div class="label">onError — before</div>
+      <pre><span class="tok-kw">onError</span>: (err, vars, ctx) => {
+  <span class="tok-kw">if</span> (ctx?.previous)
+    queryClient.<span class="tok-fn">setQueryData</span>(
+      instancesKey,
+      ctx.previous <span class="tok-com">// whole array, stale</span>
+    );
+}</pre>
+    </div>
+    <div>
+      <div class="label">onError — after</div>
+      <pre><span class="tok-kw">onError</span>: (err, vars, ctx) => {
+  <span class="tok-kw">if</span> (ctx?.previousStatus) {
+    queryClient.<span class="tok-fn">setQueryData</span>(instancesKey, (old) =>
+      <span class="tok-fn">setInstanceStatus</span>(
+        old, vars.taskId,
+        ctx.previousStatus, <span class="tok-com">// this task only</span>
+        businessDate
+      )
+    );
+  }
+}</pre>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Plan: docs/plans/2026/07/2026-07-02_task-history-lock-storm-and-rollback-fix.md · Generated for illustration, not test output.
+</footer>
+
+<script>
+const TASKS = [
+  { id: 1, name: 'Task 1 — Restock napkins' },
+  { id: 2, name: 'Task 2 — Wipe counters' },
+  { id: 3, name: 'Task 3 — Check syrup levels' },
+];
+const FAIL_INDEX = 1; // Task 2, zero-based
+
+function buildList(containerId, prefix) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  TASKS.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'task pending';
+    row.id = prefix + '-task-' + t.id;
+    row.innerHTML = `<div class="dot"></div><div class="name">${t.name}</div><div class="status">queued</div>`;
+    el.appendChild(row);
+  });
+}
+buildList('before-list', 'before');
+buildList('after-list', 'after');
+
+function log(containerId, text, cls) {
+  const el = document.getElementById(containerId);
+  const line = document.createElement('div');
+  line.className = 'line' + (cls ? ' ' + cls : '');
+  line.textContent = text;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(prefix, idx, statusClass, statusText) {
+  const row = document.getElementById(prefix + '-task-' + TASKS[idx].id);
+  row.className = 'task ' + statusClass;
+  row.querySelector('.status').textContent = statusText;
+}
+
+function markReverted(prefix, idx) {
+  const row = document.getElementById(prefix + '-task-' + TASKS[idx].id);
+  row.classList.add('reverted');
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runAnimation() {
+  document.getElementById('playBtn').disabled = true;
+  document.getElementById('resetBtn').disabled = true;
+  document.getElementById('before-log').innerHTML = '';
+  document.getElementById('after-log').innerHTML = '';
+  document.getElementById('before-summary').className = 'summary';
+  document.getElementById('after-summary').className = 'summary';
+
+  log('before-log', 'submitBucket(): firing 3 concurrent mutations, same instancesKey');
+  log('after-log', 'submitBucket(): firing 3 concurrent mutations, same instancesKey');
+  await sleep(500);
+
+  // Resolution order: 1, 3 succeed quickly; 2 hangs (lock-stolen retries) then fails last.
+  const order = [0, 2, 1];
+  for (const idx of order) {
+    const isFail = idx === FAIL_INDEX;
+    if (isFail) {
+      log('before-log', `Task ${idx+1}: AbortError (lock stolen) x2 retries -> onError fires`, 'err');
+      log('after-log', `Task ${idx+1}: AbortError (lock stolen) x2 retries -> onError fires`, 'err');
+      setStatus('before', idx, 'fail', 'failed');
+      setStatus('after', idx, 'fail', 'failed');
+      await sleep(600);
+
+      log('before-log', `onError: setQueryData(instancesKey, ctx.previous) -> WHOLE ARRAY REPLACED`, 'warn');
+      TASKS.forEach((t, i) => {
+        if (i !== idx) markReverted('before', i);
+      });
+      await sleep(150);
+      TASKS.forEach((t, i) => {
+        if (i !== idx) setStatus('before', i, 'pending reverted', 'reverted!');
+      });
+
+      log('after-log', `onError: setQueryData(old => setInstanceStatus(old, task2, prev)) -> task 2 only`, 'ok');
+    } else {
+      log('before-log', `Task ${idx+1}: onSuccess -> setInstanceStatus(old, task${idx+1}, 'completed')`, 'ok');
+      log('after-log', `Task ${idx+1}: onSuccess -> setInstanceStatus(old, task${idx+1}, 'completed')`, 'ok');
+      setStatus('before', idx, 'success', 'completed');
+      setStatus('after', idx, 'success', 'completed');
+      await sleep(500);
+    }
+  }
+
+  setStatus('before', FAIL_INDEX, 'fail reverted', 'reverted');
+  setStatus('after', FAIL_INDEX, 'fail', 'reverted (own)');
+
+  await sleep(300);
+  const beforeSummary = document.getElementById('before-summary');
+  beforeSummary.textContent = '2 of 3 completions wiped from the UI — employee sees their work vanish';
+  beforeSummary.className = 'summary bad show';
+
+  const afterSummary = document.getElementById('after-summary');
+  afterSummary.textContent = '2 of 3 completions preserved — only the failed task reverted';
+  afterSummary.className = 'summary good show';
+
+  document.getElementById('resetBtn').disabled = false;
+}
+
+function resetAll() {
+  buildList('before-list', 'before');
+  buildList('after-list', 'after');
+  document.getElementById('before-log').innerHTML = '';
+  document.getElementById('after-log').innerHTML = '';
+  document.getElementById('before-summary').className = 'summary';
+  document.getElementById('after-summary').className = 'summary';
+  document.getElementById('playBtn').disabled = false;
+  document.getElementById('resetBtn').disabled = true;
+}
+</script>
+
+</body>
+</html>
