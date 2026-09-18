@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test-First Discipline — Growth Track</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; padding: 40px 24px; line-height: 1.6; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .back { font-size: 13px; color: #64748b; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 28px; }
+    .back:hover { color: #94a3b8; }
+    .hero { background: #ffffff; border-radius: 10px; padding: 24px; margin-bottom: 32px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .hero-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .hero-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .hero-sub { font-size: 14px; color: #475569; margin-bottom: 20px; }
+    .prog-row { display: flex; align-items: center; gap: 12px; }
+    .prog-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; }
+    .prog-fill { height: 100%; border-radius: 4px; }
+    .prog-pct { font-size: 20px; font-weight: 700; }
+    .prog-target { font-size: 12px; color: #64748b; margin-top: 6px; }
+    h2 { font-size: 14px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 12px; }
+    .card { background: #ffffff; border-radius: 8px; padding: 18px 20px; margin-bottom: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card p { font-size: 14px; color: #475569; }
+    .card p + p { margin-top: 8px; }
+    .card strong { color: #334155; }
+    .why-list { list-style: none; }
+    .why-list li { font-size: 14px; color: #475569; padding: 8px 0; border-bottom: 1px solid #e2e8f0; padding-left: 14px; position: relative; }
+    .why-list li:last-child { border-bottom: none; }
+    .why-list li::before { content: '→'; position: absolute; left: 0; color: #64748b; }
+    .step-list { list-style: none; counter-reset: steps; }
+    .step-list li { counter-increment: steps; font-size: 14px; color: #475569; padding: 10px 0 10px 36px; border-bottom: 1px solid #e2e8f0; position: relative; }
+    .step-list li:last-child { border-bottom: none; }
+    .step-list li::before { content: counter(steps); position: absolute; left: 0; top: 10px; width: 22px; height: 22px; background: #e2e8f0; border-radius: 50%; font-size: 11px; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 22px; }
+    .step-list li strong { color: #334155; display: block; margin-bottom: 2px; }
+    .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin-top: 10px; position: relative; }
+    .code-block code { font-family: 'Fira Code', 'Courier New', monospace; font-size: 12px; color: #475569; display: block; white-space: pre-wrap; }
+    .copy-btn { background: #e2e8f0; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; color: #475569; cursor: pointer; position: absolute; top: 10px; right: 10px; }
+    .copy-btn:hover { background: #cbd5e1; color: #1e293b; }
+    .note { font-size: 12px; color: #64748b; margin-top: 8px; font-style: italic; }
+    .why { font-size: 12px; color: #64748b; font-style: italic; margin-bottom: 10px; }
+    .how-to { font-size: 12px; color: #64748b; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="report.html" class="back">‹ Back to dashboard</a>
+
+    <div class="hero">
+      <div class="hero-label" style="color: #f59e0b;">Focus — Test-First Discipline</div>
+      <div class="hero-title">Write tests first</div>
+      <div class="hero-sub">Implementation without tests is a guess. Tests make Claude's feedback loop instant.</div>
+      <div class="prog-row">
+        <div class="prog-bar">
+          <div class="prog-fill" style="width: 40%; background: #f59e0b;"></div>
+        </div>
+        <div class="prog-pct" style="color: #f59e0b;">40%</div>
+      </div>
+      <div class="prog-target">Test-first on every PR · Replace with your own target from growth-rules.md</div>
+    </div>
+
+    <h2>Why it matters</h2>
+    <div class="card">
+      <ul class="why-list">
+        <li>Tests written after implementation tend to match the code, not the requirement — they confirm the code runs, not that it works</li>
+        <li>Claude can enter an autonomous fix loop when tests exist — without them it must ask you for feedback after every change</li>
+        <li>Debugging is faster when you know exactly which assertion is failing</li>
+      </ul>
+    </div>
+
+    <h2>The pattern</h2>
+    <p class="why" style="margin-bottom: 12px;">What it looks like without test-first:</p>
+
+    <div class="card">
+      <p><strong>New feature</strong></p>
+      <p>You said "implement X." Claude built it, then you found edge cases in manual testing. The fix took longer than the original build.</p>
+    </div>
+
+    <div class="card">
+      <p><strong>Refactor</strong></p>
+      <p>You said "refactor Y." Claude moved things around. Nothing broke immediately, but a regression surfaced two days later with no clear cause.</p>
+    </div>
+
+    <h2>How to build the habit</h2>
+    <div class="card">
+      <ol class="step-list">
+        <li>
+          <strong>Start every task with failing tests</strong>
+          Ask Claude to write failing tests first — describe the acceptance criteria, not the implementation. Review the tests before any code is written.
+        </li>
+        <li>
+          <strong>Tell Claude the loop</strong>
+          "Write tests, then implement, then run tests, loop until green." Claude can run this autonomously.
+        </li>
+        <li>
+          <strong>Track it per PR</strong>
+          In your growth-rules.md, count how many PRs this period had tests written before implementation.
+        </li>
+      </ol>
+    </div>
+
+    <h2>Copyable prompts</h2>
+
+    <div class="card">
+      <p><strong>TDD loop prompt:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code>Phase 1: Write a complete test file for [feature]. Tests should fail. Show me the tests and wait for my approval before writing any implementation.
+Phase 2: After approval, implement until all tests pass. Run tests after every change. Do not ask questions — if blocked, document the blocker and try a different approach.</code>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Add to CLAUDE.md to make it permanent:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code>## Test-First Discipline
+- Write failing tests before implementing any feature or fix
+- Do not modify test assertions to make tests pass — fix the implementation
+- Run the full test suite before declaring a task done</code>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
+</body>
+</html>

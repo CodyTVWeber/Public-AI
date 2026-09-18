@@ -1,0 +1,13 @@
+# Regexes for known-safe matches. Any flagged line matching one of these is dropped.
+# Keep this list short and specific — each entry is a hole in the gate.
+
+# PRIVACY.md / CLAUDE.md document the version rule using deliberately fake versions.
+9\.9\.9
+React 9\.9
+SomeFramework
+SomeDb 42\.0
+SomeLang 7\.1
+somedb:42\.0
+
+# PRIVACY.md's enforcement section quotes the version-pin regex itself.
+grep -rEn

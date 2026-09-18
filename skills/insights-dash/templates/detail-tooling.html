@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tooling Adoption — Growth Track</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; padding: 40px 24px; line-height: 1.6; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .back { font-size: 13px; color: #64748b; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 28px; }
+    .back:hover { color: #94a3b8; }
+    .hero { background: #ffffff; border-radius: 10px; padding: 24px; margin-bottom: 32px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .hero-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .hero-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .hero-sub { font-size: 14px; color: #475569; margin-bottom: 20px; }
+    .prog-row { display: flex; align-items: center; gap: 12px; }
+    .prog-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; }
+    .prog-fill { height: 100%; border-radius: 4px; }
+    .prog-pct { font-size: 20px; font-weight: 700; }
+    .prog-target { font-size: 12px; color: #64748b; margin-top: 6px; }
+    h2 { font-size: 14px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 12px; }
+    .card { background: #ffffff; border-radius: 8px; padding: 18px 20px; margin-bottom: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card p { font-size: 14px; color: #475569; }
+    .card p + p { margin-top: 8px; }
+    .card strong { color: #334155; }
+    .why-list { list-style: none; }
+    .why-list li { font-size: 14px; color: #475569; padding: 8px 0; border-bottom: 1px solid #e2e8f0; padding-left: 14px; position: relative; }
+    .why-list li:last-child { border-bottom: none; }
+    .why-list li::before { content: '→'; position: absolute; left: 0; color: #64748b; }
+    .step-list { list-style: none; counter-reset: steps; }
+    .step-list li { counter-increment: steps; font-size: 14px; color: #475569; padding: 10px 0 10px 36px; border-bottom: 1px solid #e2e8f0; position: relative; }
+    .step-list li:last-child { border-bottom: none; }
+    .step-list li::before { content: counter(steps); position: absolute; left: 0; top: 10px; width: 22px; height: 22px; background: #e2e8f0; border-radius: 50%; font-size: 11px; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 22px; }
+    .step-list li strong { color: #334155; display: block; margin-bottom: 2px; }
+    .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin-top: 10px; position: relative; }
+    .code-block code { font-family: 'Fira Code', 'Courier New', monospace; font-size: 12px; color: #475569; display: block; white-space: pre-wrap; }
+    .copy-btn { background: #e2e8f0; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; color: #475569; cursor: pointer; position: absolute; top: 10px; right: 10px; }
+    .copy-btn:hover { background: #cbd5e1; color: #1e293b; }
+    .note { font-size: 12px; color: #64748b; margin-top: 8px; font-style: italic; }
+    .why { font-size: 12px; color: #64748b; font-style: italic; margin-bottom: 10px; }
+    .how-to { font-size: 12px; color: #64748b; margin-top: 8px; }
+    .tool { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid #e2e8f0; }
+    .tool:last-child { border-bottom: none; }
+    .tool-icon { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin-top: 2px; }
+    .tool-name { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+    .tool-desc { font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="report.html" class="back">‹ Back to dashboard</a>
+
+    <div class="hero">
+      <div class="hero-label" style="color: #3b82f6;">Focus — Tooling Adoption</div>
+      <div class="hero-title">Use the right tool for the job</div>
+      <div class="hero-sub">Tools that reduce friction compound over time. Each one you master multiplies your output.</div>
+      <div class="prog-row">
+        <div class="prog-bar">
+          <div class="prog-fill" style="width: 60%; background: #3b82f6;"></div>
+        </div>
+        <div class="prog-pct" style="color: #3b82f6;">60%</div>
+      </div>
+      <div class="prog-target">All target tools actively used · Replace tool list in growth-rules.md</div>
+    </div>
+
+    <h2>The approach</h2>
+    <div class="card">
+      <p>Define 3–5 tools you want to actively use. A tool counts when it appears in your recent shell history — not just installed, but used. Update the list in growth-rules.md as your stack evolves.</p>
+    </div>
+
+    <h2>Tool slots to consider</h2>
+    <div class="card">
+      <div class="tool">
+        <div class="tool-icon" style="background: #f0fdf4; color: #16a34a;">✓</div>
+        <div>
+          <div class="tool-name">AI coding assistant</div>
+          <div class="tool-desc">Handles implementation, exploration, and refactoring. Your job is to direct it clearly.</div>
+        </div>
+      </div>
+      <div class="tool">
+        <div class="tool-icon" style="background: #f0fdf4; color: #16a34a;">✓</div>
+        <div>
+          <div class="tool-name">Terminal editor</div>
+          <div class="tool-desc">For moments you need to take over. A modal editor (Helix, Vim, Neovim) keeps you in the terminal.</div>
+        </div>
+      </div>
+      <div class="tool">
+        <div class="tool-icon" style="background: #eff6ff; color: #2563eb;">→</div>
+        <div>
+          <div class="tool-name">Terminal multiplexer</div>
+          <div class="tool-desc">Splits your terminal into panes. Run your assistant in one pane and tests in another. tmux or Ghostty both work.</div>
+        </div>
+      </div>
+      <div class="tool">
+        <div class="tool-icon" style="background: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0;">·</div>
+        <div>
+          <div class="tool-name">File navigator</div>
+          <div class="tool-desc">Navigate the filesystem without leaving the terminal. yazi, ranger, or lf.</div>
+        </div>
+      </div>
+      <div class="tool">
+        <div class="tool-icon" style="background: #f8fafc; color: #94a3b8; border: 1px solid #e2e8f0;">·</div>
+        <div>
+          <div class="tool-name">Shell config</div>
+          <div class="tool-desc">Aliases for your most-typed commands. Don't do this until your other tools are comfortable — aliases before workflow is premature optimization.</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>How to score it</h2>
+    <div class="card">
+      <p>Count the tools that appear in <code style="font-family: 'Fira Code', monospace; font-size: 12px; color: #334155;">tail -200 ~/.zsh_history</code> (or your shell's history file). Installed but unused = 0. Used at least once this period = 1. Score = (used tools / total target tools) × 100.</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code># Check which target tools appear in recent history
+tail -200 ~/.zsh_history | grep -E 'hx|nvim|vim|tmux|yazi|ranger|claude' | sort | uniq -c | sort -rn</code>
+      </div>
+    </div>
+
+    <h2>Getting started</h2>
+    <div class="card">
+      <ol class="step-list">
+        <li>
+          <strong>Pick one tool you don't use yet</strong>
+          Add it to your target list in growth-rules.md with a shell command to detect it.
+        </li>
+        <li>
+          <strong>Use it for one real task this period</strong>
+          Don't try to master it — just get it into your history.
+        </li>
+        <li>
+          <strong>Repeat when it feels natural</strong>
+          After two periods of use, it should feel comfortable. Then add the next tool.
+        </li>
+      </ol>
+    </div>
+
+    <h2>Copyable prompt</h2>
+    <div class="card">
+      <p><strong>Ask Claude to help you set up a new tool:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code>I want to add [tool name] to my daily workflow. I already have [existing tools].
+Help me: (1) install it, (2) configure it minimally to work with my current setup, (3) give me 3 tasks I can use it for this week to build the habit.</code>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
+</body>
+</html>

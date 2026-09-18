@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commit Cadence — Growth Track</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; padding: 40px 24px; line-height: 1.6; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .back { font-size: 13px; color: #64748b; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 28px; }
+    .back:hover { color: #94a3b8; }
+    .hero { background: #ffffff; border-radius: 10px; padding: 24px; margin-bottom: 32px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .hero-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .hero-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .hero-sub { font-size: 14px; color: #475569; margin-bottom: 20px; }
+    .prog-row { display: flex; align-items: center; gap: 12px; }
+    .prog-bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; }
+    .prog-fill { height: 100%; border-radius: 4px; }
+    .prog-pct { font-size: 20px; font-weight: 700; }
+    .prog-target { font-size: 12px; color: #64748b; margin-top: 6px; }
+    h2 { font-size: 14px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; margin: 32px 0 12px; }
+    .card { background: #ffffff; border-radius: 8px; padding: 18px 20px; margin-bottom: 10px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card p { font-size: 14px; color: #475569; }
+    .card p + p { margin-top: 8px; }
+    .card strong { color: #334155; }
+    .why-list { list-style: none; }
+    .why-list li { font-size: 14px; color: #475569; padding: 8px 0; border-bottom: 1px solid #e2e8f0; padding-left: 14px; position: relative; }
+    .why-list li:last-child { border-bottom: none; }
+    .why-list li::before { content: '→'; position: absolute; left: 0; color: #64748b; }
+    .step-list { list-style: none; counter-reset: steps; }
+    .step-list li { counter-increment: steps; font-size: 14px; color: #475569; padding: 10px 0 10px 36px; border-bottom: 1px solid #e2e8f0; position: relative; }
+    .step-list li:last-child { border-bottom: none; }
+    .step-list li::before { content: counter(steps); position: absolute; left: 0; top: 10px; width: 22px; height: 22px; background: #e2e8f0; border-radius: 50%; font-size: 11px; font-weight: 700; color: #475569; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 22px; }
+    .step-list li strong { color: #334155; display: block; margin-bottom: 2px; }
+    .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin-top: 10px; position: relative; }
+    .code-block code { font-family: 'Fira Code', 'Courier New', monospace; font-size: 12px; color: #475569; display: block; white-space: pre-wrap; }
+    .copy-btn { background: #e2e8f0; border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; color: #475569; cursor: pointer; position: absolute; top: 10px; right: 10px; }
+    .copy-btn:hover { background: #cbd5e1; color: #1e293b; }
+    .period-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .period-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; padding: 6px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .period-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+    .period-table tr:last-child td { border-bottom: none; }
+    .delta-up { color: #16a34a; }
+    .highlight-row td { color: #1e293b; }
+    .note { font-size: 12px; color: #64748b; margin-top: 8px; font-style: italic; }
+    .why { font-size: 12px; color: #64748b; font-style: italic; margin-bottom: 10px; }
+    .how-to { font-size: 12px; color: #64748b; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="report.html" class="back">‹ Back to dashboard</a>
+
+    <div class="hero">
+      <div class="hero-label" style="color: #ef4444;">Focus — Commit Cadence</div>
+      <div class="hero-title">Ship more often</div>
+      <div class="hero-sub">Work is getting done but not checkpointed. Each commit is a restore point.</div>
+      <div class="prog-row">
+        <div class="prog-bar">
+          <div class="prog-fill" style="width: 67%; background: #ef4444;"></div>
+        </div>
+        <div class="prog-pct" style="color: #ef4444;">67%</div>
+      </div>
+      <div class="prog-target">1 commit per session · Replace with your own target from growth-rules.md</div>
+    </div>
+
+    <h2>Why it matters</h2>
+    <div class="card">
+      <ul class="why-list">
+        <li>When a session goes sideways, there's no checkpoint to roll back to</li>
+        <li>Without commits, Claude has no memory of what shipped — it can't reference prior decisions</li>
+        <li>Small, frequent commits make reviews easier and bad changes easier to revert</li>
+      </ul>
+    </div>
+
+    <h2>How to fix it</h2>
+    <div class="card">
+      <ol class="step-list">
+        <li>
+          <strong>Trigger: after tests pass</strong>
+          Every time a test suite goes green, stop and commit before moving on. Don't wait for the feature to be complete.
+        </li>
+        <li>
+          <strong>Tell Claude to commit</strong>
+          End any implementation prompt with "commit when tests pass." Claude will do it if you ask.
+        </li>
+        <li>
+          <strong>Build a /commit skill</strong>
+          A skill that stages changes, proposes a conventional commit message referencing the ticket ID from the branch name, and waits for your approval.
+        </li>
+      </ol>
+    </div>
+
+    <h2>Copyable prompts</h2>
+
+    <div class="card">
+      <p><strong>Add to the end of any implementation prompt:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code>When tests pass, commit with a conventional commit message referencing the ticket ID in the branch name. Don't wait for me to ask.</code>
+      </div>
+    </div>
+
+    <div class="card">
+      <p><strong>Scaffold the /commit skill:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <code>Create ~/.claude/commands/commit.md with these instructions:
+When invoked: run git status and git diff, group changes into logical commits, write a Conventional Commits message referencing the ticket ID from the branch name, show the proposed message and wait for approval before running git commit.</code>
+      </div>
+    </div>
+
+    <h2>Period history</h2>
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="period-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Sessions</th>
+            <th>Commits</th>
+            <th>Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Period 1</td>
+            <td>10</td>
+            <td>2</td>
+            <td>0.2/session</td>
+          </tr>
+          <tr>
+            <td>Period 2</td>
+            <td>12</td>
+            <td>5 <span class="delta-up">+3</span></td>
+            <td>0.4/session</td>
+          </tr>
+          <tr class="highlight-row">
+            <td>Period 3</td>
+            <td>14</td>
+            <td>12 <span class="delta-up">+7</span></td>
+            <td>0.9/session</td>
+          </tr>
+          <tr>
+            <td>Target</td>
+            <td>—</td>
+            <td>1+ per session</td>
+            <td>1.0/session</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function copyCode(btn) {
+      const code = btn.closest('.code-block').querySelector('code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
+</body>
+</html>
