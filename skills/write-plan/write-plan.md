@@ -18,9 +18,16 @@ AI-agnostic: any agent that can edit files, run git, and run `gh` can execute th
 
 Do **not** use for one-off bug fixes or already-finished work.
 
+## Tracker comments
+
+If this work came from a **tracker task** (e.g. Asana), follow [`../plan-implement-review/references/tracker-comments.md`](../plan-implement-review/references/tracker-comments.md) — canonical format/rules; do not copy them here.
+
+- Read existing comments **before** writing. If they already point at a plan/PR for this task, reuse it instead of starting over (that overrides “always a new branch” in §0).
+- After the plan PR exists, post **one Plan** comment. No task, no comments.
+
 ## 0. Always start from fresh latest main (non-negotiable)
 
-**Before writing any plan file**, leave the current feature branch and start clean:
+**Before writing any plan file**, leave the current feature branch and start clean. **Exception:** if tracker comments already point at a plan/PR for this task, reuse that head — see Tracker comments above.
 
 1. Note uncommitted work on the current branch — do **not** mix it into the plan branch.
 2. `git fetch origin main` (or project default base, usually `main`).
@@ -92,7 +99,7 @@ If fetch fails, stop and tell the user — do not invent a base.
    - Never open a second PR for the same head branch.
    - Never open a second PR for the same plan file / Asana / topic when one is already open.
    - Prefer **one** PR that can later hold plan + implementation (not plan-only + fix).
-5. Report the PR URL as the final output (and to parent skill state if running inside plan-implement-review).
+5. Report the PR URL as the final output (and to parent skill state if running inside plan-implement-review). If a tracker task originated this work, post the Plan comment (see Tracker comments).
 
 ## Integration with plan-implement-review
 
@@ -108,6 +115,7 @@ If `plan-builder=<profile-id>`, spawn that profile with this file as instruction
 
 ## Anti-patterns
 
+- Starting a new plan when tracker comments already point at a plan/PR for this task
 - Writing a plan while still on a feature branch / stacking on feature commits
 - **`gh pr create` without first checking** `--head` **and** same-topic/plan-filename open PRs
 - Opening a **new** PR when one already exists for the same head branch / same Asana topic / same plan file

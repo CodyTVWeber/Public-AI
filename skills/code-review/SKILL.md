@@ -190,3 +190,10 @@ Treat these as presumptive blockers unless the author can justify them clearly:
 - the PR duplicates an existing helper or puts logic in the wrong layer when there is a clear canonical home
 
 If those conditions are not met, leave explicit, actionable feedback and push for a cleaner decomposition.
+
+## Tracker comments
+
+If this review is for work that came from a **tracker task** (e.g. Asana), follow [`../plan-implement-review/references/tracker-comments.md`](../plan-implement-review/references/tracker-comments.md) — canonical format/rules; do not copy them here.
+
+- Read existing comments **before** reviewing (they are the source of truth for prior attempts).
+- After the verdict, post **one Review rN** comment (PIR round if known, else r1). No task, no comments.

@@ -10,6 +10,8 @@ Works from Grok, Claude Code, Cursor, or any agent that can:
 4. **Resume the same implementer agent** with review feedback (context preserved)
 5. After approve: **system regression** (`npm run test:system:regression` or project PIR gate) before reporting done
 
+When the work came from a **tracker task** (e.g. Asana), post short progress comments on that task. Format and rules live in [references/tracker-comments.md](references/tracker-comments.md); sibling skills link there instead of copying them.
+
 ## “Spawn” means connected background agent
 
 Not a detached `nohup` process. Prefer host tools:
@@ -88,4 +90,5 @@ Optional args:
 |------|---------|
 | `plan-implement-review.md` | Agent instructions (`SKILL.md` symlink) |
 | `references/implementers.md` | Profiles, selection, resume |
+| `references/tracker-comments.md` | Shared tracker-task comment format/rules |
 | `scripts/run-implementer.sh` | CLI **fallback** launch/resume |
