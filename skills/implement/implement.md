@@ -6,7 +6,7 @@ argument-hint: "[plan path or ticket]"
 
 # Implement
 
-Implement work from a **plan file**, Asana task, or explicit user fix list: code, lint/test green, commit, push, and **ensure a PR exists** (create only if none already).
+Implement work from a **plan file**, tracker task (e.g. Asana), or explicit user fix list: code, lint/test green, commit, push, and **ensure a PR exists** (create only if none already).
 
 AI-agnostic: any agent that can edit files, run git, and run `gh` can execute this.
 
@@ -18,12 +18,19 @@ AI-agnostic: any agent that can edit files, run git, and run `gh` can execute th
 
 Do **not** use for pure investigation with no code change, or for plan-only docs (use `/write-plan`).
 
+## Tracker comments
+
+If this work came from a **tracker task** (e.g. Asana), follow [`../plan-implement-review/references/tracker-comments.md`](../plan-implement-review/references/tracker-comments.md) — canonical format/rules; do not copy them here.
+
+- Read existing comments **before** coding. Reuse a plan/PR they point to rather than opening a new one.
+- After this implement round, post **one Implement rN** comment (r1, r2, …). No task, no comments.
+
 ## 0. Inputs (resolve first)
 
 | Input | How to resolve |
 |-------|----------------|
 | Plan path | User path, open PR plan file, or latest `docs/plans/YYYY/MM/*` for the topic |
-| Asana / ticket | Fetch notes; map to plan or Concrete steps |
+| Tracker task (e.g. Asana) | Fetch notes and comments; map to plan or Concrete steps |
 | Feature branch | See §1. If an **open plan/topic PR** exists, **reuse its head branch** (do not rename). Only when creating a fresh branch with no open plan PR: use plan header `**Branch:**` as-is, or `fix/<topic>` / `feat/<topic>`. Do **not** invent a parallel `fix/` branch that orphans a plan PR. |
 | Base | Always **`origin/main`** (or project default base) |
 
@@ -101,6 +108,7 @@ fi
 - [ ] Pushed (after approval when required)
 - [ ] **Exactly one** open PR for this work; URL reported
 - [ ] Manual verification notes if the plan listed them
+- [ ] Tracker comment posted if this work came from a tracker task (see Tracker comments)
 
 ## Integration with plan-implement-review
 
@@ -114,6 +122,7 @@ When invoked as the **implementer** inside `/plan-implement-review`:
 
 ## Anti-patterns
 
+- Ignoring tracker comments / opening a new PR when they already point at one
 - Implementing without reading the plan / inventing extra scope
 - Branching from a dirty feature branch instead of `origin/main` or the existing ticket PR branch
 - Stashing/discarding WIP without asking

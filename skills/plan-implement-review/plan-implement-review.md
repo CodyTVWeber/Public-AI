@@ -101,6 +101,14 @@ If resume fails: re-launch with full plan path + all prior review notes (degrade
 
 Details per profile: `references/implementers.md`.
 
+## Tracker progress comments
+
+When the work came from a **tracker task** (e.g. Asana): [`references/tracker-comments.md`](references/tracker-comments.md) is the canonical format/rules. write-plan, implement, and code-review **reference** that file — do not duplicate it.
+
+- **Before Phase A:** read existing comments; reuse a plan/PR they point to rather than starting over.
+- **Who posts:** write-plan, implement, and code-review each post their own milestone comment. If you run a phase without loading that skill, post for that phase. Never two comments for the same milestone.
+- No task, no comments.
+
 ## Phase A — Plan
 
 Skip if `implement-only` or plan already exists and user says use it.
@@ -161,6 +169,7 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
 - “No product changes outside plan; flag plan gaps instead”
 - Project `AGENTS.md` / migration rules if present
 - “You are the cheap/fast implementer; keep changes minimal and plan-faithful”
+- If work came from a tracker task: read/post comments per `references/tracker-comments.md`
 
 ## Phase C — Review
 
@@ -174,6 +183,8 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
    - **fix required** and rounds exhausted → stop; hand issues + `subagent_id` / `session_id` to user; **skip** Phase E unless user asks
 
 Review is **read-only**. Do not apply code fixes in the review step; the implementer applies them.
+
+If a tracker task originated this work, post one **Review rN** comment per `references/tracker-comments.md` unless the review skill already posted.
 
 ## Phase D — Feed findings to implementer
 

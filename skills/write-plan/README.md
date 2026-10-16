@@ -6,6 +6,8 @@ Used standalone or as **Phase A** of [plan-implement-review](../plan-implement-r
 
 **Always starts from fresh latest `origin/main`** — never writes a plan on top of a feature branch. See §0 in `write-plan.md`.
 
+If the work came from a **tracker task** (e.g. Asana), post one Plan comment — rules in [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).
+
 ## Install
 
 ### Grok

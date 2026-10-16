@@ -4,6 +4,8 @@ AI-agnostic skill: implement from a plan (or ticket), lint/test, commit, push, a
 
 Sibling of [write-plan](../write-plan/). Used alone or as Phase B of [plan-implement-review](../plan-implement-review/).
 
+If the work came from a **tracker task** (e.g. Asana), post one Implement rN comment — rules in [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).
+
 ## Install
 
 ### Grok
@@ -24,7 +26,7 @@ cp /Users/user/code/AI/skills/implement/implement.md ~/.claude/commands/implemen
 
 - `/implement`
 - “Implement the plan at …”
-- “Implement Asana task …”
+- “Implement tracker task …”
 - Automatically as implementer inside `/plan-implement-review`
 
 ## PR rule (same as write-plan)
