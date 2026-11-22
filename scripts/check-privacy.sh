@@ -62,6 +62,13 @@ check "generic internal hostname" '[a-z0-9.-]+\.(internal|corp)\b'
 check "ticket id"            '\b[A-Z]{2,}-[0-9]{2,}\b'
 check "aws account id"       '\b[0-9]{12}\b'
 
+# Structural patterns that fingerprint a person or an environment (no names baked in)
+check "home directory path"  '/(Users|home)/[A-Za-z0-9._-]+/'
+check "email address"        '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'
+check "private ip address"   '\b(10\.[0-9]{1,3}|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]{1,3}\.[0-9]{1,3}\b'
+check "git remote slug"      'git@[a-z0-9.-]+:[A-Za-z0-9._/-]+|https?://[a-z0-9.-]+/[A-Za-z0-9._-]+/[A-Za-z0-9._/-]+\.git\b'
+check "cloud resource arn"   'arn:aws[a-z-]*:[a-z0-9-]*:'
+
 # Version pins — name the technology, not the release
 check "semver pin"           '\b[0-9]+\.[0-9]+\.[0-9]+\b'
 check "docker image tag"     '^[[:space:]]*(image|FROM)[[:space:]]*:?[[:space:]]*[a-z0-9./_-]+:[0-9]'
