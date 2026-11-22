@@ -28,6 +28,11 @@ version pins, and secrets. It catches *named* patterns only — it cannot detect
 behaviour or domain rules paraphrased in prose. It reduces the odds of a bad commit; it does not
 remove the approval requirement above.
 
+## AI auto-merge is off
+
+Agents do not merge pull requests in this repo. A green check, a low-risk diff, and a chat
+message leave that off. Turning it on takes an explicit edit of this section.
+
 ## No business-specific content
 
 Generic technology knowledge is the point of this repo. Anything that fingerprints an employer's

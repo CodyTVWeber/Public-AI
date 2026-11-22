@@ -1,6 +1,6 @@
 ---
 name: review
-description: Read-only review of an implement branch or PR/MR against its plan, then the final regression gate. Checks UI changes have before/after screenshots proving them. Use for "review this", /review, or the review phase of plan-implement-review-watch.
+description: Read-only review of an implement branch or PR/MR against its plan, then the final regression gate. Checks the description proves the change (images, video, curls, queries, Try it steps) per verify-change. Use for "review this", /review, or the review phase of plan-implement-review-watch.
 argument-hint: "[PR/MR number | branch] [plan path]"
 ---
 
@@ -15,21 +15,24 @@ Read-only. Never edit code here; findings go back to the implementer. Host CLI: 
 3. Check the repo's own rules files (contributor/agent guidelines, lint and style configs) against the diff
 4. Styling-only change → snapshot/test diffs must be class-string or structure only
 
-## 2. UI evidence check (blocking)
+## 2. Proof check (blocking)
 
-Diff touches UI (screens, styling, icons, copy, layout, motion)?
+Follow [`verify-change`](../verify-change/verify-change.md). The description is the review.
 
 | Check | Fail when |
 |---|---|
-| Evidence exists | A changed screen/state has no before/after pair (and no stated reason) |
-| It's real | An image is blank, errored, a login wall, or before = after |
-| It proves the change | The changed element isn't visible, or the viewport isn't mobile for a mobile flow |
-| Before is from base | Before already shows the new behaviour (captured from the feature branch) |
-| Attached | The PR/MR description lacks a `## Screenshots` table |
+| Build | No check command, no CI link for this commit, or the run is red |
+| Look of a screen | A changed screen has no before/after pair, the image is blank or a login wall, before matches after, or before was captured on the feature branch |
+| Behavior | A click, type, motion, or sequence has no short video |
+| Backend | No copy-paste curl (and HTTP file when the call has a body or headers), no response snippet, no trace or log |
+| Database | No read-only query and result, or the database isn't named |
+| Deep change | No diagram of the path |
+| Try it | A reviewer cannot re-run the proof from the description in a few minutes |
+| Attached | Proof is missing from the PR/MR description |
 
-- Open every image; judge by eye, not filenames
-- Any fail → `fix required`; missing evidence is a bug-severity finding
-- No UI change → note "no UI change" and skip
+- Open every image and play every video. Judge by eye, not filenames
+- Any fail → `fix required`; missing proof is a bug-severity finding
+- Docs-only with no runtime behavior → Build plus "no behavior change", and skip the media rows
 
 ## 3. Verdict
 

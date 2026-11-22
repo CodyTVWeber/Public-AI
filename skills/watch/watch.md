@@ -25,7 +25,7 @@ Unresolved human threads only: system notes and bot summaries are not threads.
 | New unresolved human thread | Tell the user: author, `file:line`, ask. Fix only with `fix-comments=yes` |
 | Bot thread (security/quality scanners) | Report counts; fix only findings inside this diff |
 | Push rejected / remote force-updated | Never force-push. Backup branch, reset to remote, cherry-pick new commits, recheck, push fast-forward |
-| Evidence changed (new UI work) | Re-upload and refresh the description's Screenshots table |
+| Evidence changed | Re-upload and refresh Build, Proof, and Try it in the description |
 
 ## Cadence and budget
 
