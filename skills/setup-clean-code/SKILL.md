@@ -1,6 +1,6 @@
 ---
 name: setup-clean-code
-description: Set up clean-code and small-MR enforcement in a repo - copy prebuilt rules, scripts and git/Claude hooks, then wire the project's linter. Use when the user says "set up clean code", "enforce small MRs", /setup-clean-code, or starts a new repo that should follow these standards.
+description: Set up clean-code enforcement in a repo, including the comment ban and the small-MR budget. Copy prebuilt rules, scripts and git/Claude hooks, then wire the project's linter. Use when the user says "set up clean code", "ban comments", "enforce small MRs", /setup-clean-code, or starts a new repo that should follow these standards.
 argument-hint: "[target repo path, default: current repo]"
 ---
 
@@ -14,9 +14,10 @@ skill's `assets/`; the installer copies it, you wire the linter.
 | Asset | Lands in the target repo as | Job |
 |---|---|---|
 | `assets/rules/clean-code.md` | `.claude/rules/clean-code.md` | Floor for new and touched code |
+| `assets/rules/ban-comments.md` | `.claude/rules/ban-comments.md` | No new comments in production code |
 | `assets/rules/small-mrs.md` | `.claude/rules/small-mrs.md` | One concern per MR, size budget |
 | `assets/scripts/check-mr-size.sh` | `scripts/clean-code/` | Branch size vs base: warn > 400, block > 800 lines |
-| `assets/scripts/check-clean-code.sh` | `scripts/clean-code/` | Staged files: file growth past the hard cap, empty catch |
+| `assets/scripts/check-clean-code.sh` | `scripts/clean-code/` | Staged files: file growth past the hard cap, empty catch, added comments |
 | `assets/scripts/claude-pre-tool-guard.sh` | `scripts/clean-code/` | Blocks `git push` / PR or MR creation when over the hard limit |
 | `assets/githooks/pre-commit`, `pre-push` | `.githooks/` | Run the two checks above |
 | `assets/lint/*` | merged by hand | Nesting, params, function size in the project's linter |
@@ -42,7 +43,8 @@ skill's `assets/`; the installer copies it, you wire the linter.
    Existing violations will surface: set the new rules to `warn` first, or baseline them, so the
    gate blocks only new debt
 5. **Verify.** In the target repo: run `scripts/clean-code/check-mr-size.sh` (expect 0 or 2);
-   stage a file with an empty `catch {}` and confirm the pre-commit hook blocks it; run the linter
+   stage a file with an empty `catch {}` and a file with a new `// note` and confirm the
+   pre-commit hook blocks both; run the linter
    and confirm the new rules load
 6. **Report** in a few lines: files installed, hooks active, linter wired or not, anything
    skipped. Do not commit for the user unless asked

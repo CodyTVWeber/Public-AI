@@ -5,7 +5,7 @@ Project rules may extend this file; this is the floor.
 
 ## Self-check before every commit (touched files)
 
-1. No new narrating, banner or `// ignore` comments; moved code carries fewer comments than it had
+1. No new comments in production code ([ban-comments.md](ban-comments.md)); moved code carries fewer than it had
 2. File ≤ ~200 lines (hard stop ~400); one responsibility; extract before growing
 3. Function body ≤ ~40 lines of logic
 4. Params: 0-1 ideal, 2 ok, 3 painful, 4+ → options object or split
@@ -21,14 +21,10 @@ Project rules may extend this file; this is the floor.
 
 ## Comments
 
-| | |
-|---|---|
-| Default | None in authored or moved production code |
-| Confusing code | Extract a named helper; the call site is the doc |
-| Unclear name | Rename until the comment is pointless |
-| Banned | Banners, narration, `// ignore`, restating the signature |
-| Empty catch | Never; call a named helper such as `ignoreOptionalFailure(err)` |
-| Allowed (rare, one line) | External quirk, security note, measured tradeoff, lint-disable with a reason |
+Canonical: [ban-comments.md](ban-comments.md). New and moved production code ships with no
+comments. The pre-commit check blocks an added comment. Rename or extract instead.
+
+Empty catch stays forbidden: call a named helper such as `ignoreOptionalFailure(err)`.
 
 ## Never-nester
 
