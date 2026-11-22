@@ -1,7 +1,7 @@
 # AI risk
 
-Generic rules for shipping agent work: how risky a change is, who may merge it, when an agent
-must stop, and which changes may auto-merge.
+Generic rules for shipping agent work: how risky a change is, who may merge it, and when an
+agent must stop. AI auto-merge is off unless the repo, team, or org turns it on in writing.
 
 ## Use as a skill
 
@@ -14,7 +14,7 @@ merging, applying a database, or continuing past the slice it was asked for.
 | --- | --- |
 | `rules/risk-tiers.md` | Low, medium, and high paths. Who may merge. Who may apply the database. |
 | `rules/agent-stops.md` | Who may ask an agent to continue. One slice, then stop. |
-| `rules/automerge.md` | The only band an agent may merge alone, and when a forge auto-merge switch is safe to turn on. |
+| `rules/automerge.md` | AI auto-merge. Off unless the repo, team, or org turns it on in writing. |
 | `rules/shipping.md` | Branch, pull request, local proof, and the things an agent does not do to a live system. |
 
 A pull request takes the highest tier it touches. Prompt rules guide a careful agent. They do not

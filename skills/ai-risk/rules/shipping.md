@@ -1,7 +1,8 @@
 # Shipping
 
 How an agent ships. Who may merge, and who may apply the database: `risk-tiers.md`.
-When the agent stops: `agent-stops.md`. What may merge alone: `automerge.md`.
+When the agent stops: `agent-stops.md`. AI auto-merge defaults to off: `automerge.md`.
+The proof a reviewer re-runs: the `verify-change` skill.
 
 ## What you do
 

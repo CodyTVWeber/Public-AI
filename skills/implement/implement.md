@@ -62,13 +62,11 @@ If this work came from a **tracker task**, read that task’s comments **before 
    - Message format when `docs/rules/git-workflow.md` exists: **`<branch-name>: 1. <change> 2. …`** (numbered list). Otherwise complete-sentence messages.
    - Commit **often** (one checkpoint per significant green step). **Only** implement-related files (and the plan file if consolidating onto this branch).
 5. **Push — less often (often never mid-PIR):** Batch checkpoint commits locally. **Do not push** after every commit. Push only when the user/orchestrator asks, or at a clear end milestone if pre-authorized. Prefer local commits for recovery; remote update is not required to claim “implemented” until push is requested.
-6. **Frontend changes: capture evidence (required).** Any user-visible change (screens, styling, icons, copy, layout, motion). No UI change → say "no UI change" in the report.
-   - Run the real app (use the project's run/launch instructions or skill if one exists), fake or stubbed data only, mobile width (390x844 @2x) unless desktop-only.
-   - **Before and after:** after = branch tip; before = the base branch built from a fresh clone in `/tmp/pir-<topic>/before/` (never the feature branch). Every changed screen/state gets `<screen>-before.png` + `<screen>-after.png`, including sheets, modals, error and signed-in variants the diff touches. Anything animated: also a short video/GIF.
-   - Save to `/tmp/pir-<topic>/evidence/`, never into the repo. Open every file: blank, error, or identical before/after frames = failed capture.
-   - **No `curl`/`wget`** (each call prompts the user): the browser script saves its own files (`page.screenshot`, `recordVideo`); poll ports with `nc -z` or `fetch()` in the script.
-   - Attach: upload with `scripts/upload-evidence.py` (GitLab; `glab api` can't send multipart), then add a `## Screenshots` table (Screen · Before · After) to the PR/MR description. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
-   - List any touched screen without evidence and why. App can't run here → say so in the PR; never skip silently.
+6. **Prove it for the reviewer.** Follow [`verify-change`](../verify-change/verify-change.md). The PR/MR body uses that skill's template: what changed, build, proof, and Try it steps a person can paste.
+   - Look of a screen: before/after images. Behavior (click, type, motion, a sequence): a short video. Backend: curl plus an HTTP file, the response, and a trace or log. Database: a read-only query and its result. A deep change: a diagram of the path.
+   - Before = the base branch built from a fresh clone in `/tmp/pir-<topic>/before/` (never the feature branch). After = branch tip. Save captures to `/tmp/pir-<topic>/evidence/`, never into the repo. Open every file: blank, error, or identical before/after frames = failed capture.
+   - Attach on the PR/MR. GitLab: `scripts/upload-evidence.py`. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
+   - App can't run here → say so in the PR and still leave Try it. Never skip silently. Do not merge. AI auto-merge stays off unless the repo, team, or org has turned it on.
 7. **Remote rewritten under you.** `git push` rejected or `git fetch` shows `forced update` → never force-push. Make a backup branch, `git reset --hard origin/<branch>`, cherry-pick your new commits, recheck, push as fast-forward.
 
 ## 3. PR — ALWAYS check before create (never open a second PR)
@@ -102,7 +100,7 @@ fi
 - Never open a second PR for the same head branch.
 - Never open a second PR for the same Asana/topic/plan file if one open PR already carries that work (push to that branch instead).
 - Prefer **one PR** containing plan doc + implementation when both exist.
-- Body: what/why, plan link or path, test plan checklist from the plan.
+- Body: [`verify-change` template](../verify-change/assets/pr-body.md), plus the plan link or path.
 
 ## 4. Done criteria
 
@@ -110,8 +108,7 @@ fi
 - [ ] Lint/tests green
 - [ ] Pushed (after approval when required)
 - [ ] **Exactly one** open PR for this work; URL reported
-- [ ] Manual verification notes if the plan listed them
-- [ ] Frontend change: before/after screenshots of every changed screen, uploaded and in the PR/MR description
+- [ ] PR/MR description has Build, Proof, and Try it from `verify-change`, including images for look, video for behavior, and curl, log, or query for backend and database
 - [ ] **Tracker comment** if this work came from a task: one **Implement rN** milestone comment after the round (PR link + human action if any). Format in [`tracker-comments.md`](../plan-implement-review/references/tracker-comments.md). Comments only — never otherwise edit the task.
 
 ## Integration with plan-implement-review

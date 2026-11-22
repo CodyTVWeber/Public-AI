@@ -1,12 +1,12 @@
 ---
 name: plan-implement-review-watch
-description: Run the full chain plan → implement → review → watch as four separate skills, with a capped fix loop, UI screenshot evidence, and a final PR/MR watch. Use for "plan implement review watch", /plan-implement-review-watch, or /pirw.
+description: Run the full chain plan → implement → review → watch as four separate skills, with a capped fix loop, verify-change proof in the PR/MR, and a final watch. Use for "plan implement review watch", /plan-implement-review-watch, or /pirw.
 argument-hint: "<task> [phases=plan,implement,review,watch] [ticket=X] [no-plan] [implementer=<cheap model>] [fix-comments=yes] [max-rounds=3]"
 ---
 
 # Plan → Implement → Review → Watch
 
-Orchestrator drives; each phase is its own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with a watch phase and UI evidence.
+Orchestrator drives; each phase is its own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with a watch phase and [`verify-change`](../verify-change/verify-change.md) proof in the PR/MR.
 
 | Phase | Skill | Who runs it |
 |---|---|---|
@@ -38,7 +38,7 @@ Starting mid-chain needs that phase's input: implement needs a plan path, ticket
 2. Vague term in the task → one-line flag: what was said, what it could mean, which you assume
 3. Repo location unknown → search by distinctive text; several clones → ask. Never `git worktree`: new isolated work = a fresh clone under a scratch workspace (`<workspace>/<topic>/<repo>`) when the repo forbids worktrees
 4. State file `/tmp/pir-<topic>/state.json`: topic, plan_path, branches, mr, implementer_id, round, max_rounds, regression_status
-5. Mark UI work early: any screen/style/copy/icon change → evidence is mandatory in B, C and F
+5. Mark proof early: any behavior, screen, backend, or database change → `verify-change` evidence is mandatory in B, C and F
 
 ## A. Plan
 
@@ -46,16 +46,16 @@ Run `write-plan`. `no-plan` → skip; put a 5-line inline checklist (scope, step
 
 ## B. Implement
 
-Spawn a **background sub-agent** if the host supports it (cheap model, same effort for every resume); otherwise run the implement skill yourself in a separate pass. Prompt minimum: repo path, branch, plan path or checklist, "run `implement`", commit often, **do not push**, UI evidence rules, repo rules. Store `implementer_id`. Wait on it; don't poll its transcript.
+Spawn a **background sub-agent** if the host supports it (cheap model, same effort for every resume); otherwise run the implement skill yourself in a separate pass. Prompt minimum: repo path, branch, plan path or checklist, "run `implement`", commit often, **do not push**, `verify-change` proof in the PR/MR, repo rules. Store `implementer_id`. Wait on it; don't poll its transcript.
 
 ## C–E. Review loop
 
 1. Run `review` on the branch
-2. approve → regression gate → push (feature branch only) → draft PR/MR with Screenshots table → F
+2. approve → regression gate → push (feature branch only) → draft PR/MR with the `verify-change` body (Build, Proof, Try it) → F
 3. fix required, `round < max-rounds` → write `review-roundN.md`, resume the same implementer, back to C
 4. rounds spent → stop, hand findings + `implementer_id` to the user
 
-Review owns the UI evidence check: a UI change without proving before/after screenshots is `fix required`.
+Review owns the proof check: a change without the `verify-change` evidence for its kind (image, video, curl, query, diagram) is `fix required`.
 
 ## F. Watch
 

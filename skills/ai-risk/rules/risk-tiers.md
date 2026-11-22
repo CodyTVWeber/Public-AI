@@ -8,9 +8,11 @@ A pull request takes the **highest** tier it touches. A screen plus a migration 
 
 | Tier | Who may merge | What |
 | --- | --- | --- |
-| Low | After the project's checks pass, the agent that opened the pull request. | An existing screen, including what that screen saves. Copy, styling, and design-system text. Docs that are not rules for agents. A version bump of a package already in the manifest, including a package that runs a program on install. A script that is only committed and is not run by the pipeline, the hooks, or the app. |
+| Low | A person. An agent merges it with no approval on that pull request only when `automerge.md` is explicitly on for this repo, team, or org. | An existing screen, including what that screen saves. Copy, styling, and design-system text. Docs that are not rules for agents. A version bump of a package already in the manifest, including a package that runs a program on install. A script that is only committed and is not run by the pipeline, the hooks, or the app. |
 | Medium | A second person approves on the pull request. That person is a maintainer and is not the author. A second agent does not count. A spoken yes does not count. Then that person's agent may merge. The author's agent must leave it. | Any file under the server-function tree, including a delete of a function nothing calls. A new function is medium. Reuse an existing function first. The pull request names the functions it looked at and why they do not fit. |
 | High | Only the owner's agent, and only in a local session with the owner present. A cloud agent may open the pull request and must leave it unmerged, including when the forge login is the owner's. | Schema migrations. Workflow files. Git hooks. Scripts that apply, back up, restore, or schedule the hosted database. An edit to the scripts section of the package manifest. Adding a package or removing a package. A script the pipeline executes. Files that govern agents (rules, agent config, code owners). Auth, row-level security, cron, secret storage, and any config that can point a non-production host at production. |
+
+An agent merging after a person approved that pull request is that person's merge. Auto-merge is an agent or the forge merging with no person approving that pull request. Auto-merge defaults to off. `automerge.md`.
 
 - Schema migrations: do not add a test file here. The migrator applies every file in that folder.
 - Workflows: the forge runs a workflow file in the workflows directory, not in a subdirectory. Leave the CI workflow where it is.
