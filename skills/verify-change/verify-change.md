@@ -13,8 +13,37 @@ description proves the behavior.
 Fill `assets/pr-body.md`. Every sentence in **What changed** has a row in **Proof**. Every Proof
 row has a **Try it** step that is one paste or one click.
 
-AI auto-merge is a separate switch and defaults to off. Proof in the description does not turn
-it on. `skills/ai-risk/rules/automerge.md`.
+Who may merge is a separate decision: the repo's merge policy (`skills/ai-risk/rules/merge-policy.md`).
+Proof in the description does not change it. Under `conservative` and `balanced`, a person
+approves before anything but a low-tier change merges.
+
+## Make the review a piece of cake
+
+A reviewer should be able to say yes or no after reading the description and one pass through the
+diff. The author does the orienting. Before asking for review:
+
+1. **Lead with the answer.** What changed and why, in two sentences. Link the task for the full
+   story; do not retell it
+2. **Say where to start and where to look hard.** Fill **Review guide**: the one file that
+   explains the change, the hunks that deserve care (`file:line` and why), and what to skim
+   (generated, mechanical, moved). A reviewer should never have to guess where the risk is
+3. **Say what is not here.** Out-of-scope items, follow-up MRs, and where they go, so nobody
+   reviews for something that is deliberately absent
+4. **Review your own diff first.** Read it as the reviewer, then fix or explain. Leave an inline
+   comment on every hunk whose reason is not obvious from the code ("moved from X, no logic
+   change", "this guard handles the empty case")
+5. **Commits tell the story.** One logical change per commit, message says why. Mechanical
+   moves and renames get their own commit so the reviewer can skim them
+6. **Keep it small.** Over the budget in `small-mrs.md`: split first. A stack is ordered
+   safest-first so the risky slice is the last and the smallest thing to read
+7. **Name the risk and the exit.** Tier, who approves under the merge policy, and a rollback line.
+   High tier without a rollback plan is not ready
+8. **Make the proof runnable.** A reviewer who follows **Try it** and sees the stated result is done
+   with behavior and can spend the rest of their time on design
+9. **Ask a real question.** Under **Decisions to check**, put the one or two judgment calls you
+   want a second opinion on. Reviewers engage more with a question than with a wall of code
+10. **Keep the description short.** About 25 lines before the evidence. Put long output in
+    `<details>` blocks. No narration of the diff: the diff shows that
 
 ## Build
 
@@ -70,10 +99,13 @@ not have to invent setup, find a port, or guess a payload.
 - A still image standing in for a behavior
 - A curl, query, or script the reviewer cannot run as written
 - A deep change with no diagram of the path
+- No **Review guide**: no start file, no look-hard hunks, or no out-of-scope line
+- No tier, no merge policy quoted, or a high-tier change with no rollback line
 - Proof that shows a failure. Fix the product and capture again.
 
 ## Reviewing
 
-Read **What changed**, then **Proof**, then run **Try it**. Open the images and play the video.
-When Try it matches the claim, the behavior is shown. Then read the diff for how it is built.
-Missing proof is a fix, not a nit.
+Read **What changed**, **Risk** and **Review guide**, then **Proof**, then run **Try it**. Open
+the images and play the video. When Try it matches the claim, the behavior is shown. Then read the
+diff in the order the guide gives, spending your time on the "look hard" hunks and skimming the
+rest. Missing proof or a missing guide is a fix, not a nit.

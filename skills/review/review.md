@@ -28,6 +28,7 @@ Follow [`verify-change`](../verify-change/verify-change.md). The description is 
 | Database | No read-only query and result, or the database isn't named |
 | Deep change | No diagram of the path |
 | Try it | A reviewer cannot re-run the proof from the description in a few minutes |
+| Review guide | The description has no start file, no look-hard hunks, no out-of-scope line, no tier with the merge policy quoted, or (high tier) no rollback line |
 | Attached | Proof is missing from the PR/MR description |
 
 - Open every image and play every video. Judge by eye, not filenames

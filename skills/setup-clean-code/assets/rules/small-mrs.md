@@ -29,6 +29,9 @@ Thresholds are env-tunable: `MR_SIZE_SOFT` (warn), `MR_SIZE_HARD` (block).
 - Hide unfinished work behind a flag instead of holding a long-lived branch
 - Open a draft early; a large unfinished branch is the signal to cut the next slice now
 - Tests and the code they cover ship together; keep them in the same MR even if it grows slightly
+- One logical change per commit, with a message that says why, so reviewers can go commit by
+  commit. Moves and renames get their own commit
+- Review your own diff before asking: comment inline on any hunk whose reason is not obvious
 
 ## Order a stack by risk: safest first, riskiest last
 

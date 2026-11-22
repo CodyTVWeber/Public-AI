@@ -66,7 +66,7 @@ If this work came from a **tracker task**, read that task’s comments **before 
    - Look of a screen: before/after images. Behavior (click, type, motion, a sequence): a short video. Backend: curl plus an HTTP file, the response, and a trace or log. Database: a read-only query and its result. A deep change: a diagram of the path.
    - Before = the base branch built from a fresh clone in `/tmp/pir-<topic>/before/` (never the feature branch). After = branch tip. Save captures to `/tmp/pir-<topic>/evidence/`, never into the repo. Open every file: blank, error, or identical before/after frames = failed capture.
    - Attach on the PR/MR. GitLab: `scripts/upload-evidence.py`. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
-   - App can't run here → say so in the PR and still leave Try it. Never skip silently. Do not merge. AI auto-merge stays off unless the repo, team, or org has turned it on.
+   - App can't run here → say so in the PR and still leave Try it. Never skip silently. Do not merge unless the repo's merge policy (`ai-risk`) lets an agent merge this tier. Fill the PR body's Risk and Review guide sections.
 7. **Remote rewritten under you.** `git push` rejected or `git fetch` shows `forced update` → never force-push. Make a backup branch, `git reset --hard origin/<branch>`, cherry-pick your new commits, recheck, push as fast-forward.
 
 ## 3. PR — ALWAYS check before create (never open a second PR)

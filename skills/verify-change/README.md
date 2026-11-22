@@ -21,5 +21,6 @@ or to open the pull request. The description template is `assets/pr-body.md`.
 
 **Try it** is a numbered list the reviewer pastes or clicks. Each step says what they should see.
 
-AI auto-merge stays off unless the repo, team, or org turns it on. Proof in the description is
-not that switch.
+The **Review guide** tells the reviewer where to start, where to look hard, what to skim and what
+is deliberately missing. Who may merge is the repo's merge policy (`ai-risk`); proof in the
+description does not change it.
