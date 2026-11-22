@@ -22,7 +22,7 @@ this repo".
 
 | Gate | When | Blocks on |
 |---|---|---|
-| `pre-commit` | each commit | A large file that grows past the hard cap; empty catch blocks |
+| `pre-commit` | each commit | A large file that grows past the hard cap; empty catch blocks; a new comment in production code |
 | `pre-push` | each push | Branch over the hard MR size (default 800 changed lines) |
 | Claude Code guard | agent runs push or MR/PR create | Same size check, exit 2 to the agent |
 | Linter snippets | lint step | Nesting, params, function size, parameter mutation |
@@ -35,7 +35,7 @@ Env knobs: `MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `MR_BASE`; 
 ```
 SKILL.md        agent instructions
 scripts/        install.sh
-assets/rules    clean-code.md, small-mrs.md
+assets/rules    clean-code.md, ban-comments.md, small-mrs.md
 assets/scripts  check-mr-size.sh, check-clean-code.sh, claude-pre-tool-guard.sh
 assets/githooks pre-commit, pre-push
 assets/lint     eslint, detekt, ruff snippets
