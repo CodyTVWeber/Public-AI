@@ -30,6 +30,31 @@ Thresholds are env-tunable: `MR_SIZE_SOFT` (warn), `MR_SIZE_HARD` (block).
 - Open a draft early; a large unfinished branch is the signal to cut the next slice now
 - Tests and the code they cover ship together; keep them in the same MR even if it grows slightly
 
+## Order a stack by risk: safest first, riskiest last
+
+A stack merges bottom to top, so put the work most likely to go wrong at the end. If something
+fails in review, in CI, or in production, everything below it has already landed and proven
+itself, and only the last piece is blocked or reverted.
+
+| Position | What goes there | Typical examples |
+|---|---|---|
+| Bottom (merge first) | Reversible, mechanical, behavior-neutral | Tests, docs, renames, formatting, pure refactors, new unused code, dependency bumps with no API change |
+| Middle | Behavior added but inert or guarded | Code behind a flag that is off, additive schema changes, new endpoints with no callers |
+| Top (merge last) | Hard to undo or user-visible | Flag flips and cutovers, behavior changes, auth, payments or data handling, destructive migrations, deleting the old path, infrastructure and deploy config |
+
+- **Expand, migrate, contract:** add the new path first, move callers next, remove the old path
+  last. The destructive step is always the final MR
+- **Activation is its own MR:** keep the switch (flag default, route, config) separate from the
+  code it turns on, so the riskiest moment is one small, revertable diff
+- **Dependencies fight the order:** if lower MRs need a risky change, cut that change as thin as
+  possible, land it behind an interface or flag, and keep the rest of the work above or beside it
+  rather than letting a large risky MR sit at the bottom
+- **Label each MR** in the stack table with its risk (low / medium / high) and how to revert it
+- **Do not mix tiers:** a refactor that rides along in a high-risk MR hides in the risk; move it
+  down the stack
+- **Revert plan:** reverting the top MR must leave the lower ones working; check that before
+  merging the top one
+
 ## Before opening an MR
 
 1. Run `scripts/clean-code/check-mr-size.sh`
