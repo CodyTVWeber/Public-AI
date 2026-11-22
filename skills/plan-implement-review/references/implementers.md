@@ -86,7 +86,7 @@ grok models 2>/dev/null | head -20
 
 If the **project allows** git worktrees and the CLI supports them, optional isolation is fine.
 
-If the project **forbids** worktrees (e.g. Jojo’s `AGENTS.md`), **do not** pass `--worktree`. Implement on the plan/feat branch in the main checkout; orchestrator must not hard-reset that branch mid-run.
+If the project **forbids** worktrees (e.g. stated in the repo's `AGENTS.md`), **do not** pass `--worktree`. Implement on the plan/feat branch in the main checkout; orchestrator must not hard-reset that branch mid-run.
 
 ## Permissions
 

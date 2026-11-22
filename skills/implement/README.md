@@ -9,14 +9,14 @@ Sibling of [write-plan](../write-plan/). Used alone or as Phase B of [plan-imple
 ### Grok
 
 ```bash
-ln -sfn /Users/user/code/AI/skills/implement ~/.grok/skills/implement
+ln -sfn <path-to-this-repo>/skills/implement ~/.grok/skills/implement
 # SKILL.md → implement.md inside that dir
 ```
 
 ### Claude Code
 
 ```bash
-cp /Users/user/code/AI/skills/implement/implement.md ~/.claude/commands/implement.md
+cp <path-to-this-repo>/skills/implement/implement.md ~/.claude/commands/implement.md
 # or symlink into a project .claude/skills/implement/SKILL.md
 ```
 
@@ -30,3 +30,7 @@ cp /Users/user/code/AI/skills/implement/implement.md ~/.claude/commands/implemen
 ## PR rule (same as write-plan)
 
 Create a PR **only if** there is not already an open PR for this head branch / same ticket. Prefer **one PR** for plan + code.
+
+## Tracker comments
+
+When the work came from a tracker task, post one short **Implement rN** progress comment per round. Format: [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).

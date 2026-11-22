@@ -29,6 +29,8 @@ Do **not** use for pure investigation with no code change, or for plan-only docs
 
 If the plan is missing or steps are ambiguous, **stop** and ask — do not invent scope.
 
+If this work came from a **tracker task**, read that task’s comments **before starting**. Reuse any plan/PR they already point to. Comment format: [`../plan-implement-review/references/tracker-comments.md`](../plan-implement-review/references/tracker-comments.md).
+
 ## 1. Git start (non-negotiable)
 
 1. **Dirty tree:** If `git status` shows uncommitted work (staged/unstaged/untracked that is not ignorable dirt), **stop and ask** the user how to handle WIP before `checkout` / `pull`. Do **not** stash, discard, or mix WIP into the implement branch without approval.
@@ -60,6 +62,14 @@ If the plan is missing or steps are ambiguous, **stop** and ask — do not inven
    - Message format when `docs/rules/git-workflow.md` exists: **`<branch-name>: 1. <change> 2. …`** (numbered list). Otherwise complete-sentence messages.
    - Commit **often** (one checkpoint per significant green step). **Only** implement-related files (and the plan file if consolidating onto this branch).
 5. **Push — less often (often never mid-PIR):** Batch checkpoint commits locally. **Do not push** after every commit. Push only when the user/orchestrator asks, or at a clear end milestone if pre-authorized. Prefer local commits for recovery; remote update is not required to claim “implemented” until push is requested.
+6. **Frontend changes: capture evidence (required).** Any user-visible change (screens, styling, icons, copy, layout, motion). No UI change → say "no UI change" in the report.
+   - Run the real app (use the project's run/launch instructions or skill if one exists), fake or stubbed data only, mobile width (390x844 @2x) unless desktop-only.
+   - **Before and after:** after = branch tip; before = the base branch built from a fresh clone in `/tmp/pir-<topic>/before/` (never the feature branch). Every changed screen/state gets `<screen>-before.png` + `<screen>-after.png`, including sheets, modals, error and signed-in variants the diff touches. Anything animated: also a short video/GIF.
+   - Save to `/tmp/pir-<topic>/evidence/`, never into the repo. Open every file: blank, error, or identical before/after frames = failed capture.
+   - **No `curl`/`wget`** (each call prompts the user): the browser script saves its own files (`page.screenshot`, `recordVideo`); poll ports with `nc -z` or `fetch()` in the script.
+   - Attach: upload with `scripts/upload-evidence.py` (GitLab; `glab api` can't send multipart), then add a `## Screenshots` table (Screen · Before · After) to the PR/MR description. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
+   - List any touched screen without evidence and why. App can't run here → say so in the PR; never skip silently.
+7. **Remote rewritten under you.** `git push` rejected or `git fetch` shows `forced update` → never force-push. Make a backup branch, `git reset --hard origin/<branch>`, cherry-pick your new commits, recheck, push as fast-forward.
 
 ## 3. PR — ALWAYS check before create (never open a second PR)
 
@@ -101,13 +111,15 @@ fi
 - [ ] Pushed (after approval when required)
 - [ ] **Exactly one** open PR for this work; URL reported
 - [ ] Manual verification notes if the plan listed them
+- [ ] Frontend change: before/after screenshots of every changed screen, uploaded and in the PR/MR description
+- [ ] **Tracker comment** if this work came from a task: one **Implement rN** milestone comment after the round (PR link + human action if any). Format in [`tracker-comments.md`](../plan-implement-review/references/tracker-comments.md). Comments only — never otherwise edit the task.
 
 ## Integration with plan-implement-review
 
 When invoked as the **implementer** inside `/plan-implement-review`:
 
 1. Read plan path + branch from `/tmp/pir-<topic>/state.json` or the orchestrator prompt.
-2. Run this skill fully (git start → implement → ensure PR).
+2. Run this skill fully (git start → implement → ensure PR → tracker comment if the work came from a task).
 3. **PIR pre-authorization:** the parent `/plan-implement-review` run typically authorizes feature-branch commit/push/PR for the implementer for that session — still never force-push, never remote DB, never second PR for same topic.
 4. Write/update `state.json`: `feat_branch`, `implement_pr`, `session_id` if applicable.
 5. Do not start a new plan PR; attach to existing plan branch/PR when present.
@@ -123,3 +135,4 @@ When invoked as the **implementer** inside `/plan-implement-review`:
 - Silent commit/push/PR when project rules require approval and no session pre-auth
 - Disabling tests/lint to get green
 - Force-push / remote DB / migrations edits against project red lines without explicit approval
+- Skipping tracker comments when the work came from a task, posting per command, or editing the task besides a comment

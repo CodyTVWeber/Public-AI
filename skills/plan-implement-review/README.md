@@ -10,6 +10,8 @@ Works from Grok, Claude Code, Cursor, or any agent that can:
 4. **Resume the same implementer agent** with review feedback (context preserved)
 5. After approve: **system regression** (`npm run test:system:regression` or project PIR gate) before reporting done
 
+When the work came from a **tracker task**, post one short progress comment per plan / implement-round / review milestone. Canonical format: [references/tracker-comments.md](references/tracker-comments.md). Sibling [write-plan](../write-plan/), [implement](../implement/), and [code-review](../code-review/) reference that file.
+
 ## “Spawn” means connected background agent
 
 Not a detached `nohup` process. Prefer host tools:
@@ -52,7 +54,7 @@ See [references/implementers.md](references/implementers.md).
 ### Grok
 
 ```bash
-ln -sfn /Users/user/code/AI/skills/plan-implement-review ~/.grok/skills/plan-implement-review
+ln -sfn <path-to-this-repo>/skills/plan-implement-review ~/.grok/skills/plan-implement-review
 ln -sfn plan-implement-review.md ~/.grok/skills/plan-implement-review/SKILL.md
 chmod +x ~/.grok/skills/plan-implement-review/scripts/*.sh
 ```
@@ -60,12 +62,12 @@ chmod +x ~/.grok/skills/plan-implement-review/scripts/*.sh
 ### Claude Code
 
 ```bash
-cp /Users/user/code/AI/skills/plan-implement-review/plan-implement-review.md \
+cp <path-to-this-repo>/skills/plan-implement-review/plan-implement-review.md \
   ~/.claude/commands/plan-implement-review.md
 mkdir -p ~/.claude/skills/plan-implement-review
-cp -R /Users/user/code/AI/skills/plan-implement-review/scripts \
+cp -R <path-to-this-repo>/skills/plan-implement-review/scripts \
   ~/.claude/skills/plan-implement-review/
-cp -R /Users/user/code/AI/skills/plan-implement-review/references \
+cp -R <path-to-this-repo>/skills/plan-implement-review/references \
   ~/.claude/skills/plan-implement-review/
 ```
 
@@ -88,4 +90,5 @@ Optional args:
 |------|---------|
 | `plan-implement-review.md` | Agent instructions (`SKILL.md` symlink) |
 | `references/implementers.md` | Profiles, selection, resume |
+| `references/tracker-comments.md` | Shared tracker progress-comment format (Plan / Implement rN / Review rN) |
 | `scripts/run-implementer.sh` | CLI **fallback** launch/resume |

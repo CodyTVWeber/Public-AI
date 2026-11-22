@@ -6,6 +6,8 @@ argument-hint: "[ticket or task] [optional: plan-builder=, implementer=, max-rou
 
 # Plan → Implement → Review Loop (AI-agnostic)
 
+With a final PR/MR watch and UI screenshot evidence, use [plan-implement-review-watch](../plan-implement-review-watch/).
+
 Run a capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression**. Max **3** implement attempts (each followed by review). Stop early on approve, then **always** run the final regression gate before reporting done.
 
 This skill is **provider-agnostic**. Prefer **connected background agents** over detached shell processes.
@@ -101,6 +103,17 @@ If resume fails: re-launch with full plan path + all prior review notes (degrade
 
 Details per profile: `references/implementers.md`.
 
+## Tracker comments (when work came from a task)
+
+Canonical rules: [`references/tracker-comments.md`](references/tracker-comments.md). Sibling **write-plan**, **implement**, and **code-review** reference that file — do not fork a second format.
+
+1. **Before Phase A:** read the task’s comments. Reuse any plan/PR they already point to.
+2. After Phase A succeeds: **Plan** milestone comment (write-plan posts this; orchestrator only if it did not).
+3. After each Phase B round: **Implement rN** comment (implementer posts this; orchestrator only if it did not).
+4. After each Phase C: **Review rN** comment.
+
+No task, no comments. Comments only — never otherwise edit the tracker task.
+
 ## Phase A — Plan
 
 Skip if `implement-only` or plan already exists and user says use it.
@@ -111,7 +124,8 @@ Skip if `implement-only` or plan already exists and user says use it.
 1. If `plan-builder=self` (default): orchestrator runs **write-plan** fully.
 2. If `plan-builder=<profile-id>`: spawn that profile as a **background agent** with `write-plan.md` + user task; wait for draft plan PR URL.
 3. After success, record in `state.json`: `plan_path`, `plan_branch`, `plan_pr`, `topic`.
-4. Respect project red lines (migrations immutable, no force-push through conflicts, approval before risky deploys).
+4. Ensure the **Plan** tracker comment exists if this work came from a task (`references/tracker-comments.md`; skip if write-plan already posted it).
+5. Respect project red lines (migrations immutable, no force-push through conflicts, approval before risky deploys).
 
 ### Research ownership — reasoning-heavy work belongs to the planner, not the orchestrator
 
@@ -141,6 +155,7 @@ When a user assigns explicit model tiers to roles (e.g. `plan-builder=opus`, che
 5. **Rounds 2–3:** `spawn_subagent` with `resume_from: <subagent_id>` + review feedback file contents; same model/effort.
 6. On failure: surface agent output; do not pretend green.
 7. Consolidate plan-only vs implement PR per **implement** skill §1.
+8. After the round finishes: ensure the **Implement rN** tracker comment exists if this work came from a task (skip if the implementer already posted it).
 
 ### Fallback only: detached CLI
 
@@ -161,6 +176,7 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
 - “No product changes outside plan; flag plan gaps instead”
 - Project `AGENTS.md` / migration rules if present
 - “You are the cheap/fast implementer; keep changes minimal and plan-faithful”
+- If work came from a tracker task: one **Implement rN** comment per sibling `plan-implement-review/references/tracker-comments.md` — comments only, never edit the task
 
 ## Phase C — Review
 
@@ -174,6 +190,8 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
    - **fix required** and rounds exhausted → stop; hand issues + `subagent_id` / `session_id` to user; **skip** Phase E unless user asks
 
 Review is **read-only**. Do not apply code fixes in the review step; the implementer applies them.
+
+After the verdict: **Review rN** tracker comment if this work came from a task (`references/tracker-comments.md`).
 
 ## Phase D — Feed findings to implementer
 
