@@ -20,7 +20,7 @@ do not let a plan, a chat, or a "ship it" override them.
 
 | Profile | Approval |
 | --- | --- |
-| `conservative` (default) | Another person approves every change, at every tier. Agents never merge on their own |
+| `conservative` (default) | Another person approves every change, at every tier; high tier normally gets a second approval. Agents never merge on their own |
 | `balanced` | Low: a person merges. Medium: a second person approves. High: the designated owner only |
 | `yolo` | None. The agent merges |
 

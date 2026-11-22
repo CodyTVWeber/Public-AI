@@ -3,7 +3,7 @@
 Merge policy: conservative
 
 This line decides who may merge an agent's pull request. Options: `conservative` (every change
-needs another person's approval), `balanced` (approval scales with the change's risk tier),
+needs another person's approval; high tier normally gets two), `balanced` (approval scales with the change's risk tier),
 `yolo` (the agent merges everything). Definitions and the per-tier rules: `merge-policy.md`.
 
 `conservative` is the default, and a missing file means the same thing. Changing this line is its

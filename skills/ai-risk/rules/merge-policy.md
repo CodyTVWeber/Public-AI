@@ -46,9 +46,12 @@ A pull request takes the highest tier it touches (`risk-tiers.md`).
 
 | Tier | Needed before merge |
 | --- | --- |
-| Low | One approval from a maintainer |
-| Medium | One approval from a maintainer who owns the touched area |
-| High | Two approvals, one from the designated owner, plus a written rollback note |
+| Low | One approval |
+| Medium | One approval |
+| High | One approval is the floor. A second approval is the norm: ask for two unless the change is trivially reversible. A written rollback note is required |
+
+A stricter organization can make the second high-tier approval mandatory, or name the designated
+owner as one of the two, in its own copy of this file.
 
 - Agents open the pull request and stop. After the approval, a person merges, or the approver's
   agent merges at the approver's request

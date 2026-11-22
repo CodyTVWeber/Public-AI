@@ -20,7 +20,7 @@ merging, applying changes to a live data store, or continuing past the slice it 
 
 | Profile | Approval |
 | --- | --- |
-| `conservative` (default) | Another person approves every change, at every tier |
+| `conservative` (default) | Another person approves every change, at every tier; high tier normally gets a second approval |
 | `balanced` | Low: a person merges. Medium: a second person approves. High: the designated owner only |
 | `yolo` | None. The agent merges |
 
