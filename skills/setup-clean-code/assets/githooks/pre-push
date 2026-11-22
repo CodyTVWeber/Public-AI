@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Small-MR gate before push. Installed via core.hooksPath by setup-clean-code.
+root="$(git rev-parse --show-toplevel)"
+"$root/scripts/clean-code/check-mr-size.sh"
+rc=$?
+[ "$rc" -eq 1 ] && exit 1
+exit 0

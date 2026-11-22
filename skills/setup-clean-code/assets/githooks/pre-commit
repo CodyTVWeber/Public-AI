@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Clean-code gate on staged files. Installed via core.hooksPath by setup-clean-code.
+root="$(git rev-parse --show-toplevel)"
+exec "$root/scripts/clean-code/check-clean-code.sh"
