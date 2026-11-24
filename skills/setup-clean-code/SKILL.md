@@ -16,6 +16,7 @@ skill's `assets/`; the installer copies it, you wire the linter.
 | `assets/rules/clean-code.md` | `.claude/rules/clean-code.md` | Floor for new and touched code |
 | `assets/rules/ban-comments.md` | `.claude/rules/ban-comments.md` | No new comments in production code |
 | `assets/rules/small-mrs.md` | `.claude/rules/small-mrs.md` | One concern per MR, size budget |
+| `assets/rules/research-latest-main.md` | `.claude/rules/research-latest-main.md` | Research reads the latest default branch, not a stale checkout |
 | `assets/scripts/check-mr-size.sh` | `scripts/clean-code/` | Branch size vs base: warn > 400, block > 800 lines |
 | `assets/scripts/check-clean-code.sh` | `scripts/clean-code/` | Staged files: file growth past the hard cap, empty catch, added comments |
 | `assets/scripts/claude-pre-tool-guard.sh` | `scripts/clean-code/` | Blocks `git push` / PR or MR creation when over the hard limit |

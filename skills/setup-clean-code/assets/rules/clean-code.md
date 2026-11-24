@@ -57,6 +57,9 @@ live: rewrite it in place as decisions change.
 
 - Assert what happens; no assertion for a scenario the code cannot produce (absence checks are
   fine when they guard a real risk, e.g. leaked secrets)
+- No test for a case that does not exist and never will (removed feature, retired branch,
+  impossible state): it always passes, so it pins nothing. Removing a feature deletes its tests; do
+  not add a "now renders nothing / returns null" test for the removed case
 - Consolidate: extend an existing test's setup before adding a new test
 - Short names that still state the scenario; group by behavior
 - Whole-object assertions over field-by-field

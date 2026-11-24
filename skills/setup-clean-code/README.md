@@ -35,7 +35,7 @@ Env knobs: `MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `MR_BASE`; 
 ```
 SKILL.md        agent instructions
 scripts/        install.sh
-assets/rules    clean-code.md, ban-comments.md, small-mrs.md
+assets/rules    clean-code.md, ban-comments.md, small-mrs.md, research-latest-main.md
 assets/scripts  check-mr-size.sh, check-clean-code.sh, claude-pre-tool-guard.sh
 assets/githooks pre-commit, pre-push
 assets/lint     eslint, detekt, ruff snippets
