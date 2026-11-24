@@ -1,15 +1,84 @@
 #!/usr/bin/env bash
-# Installs the privacy pre-commit hook. Run once per clone.
 set -euo pipefail
 
-cd "$(git rev-parse --show-toplevel)"
+usage() {
+  cat <<'EOF'
+Usage: scripts/install-hooks.sh [-h|--help]
 
-mkdir -p .git/hooks
-cat > .git/hooks/pre-commit <<'HOOK'
+Installs git hooks (once per clone):
+  pre-commit   scripts/check-privacy.sh            (staged content and file names), then
+               scripts/clean-code/check-clean-code.sh when present, else
+               skills/setup-repo/assets/scripts/check-clean-code.sh (the canonical copy; it also
+               runs the code-quality analyzer in --staged mode)
+  commit-msg   scripts/check-privacy.sh --message  (the commit message)
+  pre-push     scripts/check-privacy.sh --range auto (added lines, names, messages and binaries of the
+               commits being pushed; blocks on findings), then scripts/clean-code/check-mr-size.sh when
+               present, else skills/setup-repo/assets/scripts/check-mr-size.sh (blocks on exit 1)
+When <git-dir>/info/privacy-patterns exists, each hook sets PRIVACY_REQUIRE_PATTERNS=1 so deleting it blocks.
+Warns when core.hooksPath is set: hooks install into that directory instead of .git/hooks, and every
+repo sharing the path runs them.
+A pre-existing hook that this script did not write (and that is not the legacy one-line privacy hook) is saved once as <name>.bak and still runs
+after the privacy check. If <name>.bak already exists too, nothing is overwritten (exit 3).
+Re-running is safe. Hooks are a backstop; the approval gate in AGENTS.md still applies.
+Exit: 0 installed, 2 usage, 3 precondition failed
+EOF
+}
+
+case "${1:-}" in
+  -h|--help) usage; exit 0 ;;
+  "") ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "install-hooks: not a git repo" >&2; exit 3; }
+cd "$root"
+[ -f scripts/check-privacy.sh ] || { echo "install-hooks: scripts/check-privacy.sh missing" >&2; exit 3; }
+hooks_dir="$(git rev-parse --git-path hooks)"
+mkdir -p "$hooks_dir"
+hooks_path_cfg="$(git config core.hooksPath || true)"
+[ -z "$hooks_path_cfg" ] || echo "install-hooks: warning: core.hooksPath is set to $hooks_path_cfg; hooks go there, not to .git/hooks, and run for every repo sharing that path" >&2
+require=""
+[ ! -f "$(git rev-parse --git-path info/privacy-patterns)" ] || require="export PRIVACY_REQUIRE_PATTERNS=1"
+
+MARK='# managed-by: scripts/install-hooks.sh'
+
+install_hook() {
+  local name="$1" body="$2" path="$hooks_dir/$1"
+  if [ -e "$path" ] && ! grep -Fq "$MARK" "$path" && ! grep -Fq 'scripts/check-privacy.sh' "$path"; then
+    if [ -e "$path.bak" ]; then
+      echo "install-hooks: foreign $name hook exists and $name.bak is taken; move one aside" >&2
+      exit 3
+    fi
+    cp -p "$path" "$path.bak"
+    echo "backed up existing $name hook to $path.bak (still runs after the checks)"
+  fi
+  cat > "$path" <<HOOK
 #!/usr/bin/env bash
-exec "$(git rev-parse --show-toplevel)/scripts/check-privacy.sh"
+$MARK
+root="\$(git rev-parse --show-toplevel)"
+$require
+$body
+[ -x "\$0.bak" ] && exec "\$0.bak" "\$@"
+exit 0
 HOOK
+  chmod +x "$path"
+  echo "installed $path"
+}
 
-chmod +x .git/hooks/pre-commit scripts/check-privacy.sh
+PRE_COMMIT_BODY='"$root/scripts/check-privacy.sh" || exit $?
+clean_code="$root/scripts/clean-code/check-clean-code.sh"
+[ -x "$clean_code" ] || clean_code="$root/skills/setup-repo/assets/scripts/check-clean-code.sh"
+[ -x "$clean_code" ] && { "$clean_code" || exit $?; }'
+COMMIT_MSG_BODY='"$root/scripts/check-privacy.sh" --message "$1" || exit $?'
+PRE_PUSH_BODY='"$root/scripts/check-privacy.sh" --range auto || exit $?
+size_check="$root/scripts/clean-code/check-mr-size.sh"
+[ -x "$size_check" ] || size_check="$root/skills/setup-repo/assets/scripts/check-mr-size.sh"
+if [ -x "$size_check" ]; then
+  "$size_check"
+  [ $? -eq 1 ] && exit 1
+fi'
 
-echo "Installed .git/hooks/pre-commit -> scripts/check-privacy.sh"
+chmod +x scripts/check-privacy.sh
+install_hook pre-commit "$PRE_COMMIT_BODY"
+install_hook commit-msg "$COMMIT_MSG_BODY"
+install_hook pre-push "$PRE_PUSH_BODY"

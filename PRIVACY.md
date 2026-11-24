@@ -27,13 +27,37 @@ The approval gate above is the rule. This hook only lowers the odds of a mistake
 scripts/install-hooks.sh    # once per clone
 ```
 
-`scripts/check-privacy.sh` scans staged additions and fails the commit on anything in the table
-below. It runs automatically as `pre-commit`, and can be run by hand against the staging area.
+`scripts/install-hooks.sh` installs three hooks, all calling `scripts/check-privacy.sh`:
 
-- The employer-name check ships with a placeholder pattern (`YOUR_EMPLOYER_HERE`) — edit
-  `EMPLOYER_PATTERN` in the script to match your own employer before relying on it.
+| Hook | Scans |
+|---|---|
+| `pre-commit` | staged additions (content), staged file names and staged binaries |
+| `commit-msg` | the commit message (`#` comment lines ignored; `Signed-off-by`/`Co-Authored-By` lines skip the email check only) |
+| `pre-push` | added lines, file names, commit messages and binaries of the commits being pushed (`--range auto`: `@{u}..HEAD`, else `origin/<default>..HEAD`, else the last commit), then the branch size check |
+
+By hand: `scripts/check-privacy.sh [--content | --paths | --message FILE | --range REV_RANGE] [--strict]`. It blocks on: employer
+name, internal hostname, ticket id (`[A-Z]{2,}-[0-9]+`, case-sensitive; `SHA-256`, `UTF-8` and similar
+standards tokens pass), account id, home path, email, private IP, git remote, cloud ARN, phone
+number, PO box, street address, city/state/ZIP, version pins (semver, docker tag, `name:N.N` tag-style
+pin anywhere, build-file version elements, `@vN` action pins, `name-N.N` model-version tokens), secrets, and binaries.
+
+- Local patterns: the untracked file `<git-dir>/info/privacy-patterns` (`git rev-parse --git-path info/privacy-patterns`)
+  holds one extended regex per line for the employer name, internal hostnames and repo slugs; blank and
+  `#` lines are ignored. The file stays out of every commit. Without it the script warns on stderr every
+  run and only the generic checks apply. `--strict` or `PRIVACY_REQUIRE_PATTERNS=1` turns a missing file
+  into a block; `scripts/install-hooks.sh` writes that env into the hooks of a clone whose file exists.
+  `PRIVACY_EMPLOYER_PATTERN` (or `EMPLOYER_PATTERN` in the script) adds one more employer regex.
+- Binaries (`git diff --numstat` reports `-`, or extension png jpg jpeg gif webp pdf zip gz ico mov mp4
+  docx xlsx) block until a human reviews them and lists the path in `.privacyallow-binaries`, one path per line.
+- Version-pin exception: `actions/checkout@v4` in `skills/setup-repo/assets/ci/github-ai-guardrails.yml`
+  (allowed in `.privacyallow`); the CI template needs a real pin.
+- `core.hooksPath` redirects where git looks for hooks; `scripts/install-hooks.sh` warns when it is set.
+- Existing foreign hooks are saved once as `<name>.bak` and still run after the check; install never
+  overwrites a second one.
 - False positive? Add a narrow regex to `.privacyallow` — each entry is a hole in the gate, keep it short.
-- `git commit --no-verify` bypasses it. Use deliberately, not to get unstuck.
+- `git commit --no-verify` bypasses the commit hooks; `git push --no-verify` bypasses `pre-push`. Use deliberately, not to get unstuck.
+- Agents are also gated by a Claude Code hook (`scripts/guard/git-approval-guard.sh`) that asks before
+  any commit or push and denies `--no-verify`. It backs up the gate; it does not replace it.
 
 **Limit to know:** the hook matches *named* patterns. It cannot detect employer-specific behaviour,
 workflows, or domain rules paraphrased in prose. That remains a writing discipline, not a check.
@@ -47,7 +71,7 @@ workflows, or domain rules paraphrased in prose. That remains a writing discipli
 | Work-specific tooling | Internal CLI tools, proprietary scripts, internal hostnames |
 | Issue tracker references | Internal ticket IDs, internal project keys |
 | Cloud/infra identifiers | AWS account IDs, internal domain names, VPN configs |
-| Personal identity | Real name (in file content), work email, machine hostnames |
+| Personal identity | Real name (in file content), work email, phone numbers, street addresses, PO boxes, machine hostnames |
 | API keys & secrets | Tokens, passwords, credentials of any kind |
 | **Specific dependency & runtime versions** | Pinned versions of anything — a version reveals which release an employer runs, and pins date the stack. Name the technology, never the version. |
 | Business rules & domain vocabulary | Internal status values, program/product keys, entity names, workflow stages |

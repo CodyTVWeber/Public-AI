@@ -5,6 +5,12 @@ policy: `merge-policy.md`. Other files point here for the tier only.
 
 A pull request takes the **highest** tier it touches. A copy change plus a migration is high.
 
+`scripts/classify-tier.sh` maps paths to these tiers by glob (`--help` lists them), prints the
+highest, and names who approves under the active profile. It judges paths, not diffs. Raise a tier
+when the diff warrants it (a script the pipeline starts running). The one lowering it allows: a
+manifest hit that only bumps a dependency already in the manifest is low; adding or removing one
+stays high.
+
 ## Tiers
 
 | Tier | What it means | Typical paths |
@@ -35,6 +41,6 @@ already on the default branch.
 ## Where this sits next to stack order
 
 Order a stack safest-first: mechanical work, then inert or additive work, then the cutover.
-That order is the small-MR rule (`../../setup-clean-code/assets/rules/small-mrs.md`). It does not
+That order is the small-MR rule (`../../setup-repo/assets/rules/small-mrs.md`). It does not
 lower a tier: an additive migration is still high, and it still lands before the migration that
 drops the old column.

@@ -1,53 +1,43 @@
 ---
 name: watch-mr-pipeline
-description: Watch a PR/MR pipeline on a schedule, auto-fix simple lint/format/test failures, merge the target branch in when behind, and stop when the pipeline is green or the PR/MR is merged or closed. Use for "watch this MR", "babysit the pipeline", /watch-mr-pipeline.
+description: Watch a PR/MR pipeline on a schedule, auto-fix simple lint/format/test failures, report when the branch is behind its target, and stop when the pipeline is green or the PR/MR is merged or closed. Use for "watch this MR", "babysit the pipeline", /watch-mr-pipeline.
 argument-hint: "<pr-or-mr number | branch>"
 ---
 
 # Watch a PR/MR pipeline
 
-`$ARGUMENTS` = PR/MR number, or a branch name to resolve to one. Host CLI: `gh` (GitHub) or `glab`
-(GitLab), whichever the repo's `origin` uses. Runs as a recurring job; each run is cheap and ends
-with at most one line of report.
+Scheduled variant of [`watch`](../watch/watch.md). **Policy comes from `watch`**: never merge, approve, mark ready, or force-push; never push (fix commit or target merge-in) without user confirmation unless the run pre-authorized pushes. This file adds only scheduling and fix scope.
+
+`$ARGUMENTS` = PR/MR number, or a branch name. Scripts live in `skills/plan-implement-review/scripts/` (repo-root-relative). Each run is cheap and ends with at most one line of report.
 
 ## Setup (once)
 
-1. Detect host and project from `git remote get-url origin`
-2. Resolve the argument to a PR/MR number; none found → say so and stop
-3. Confirm the CLI works (`gh pr view <n>` / `glab mr view <n>`); missing or unauthenticated → stop
-4. Find a local clean clone on the PR/MR branch for fixes; none → watch read-only and report only
-5. Schedule a recurring job (every ~5 minutes, off the :00/:30 marks) running the loop below. Tell
-   the user: job id, interval, that it deletes itself when done, and that it is session-only
+1. `forge-ctx.sh` → host, cli, project, `clean`, `branch`. Exit 3 → stop
+2. Number: the argument, else `pr-find.sh <branch>` → `head_pr.number`; none → say so and stop
+3. `mr-state.sh <n>` must exit 0 (3 = CLI missing or unauthenticated → stop)
+4. Fixes need a clean local clone on the PR/MR branch; none → watch read-only and report only
+5. Schedule a recurring job (every ~5 minutes, off the :00/:30 marks) running the loop below. Tell the user: job id, interval, that it deletes itself when done, and that it is session-only
 
 ## Each run
 
-1. **State.** Merged or closed → report once, delete the job, stop
-2. **Behind target.** If the branch is behind and has no conflicts (see Merge rules): merge the
-   target in, push normally, report one line, end this run (the push starts a new pipeline)
-3. **Pipeline.**
-   - running or pending → one-line status, end the run
-   - success → run the quality gate check if the repo has one configured, then **delete the job
-     and stop**; the work is done
-   - failed → read the failed job logs, decide if the fix is in scope (below); fix, commit, push
-     and keep watching, or report the failure once and keep watching
-4. **Quality gate (optional).** If the repo uses a static-analysis service with a PR gate, read the
-   gate result; fix new in-scope issues, report the rest. No service configured → skip silently
+`mr-state.sh <n>`, then act on `next` (and `state`):
 
-## Merge rules (target into the branch)
+| Seen | Do |
+|---|---|
+| `state` merged or closed | Report once, delete the job, stop |
+| `wait` | One-line status, end the run |
+| `fix_ci` | `ci-failure-tail.sh <n>`; in scope (below) → fix, commit, push per policy, keep watching; else report once, keep watching |
+| `reply_threads` | Report author and `file:line`; fix only if asked |
+| `rebase_needed` | `git fetch origin <target>`, `branch-behind.sh origin/<target>`. Conflicts → "behind with conflicts: needs manual merge". Else report "behind N"; merge the target in only with confirmation (rules below). Keep watching |
+| `done` (green, no human threads) | Run the quality gate check if the repo has one (static-analysis service with a PR gate: fix new in-scope issues, report the rest; none configured → skip silently), then delete the job and stop |
 
-Always merge, never rebase: rebasing rewrites history and breaks stacked branches. Merge only when
-all hold: behind target; no conflicts; author is not a bot that owns its branch (e.g. a dependency
-updater: report "behind" instead); clean local clone; fewer than 3 merges by this watch; user did
-not say "no merge". Conflicts → `git merge --abort`, report "behind with conflicts: needs manual
-merge", keep watching. After a merge+push: `merged <target> into <branch> (n of 3)`.
+## Merge-in rules (target into the branch, after confirmation)
+
+Always merge, never rebase: rebasing rewrites history and breaks stacked branches. Only when: `conflicts` is false; branch author is not a bot that owns its branch (e.g. a dependency updater: report "behind" instead); clean local clone; fewer than 3 merges by this watch; user did not say "no merge". Push normally, end the run (the push starts a new pipeline), report `merged <target> into <branch> (n of 3)`.
 
 ## Fix scope
 
-Fix on your own: mechanical failures with an obvious cause (formatting, lint, unused or missing
-imports, stale snapshots, one-line type errors, trivial analyzer warnings). Leave for a human:
-anything that needs design judgment, new behavior, security review, or access to CI infrastructure.
-Verify the branch (`git branch --show-current`) before every git operation; push to the branch
-explicitly; never force-push.
+Fix on your own: mechanical failures with an obvious cause (formatting, lint, unused or missing imports, stale snapshots, one-line type errors, trivial analyzer warnings). Leave for a human: anything needing design judgment, new behavior, security review, or access to CI infrastructure. Verify `git branch --show-current` before every git operation; push to the branch explicitly; never force-push.
 
 ## Housekeeping
 

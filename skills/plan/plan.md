@@ -6,4 +6,4 @@ argument-hint: "<task>"
 
 # plan
 
-Alias. Load `write-plan`  with the user's arguments; follow it unchanged.
+Alias. Load `write-plan` with the user's arguments; follow it unchanged.

@@ -34,6 +34,7 @@ Apply the baseline prompt above, plus these explicit review rules:
 1. **Do not let a PR push a file from under 1k lines to over 1k lines without a very strong reason.**
    - Treat this as a strong code-quality smell by default.
    - Prefer extracting helpers, subcomponents, modules, or local abstractions instead of letting a file sprawl past 1000 lines.
+   - Check mechanically, not by eye: `scripts/lint/check-1k-cross.sh <base>` lists every file that goes from <= 1000 to > 1000 lines (exit 1 when any; no script, count lines at base and head by hand). Each hit is a presumptive blocker.
    - If the diff crosses that threshold, explicitly ask whether the code should be decomposed first.
    - Only waive this if there is a compelling structural reason and the resulting file is still clearly organized.
 

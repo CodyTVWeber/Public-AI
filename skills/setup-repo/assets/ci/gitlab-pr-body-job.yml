@@ -1,0 +1,5 @@
+
+ai-guardrails-pr-body:
+  extends: .ai-guardrails
+  script:
+    - printf '%s' "$CI_MERGE_REQUEST_DESCRIPTION" | scripts/clean-code/check-pr-body.sh -

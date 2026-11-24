@@ -44,7 +44,9 @@ Determine which mode you are in before proceeding:
      Pay special attention to these areas during verification.
      ```
 
-2. Read the subagent's result. Look for `VERDICT: PASS` or `VERDICT: FAIL`.
+2. Save the subagent's result to a file and run `scripts/lint/verdict-parse.sh <file>` (or pipe it
+   with `-`). It takes the last `VERDICT: PASS` / `VERDICT: FAIL` line: exit 0 is PASS, 1 is FAIL,
+   2 is no verdict, which counts as FAIL. No script: read the last verdict line yourself.
 
 3. If **PASS**: summarize what the verifier confirmed and stop.
 

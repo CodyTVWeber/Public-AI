@@ -10,22 +10,21 @@ Self-paced loop on one PR/MR. Host CLI: `gh` or `glab`. Branch and clone path co
 
 ## Each tick (read-only)
 
-GitLab: `glab mr view <n>`, `glab ci status --branch <b>`, `glab api "projects/:id/merge_requests/<n>/discussions"`.
-GitHub: `gh pr view <n>`, `gh pr checks <n>`, `gh api repos/{owner}/{repo}/pulls/<n>/comments`.
-
-Unresolved human threads only: system notes and bot summaries are not threads.
+`skills/plan-implement-review/scripts/mr-state.sh <n>` → JSON; act on `next`. `threads.human_unresolved` already drops system notes and bot summaries. Helpers: `ci-failure-tail.sh <n> [job]` (failed job log tail), `branch-behind.sh origin/<target>` (after `git fetch origin <target>`). Exit 3 = CLI missing or unauthenticated: stop and tell the user.
 
 ## React
 
-| Seen | Do |
+| `next` / seen | Do |
 |---|---|
-| Pipeline running | Wait |
-| Failed, looks like a flake | Read the job log, retry once |
-| Failed, real | Hand the log to the implementer (same agent), re-run the review regression gate, push. Counts as a fix round |
-| New unresolved human thread | Tell the user: author, `file:line`, ask. Fix only with `fix-comments=yes` |
-| Bot thread (security/quality scanners) | Report counts; fix only findings inside this diff |
+| `wait` | Wait |
+| `fix_ci`, looks like a flake | Read `ci-failure-tail.sh`, retry once |
+| `fix_ci`, real | Hand the log to the implementer (same agent), re-run the review regression gate, push. Counts as a fix round |
+| `reply_threads` | Tell the user: author, `file:line`, ask. Fix only with `fix-comments=yes` |
+| `threads.bot_count` > 0 | Report counts; fix only findings inside this diff |
+| `rebase_needed` | Report behind N / conflicts (`branch-behind.sh`). Never merge the target in or push without user confirmation. If confirmed: merge, never rebase |
 | Push rejected / remote force-updated | Never force-push. Backup branch, reset to remote, cherry-pick new commits, recheck, push fast-forward |
 | Evidence changed | Re-upload and refresh Build, Proof, and Try it in the description |
+| `done` | Stop (below) |
 
 ## Cadence and budget
 
@@ -38,11 +37,11 @@ Unresolved human threads only: system notes and bot summaries are not threads.
 
 ## Stop when
 
-Merged or closed · pipeline green and zero unresolved human threads (report "ready for review") · user says stop · budget spent. A wakeup that fires after the stop: one read-only check, end, don't reschedule.
+`next` is `done`: merged or closed, or pipeline green with zero unresolved human threads (report "ready for review") · user says stop · budget spent. A wakeup that fires after the stop: one read-only check, end, don't reschedule.
 
 ## Never
 
-- Merge, approve, mark ready, or force-push without being asked
+- Merge, approve, mark ready, force-push, or push a target merge-in without being asked
 - Resolve a thread a person opened unless asked
 - Post externally without an attribution prefix (e.g. `🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`)
 - Re-title with a second `Draft:` prefix (`--draft` already adds it)

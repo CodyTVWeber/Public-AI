@@ -27,10 +27,13 @@ merging, applying changes to a live data store, or continuing past the slice it 
 To adopt: copy `rules/` to `docs/rules/`, copy `assets/ai-merge-policy.md` to
 `docs/rules/ai-merge-policy.md`, and set the `Merge policy:` line.
 
+Two scripts do the lookups: `scripts/merge-policy.sh` (the declared profile, conservative when
+unclear) and `scripts/classify-tier.sh` (tier per path, highest wins, who approves).
+
 A pull request takes the highest tier it touches. Prompt rules guide a careful agent. They do not
 block a merge until the forge can require a check; `rules/shipping.md` says what to put in place so
 the rule and the button agree.
 
-Stack order (safest change first) is the small-MR rule in `skills/setup-clean-code`. This skill
+Stack order (safest change first) is the small-MR rule in `skills/setup-repo`. This skill
 does not replace that. It says who is allowed to merge each tier. The pull request body that makes
 the review easy is the `verify-change` skill.

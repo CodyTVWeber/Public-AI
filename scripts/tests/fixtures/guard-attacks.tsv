@@ -1,0 +1,94 @@
+ask	echo "git push" | sh
+ask	echo "git commit -m x" | bash
+ask	printf 'git push\n' | zsh -s
+ask	cat <<X | sh<NL>git push<NL>X
+ask	sh <<< "git push"
+ask	echo "git push" | python3 -
+ask	echo "git push" | source /dev/stdin
+ask	echo push | xargs git
+ask	echo commit | xargs -n1 git
+ask	find . -maxdepth 0 -exec git push \;
+ask	find . -exec sh -c 'git commit -m x' \;
+ask	python3 -c "import os; os.system('git push')"
+ask	python -c "import subprocess; subprocess.run(['git','commit','-m','x'])"
+ask	perl -e 'system("git push")'
+ask	ruby -e 'system("git push")'
+ask	node -e "require('child_process').execSync('git push')"
+ask	awk 'BEGIN{system("git push")}'
+ask	git merge feature
+ask	git merge --no-ff feature
+ask	git cherry-pick abc123
+ask	git revert HEAD
+ask	git am < x.patch
+ask	git rebase -x 'echo hi' main
+ask	git rebase --exec 'echo hi' main
+ask	git rebase -i -x 'make test' main
+ask	git commit-tree HEAD^{tree} -m x
+ask	git update-ref refs/heads/main HEAD
+ask	git send-pack origin main
+ask	git submodule foreach 'echo hi'
+ask	git submodule foreach --recursive git push
+ask	git -C d merge --ff-only x
+ask	env X=1 git cherry-pick abc
+ask	git rebase -x 'git push' main
+deny	git merge --no-verify feature
+deny	git merge --no-ver feature
+deny	git cherry-pick --no-verify abc123
+deny	git am -n x.patch
+deny	git pull --no-verify
+deny	git rebase --no-verify main
+deny	git revert --no-verify HEAD
+ask	git config alias.zz push && git zz
+ask	git config alias.ci commit; git ci -m x
+ask	git -c alias.zz=push zz
+ask	git foo
+ask	git lfs push origin
+deny	git config core.hooksPath /dev/null
+deny	git config --global core.hooksPath /dev/null
+deny	git config --add core.hooksPath /tmp/h
+deny	git config --local --replace-all core.hooksPath x
+deny	git config set core.hooksPath x
+deny	git config Core.HooksPath x
+deny	git -c core.hooksPath=/dev/null status
+deny	git --config-env=core.hooksPath=H status
+deny	git --config-env core.hooksPath=H commit -m x
+deny	GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git status
+deny	GIT_CONFIG_PARAMETERS="'core.hooksPath=/dev/null'" git status
+deny	export GIT_CONFIG_KEY_0=core.hooksPath
+deny	env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hookspath GIT_CONFIG_VALUE_0=/dev/null git commit -m x
+ask	$(echo git) commit -m x
+ask	`echo git` push
+ask	$'\x67it' commit
+ask	"$G" push
+ask	$G -C . merge x
+ask	G=git; $G push
+ask	${GIT:-git} push
+ask	/usr/bin/GIT push
+ask	{git,push}
+ask	/usr/bin/g?t push
+ask	gh pr merge 12
+ask	gh pr create --fill
+ask	glab mr merge 3
+ask	glab mr create --fill
+ask	gh api -X POST repos/o/r/issues
+ask	gh api --method=DELETE repos/o/r
+ask	gh api repos/o/r/issues -f title=x
+ask	glab api -X PUT projects/1/merge_requests/2/merge
+ask	glab api projects/1/issues --method POST
+ask	gh api graphql -f query='mutation{x}'
+ask	eval "$(echo 'git push')"
+ask	sh -c "$(printf 'git push')"
+ask	git commit -m x
+ask	git push origin main
+ask	git -C d push
+ask	bash -c "git add . && git push"
+ask	git add . ; git push
+ask	git add . <NL> git commit -m x
+ask	echo $(git push)
+ask	CMD="git push"; $CMD
+ask	CMD="git push"; bash -c "$CMD"
+ask	X=git; Y=push; $X $Y
+ask	git -c core.pager='git push' log
+ask	git bisect run sh -c 'git push'
+ask	git difftool -x 'git push'
+ask	GIT_SEQUENCE_EDITOR="git push" git rebase -i main

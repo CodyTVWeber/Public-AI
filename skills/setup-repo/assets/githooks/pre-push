@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+root="$(git rev-parse --show-toplevel)"
+exec "$root/scripts/clean-code/pre-push-gate.sh"

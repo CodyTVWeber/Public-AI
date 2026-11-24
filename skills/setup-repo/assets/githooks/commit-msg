@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+root="$(git rev-parse --show-toplevel)"
+[ -x "$root/scripts/check-privacy.sh" ] || exit 0
+exec "$root/scripts/check-privacy.sh" --message "$1"

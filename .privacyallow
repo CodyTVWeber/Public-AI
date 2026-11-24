@@ -11,3 +11,13 @@ somedb:42\.0
 
 # PRIVACY.md's enforcement section quotes the version-pin regex itself.
 grep -rEn
+
+# Test fixture timestamp, not an account id.
+touch -t [0-9]{12}
+
+# The CI template needs a real checkout pin (PRIVACY.md exception).
+actions/checkout@v4
+
+# run-implementer test names its profile id and model id.
+prompt\.md" grok-4\.5-low
+"grok model".*grok-4\.5

@@ -40,6 +40,7 @@ Fill in:
 - `{{FILE_PATH}}`, `{{CODE_BEFORE}}`, `{{CODE_AFTER}}` — the *actual* diff, not a paraphrase. Copy
   real lines from the real diff/file. If you're describing a not-yet-written fix, label it clearly
   as proposed, not shipped.
+- `{{FOOTER}}` — link back to the plan/investigation doc
 - `ITEMS` and `FAIL_INDEX` in the script, and the `runAnimation()` narrative — see Step 3.
 
 ## Step 3 — Write the animation narrative to match real execution order
@@ -64,7 +65,10 @@ and silently kills the whole async animation — no visible error, buttons just 
 forever. It's easy to miss because the page loads fine and the log panel may print a line or two
 before it dies, making it look like partial progress rather than a hard stop.
 
-Before considering the file done:
+Before considering the file done, run `scripts/lint/lint-explainer.sh <file.html>` (this repo; a
+PostToolUse hook runs it on written explainers). It fails on leftover `{{TOKEN}}` placeholders,
+`getElementById` literals with no matching `id=`, and unbalanced `<script>` tags. Without the script,
+do those three checks by hand. Then:
 1. Grep every place an id string is constructed (`buildList`, `resetAll`) against every place
    `getElementById` is called with a constructed id (`setStatus`, `markReverted`) — confirm they
    produce identical strings for both `before-*` and `after-*`.

@@ -1,0 +1,18 @@
+name: ai-guardrails
+on:
+  pull_request:
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve the base commit
+        run: echo "AI_BASE=$(git merge-base "origin/${{ github.base_ref }}" HEAD)" >> "$GITHUB_ENV"
+      - name: Branch size
+        run: scripts/clean-code/pre-push-gate.sh "$AI_BASE"
+      - name: Clean code on changed lines
+        run: scripts/clean-code/code-quality-check.sh --changed "$AI_BASE"
+      - name: Docs lint
+        run: scripts/clean-code/lint-docs.sh "$AI_BASE"

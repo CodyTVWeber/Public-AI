@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
-# CLI FALLBACK implementer launcher / resume helper.
-#
-# Preferred path (plan-implement-review skill): host BACKGROUND AGENT
-#   (Grok spawn_subagent background:true + resume_from) — orchestrator stays connected.
-# Use this script only when background agents are unavailable.
-#
-# Usage:
-#   run-implementer.sh launch <state-dir> <prompt-file> <profile-id> [worktree-name] [worktree-ref]
-#   run-implementer.sh resume <state-dir> <prompt-file> <profile-id> <session-id> [cwd]
-#
-# Profiles: grok-4.5-low (default Grok), grok-4.5, composer-2.5, claude-haiku, claude-sonnet
-# Always persists session_id to <state-dir>/session_id for reuse.
 set -euo pipefail
+
+usage() {
+  cat >&2 <<'USAGE'
+Usage:
+  run-implementer.sh launch <state-dir> <prompt-file> <profile-id> [worktree-name] [worktree-ref]
+  run-implementer.sh resume <state-dir> <prompt-file> <profile-id> <session-id> [cwd]
+CLI fallback implementer; prefer a connected background agent (see plan-implement-review.md).
+Profiles: see references/implementers.md (default Grok at low effort, Grok, Composer, claude-haiku, claude-sonnet)
+Order: validate args and profile, check the CLI exists, then count the round via pir-state.sh.
+A bad profile or a missing CLI never burns a round. Each launch/resume is one implement attempt;
+exit 3 when max_rounds is spent (no extra attempt, CLI not started).
+State: <state-dir>/state.json via pir-state.sh (round, implementer_id, session_id, reasoning_effort).
+Env: PIR_MAX_ROUNDS (init only, default 3), MAX_TURNS (default 80), GROK_EXTRA_ARGS.
+Stdout: JSON {round, profile, model, session_id, exit_code, out, err}.
+Exit: 0 ok, 1 implementer CLI failed, 2 usage/unknown profile, 3 rounds spent, 127 CLI missing
+USAGE
+}
+
+case "${1:-}" in -h|--help) usage; exit 0 ;; esac
 
 cmd="${1:-}"
 state_dir="${2:-}"
@@ -19,62 +26,29 @@ prompt_file="${3:-}"
 profile="${4:-}"
 
 if [[ -z "$cmd" || -z "$state_dir" || -z "$prompt_file" || -z "$profile" ]]; then
-  echo "Usage: $0 launch|resume <state-dir> <prompt-file> <profile-id> ..." >&2
+  usage
   exit 2
 fi
-
+case "$cmd" in
+  launch) ;;
+  resume) [[ -n "${5:-}" ]] || { echo "session id required for resume" >&2; exit 2; } ;;
+  *) echo "Unknown command: $cmd" >&2; exit 2 ;;
+esac
 if [[ ! -f "$prompt_file" ]]; then
   echo "Prompt file not found: $prompt_file" >&2
   exit 2
 fi
 
-mkdir -p "$state_dir"
-round_file="${state_dir}/round"
-round="$(cat "$round_file" 2>/dev/null || echo 0)"
-round=$((round + 1))
-echo "$round" >"$round_file"
-
-out_json="${state_dir}/implement-round${round}.json"
-err_log="${state_dir}/implement-round${round}.stderr.log"
-echo "$profile" >"${state_dir}/implementer_id"
-
-prompt_text="$(cat "$prompt_file")"
-
-extract_session_id() {
-  local f="$1"
-  if command -v jq >/dev/null 2>&1; then
-    jq -r '
-      .sessionId // .session_id // .uuid // empty
-    ' "$f" 2>/dev/null || true
-  fi
-}
-
-# Extra grok args (e.g. --reasoning-effort low) from GROK_EXTRA_ARGS or profile.
-run_grok() {
-  local model="$1"
-  shift
-  # shellcheck disable=SC2086
-  grok --model "$model" --always-approve --max-turns "${MAX_TURNS:-80}" \
-    ${GROK_EXTRA_ARGS:-} \
-    --output-format json "$@" >"$out_json" 2>"$err_log"
-}
-
-run_claude() {
-  local model="$1"
-  shift
-  claude -p --model "$model" --dangerously-skip-permissions \
-    --output-format json "$@" >"$out_json" 2>"$err_log"
-}
-
 CLI=""
 MODEL=""
+EFFORT=""
 GROK_EXTRA_ARGS="${GROK_EXTRA_ARGS:-}"
 
 case "$profile" in
   grok-4.5-low|grok-4.5-low-effort|grok45-low)
     CLI=grok
     MODEL=grok-4.5
-    # Cheap/fast default for Grok orchestrators
+    EFFORT=low
     GROK_EXTRA_ARGS="${GROK_EXTRA_ARGS:---reasoning-effort low}"
     ;;
   composer-2.5)
@@ -84,7 +58,6 @@ case "$profile" in
   grok-4.5)
     CLI=grok
     MODEL=grok-4.5
-    # full/default effort — only when forced
     ;;
   claude-sonnet)
     CLI=claude
@@ -105,72 +78,93 @@ if ! command -v "$CLI" >/dev/null 2>&1; then
   exit 127
 fi
 
-# Persist effort hint for state.json consumers
-if [[ "$profile" == grok-4.5-low* || "$profile" == grok45-low ]]; then
-  echo "low" >"${state_dir}/reasoning_effort"
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+state="$here/pir-state.sh"
+
+if [[ ! -f "$state_dir/state.json" ]]; then
+  topic="$(basename "$state_dir")"
+  topic="${topic#pir-}"
+  "$state" init --topic "$topic" --state-root "$state_dir" --max-rounds "${PIR_MAX_ROUNDS:-3}" >/dev/null
 fi
 
+"$state" inc-round --state-root "$state_dir" >/dev/null
+round="$("$state" get round --state-root "$state_dir")"
+"$state" set --state-root "$state_dir" "implementer_id=$profile" "reasoning_effort=$EFFORT" >/dev/null
+
+out_json="${state_dir}/implement-round${round}.json"
+err_log="${state_dir}/implement-round${round}.stderr.log"
+prompt_text="$(cat "$prompt_file")"
+
+extract_session_id() {
+  jq -r '.sessionId // .session_id // .uuid // empty' "$1" 2>/dev/null || true
+}
+
+save_session() {
+  "$state" set --state-root "$state_dir" "session_id=$1" >/dev/null
+}
+
+run_grok() {
+  local model="$1" extra=()
+  shift
+  read -r -a extra <<<"$GROK_EXTRA_ARGS" || true
+  grok --model "$model" --always-approve --max-turns "${MAX_TURNS:-80}" \
+    ${extra[@]+"${extra[@]}"} \
+    --output-format json "$@" >"$out_json" 2>"$err_log"
+}
+
+run_claude() {
+  local model="$1"
+  shift
+  claude -p --model "$model" --dangerously-skip-permissions \
+    --output-format json "$@" >"$out_json" 2>"$err_log"
+}
+
+rc=0
 if [[ "$cmd" == "launch" ]]; then
   worktree_name="${5:-}"
   worktree_ref="${6:-}"
+  sid="$("$state" get session_id --state-root "$state_dir")"
+  [[ "$CLI" == grok && -n "$sid" ]] || sid="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+  save_session "$sid"
   case "$CLI" in
     grok)
-      # Stable session id for resume rounds (write immediately)
-      if [[ -f "${state_dir}/session_id" && -s "${state_dir}/session_id" ]]; then
-        sid="$(cat "${state_dir}/session_id")"
-      else
-        sid="$(uuidgen | tr '[:upper:]' '[:lower:]')"
-        echo "$sid" >"${state_dir}/session_id"
-      fi
       args=(--session-id "$sid" --prompt-file "$prompt_file")
-      # Only pass worktree if caller requested (many repos forbid worktrees)
-      if [[ -n "$worktree_name" ]]; then
-        args+=(--worktree="$worktree_name")
-      fi
-      if [[ -n "$worktree_ref" ]]; then
-        args+=(--worktree-ref="$worktree_ref")
-      fi
-      echo "session_id=$sid"
-      run_grok "$MODEL" "${args[@]}"
+      [[ -z "$worktree_name" ]] || args+=("--worktree=$worktree_name")
+      [[ -z "$worktree_ref" ]] || args+=("--worktree-ref=$worktree_ref")
+      run_grok "$MODEL" "${args[@]}" || rc=$?
       ;;
     claude)
-      sid="$(uuidgen | tr '[:upper:]' '[:lower:]')"
-      echo "$sid" >"${state_dir}/session_id"
-      echo "session_id=$sid"
-      run_claude "$MODEL" --session-id "$sid" "$prompt_text"
-      ;;
-  esac
-elif [[ "$cmd" == "resume" ]]; then
-  session_id="${5:?session id required}"
-  cwd="${6:-.}"
-  echo "$session_id" >"${state_dir}/session_id"
-  case "$CLI" in
-    grok)
-      # Same model + same effort as launch
-      run_grok "$MODEL" --resume "$session_id" --cwd "$cwd" --prompt-file "$prompt_file"
-      ;;
-    claude)
-      (
-        cd "$cwd"
-        run_claude "$MODEL" --resume "$session_id" "$prompt_text"
-      )
+      run_claude "$MODEL" --session-id "$sid" "$prompt_text" || rc=$?
       ;;
   esac
 else
-  echo "Unknown command: $cmd" >&2
-  exit 2
+  session_id="$5"
+  cwd="${6:-.}"
+  save_session "$session_id"
+  case "$CLI" in
+    grok)
+      run_grok "$MODEL" --resume "$session_id" --cwd "$cwd" --prompt-file "$prompt_file" || rc=$?
+      ;;
+    claude)
+      (cd "$cwd" && run_claude "$MODEL" --resume "$session_id" "$prompt_text") || rc=$?
+      ;;
+  esac
 fi
 
 sid="$(extract_session_id "$out_json")"
-if [[ -n "${sid:-}" ]]; then
-  echo "$sid" >"${state_dir}/session_id"
-  echo "session_id=$sid"
-elif [[ -f "${state_dir}/session_id" ]]; then
-  echo "session_id=$(cat "${state_dir}/session_id")"
-fi
+[[ -z "$sid" ]] || save_session "$sid"
 
-echo "round=$round"
-echo "profile=$profile"
-echo "model=$MODEL"
-echo "out=$out_json"
-echo "err=$err_log"
+jq -n \
+  --argjson round "$round" \
+  --arg profile "$profile" \
+  --arg model "$MODEL" \
+  --arg session_id "$("$state" get session_id --state-root "$state_dir")" \
+  --argjson exit_code "$rc" \
+  --arg out "$out_json" \
+  --arg err "$err_log" \
+  '{round: $round, profile: $profile, model: $model, session_id: $session_id, exit_code: $exit_code, out: $out, err: $err}'
+
+if [[ $rc -ne 0 ]]; then
+  echo "implementer CLI exited $rc; see $err_log" >&2
+  exit 1
+fi

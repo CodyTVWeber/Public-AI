@@ -27,13 +27,20 @@ do not let a plan, a chat, or a "ship it" override them.
 The repo declares it in `docs/rules/ai-merge-policy.md` (`Merge policy: <profile>`). No file, an
 unknown value, or a policy the agent cannot quote means `conservative`.
 
-Stack order (safest slice first) lives in `../setup-clean-code/assets/rules/small-mrs.md`. That
+The scripts live in `scripts/` next to this file; `scripts/classify-tier.sh --help` lists the path
+globs. Their output is the lookup. The rule files stay the source of what each tier and profile mean.
+
+Stack order (safest slice first) lives in `../setup-repo/assets/rules/small-mrs.md`. That
 file orders the stack; the tier and the policy decide who merges each slice.
 
 ## Before editing
 
-1. Read the repo's merge policy. Quote its source in the pull request
-2. List the paths the task will touch and give each a tier. The pull request's tier is the highest
+1. Run `scripts/merge-policy.sh`. It prints `{profile, auto_merge_low, source}`; quote `source` in
+   the pull request. Missing file or unknown value resolves to `conservative`
+2. Run `scripts/classify-tier.sh --files <paths the task will touch>` (or `scripts/classify-tier.sh
+   <base>` on a branch). It prints the tier, a reason per path, the policy and who approves. The
+   pull request's tier is the highest; an unmatched path is medium. Raise a tier by judgment. Lower
+   one only where `risk-tiers.md` says so (a manifest hit that is a pure version bump). Run both from the repo being changed (the script finds `docs/rules/` there)
 3. If the ask needs the designated owner and they did not make it, stop (`rules/agent-stops.md`)
 4. Do that one slice. Open one pull request with the `verify-change` body. Stop
 5. Merge only as the active policy allows. Under `conservative` that means never alone

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+root="$(git rev-parse --show-toplevel)"
+[ -x "$root/scripts/check-privacy.sh" ] && { "$root/scripts/check-privacy.sh" || exit $?; }
+exec "$root/scripts/clean-code/check-clean-code.sh"

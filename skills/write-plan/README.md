@@ -6,6 +6,8 @@ Used standalone or as **Phase A** of [plan-implement-review](../plan-implement-r
 
 **Always starts from fresh latest `origin/main`** — never writes a plan on top of a feature branch. See §0 in `write-plan.md`.
 
+Branch and PR steps call `skills/plan-implement-review/scripts/{fresh-branch,pr-find}.sh` (repo-root-relative). Outside this repo, install that `scripts/` dir too.
+
 If the work came from a **tracker task** (e.g. Asana), post one Plan comment — rules in [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).
 
 ## Install
@@ -13,15 +15,15 @@ If the work came from a **tracker task** (e.g. Asana), post one Plan comment —
 ### Grok
 
 ```bash
-# Prefer symlink so AI repo edits are live:
-ln -sfn /Users/user/code/AI/skills/write-plan ~/.grok/skills/write-plan
+# Prefer symlink so repo edits are live:
+ln -sfn <repo>/skills/write-plan ~/.grok/skills/write-plan
 # SKILL.md already → write-plan.md inside that dir
 ```
 
 ### Claude Code
 
 ```bash
-cp /Users/user/code/AI/skills/write-plan/write-plan.md ~/.claude/commands/write-plan.md
+cp <repo>/skills/write-plan/write-plan.md ~/.claude/commands/write-plan.md
 ```
 
 ## Invoke

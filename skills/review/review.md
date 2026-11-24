@@ -19,21 +19,21 @@ Read-only. Never edit code here; findings go back to the implementer. Host CLI: 
 
 Follow [`verify-change`](../verify-change/verify-change.md). The description is the review.
 
+1. `skills/plan-implement-review/scripts/diff-scope.sh <base> > scope.json`, then `skills/implement/scripts/proof-check.sh <body-file> scope.json`. Exit 1 → each `missing[]` item is a bug-severity finding (headings, build, review guide, tier, rollback, curl/http/query/image/diagram counts)
+2. Evidence files on disk → `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>`. Exit 1 → failed capture
+
+Judge by eye what scripts can't:
+
 | Check | Fail when |
 |---|---|
-| Build | No check command, no CI link for this commit, or the run is red |
-| Look of a screen | A changed screen has no before/after pair, the image is blank or a login wall, before matches after, or before was captured on the feature branch |
+| Build | The run is red |
+| Look of a screen | The image is blank or a login wall, or before was captured on the feature branch |
 | Behavior | A click, type, motion, or sequence has no short video |
-| Backend | No copy-paste curl (and HTTP file when the call has a body or headers), no response snippet, no trace or log |
-| Database | No read-only query and result, or the database isn't named |
-| Deep change | No diagram of the path |
+| Backend, Database | The response, trace, or result doesn't show the change, or the database isn't named |
 | Try it | A reviewer cannot re-run the proof from the description in a few minutes |
-| Review guide | The description has no start file, no look-hard hunks, no out-of-scope line, no tier with the merge policy quoted, or (high tier) no rollback line |
-| Attached | Proof is missing from the PR/MR description |
 
 - Open every image and play every video. Judge by eye, not filenames
 - Any fail → `fix required`; missing proof is a bug-severity finding
-- Docs-only with no runtime behavior → Build plus "no behavior change", and skip the media rows
 
 ## 3. Verdict
 

@@ -1,0 +1,4 @@
+      - name: PR body matches the template
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" | scripts/clean-code/check-pr-body.sh -

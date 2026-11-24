@@ -4,8 +4,6 @@ When the work came from a **tracker task** (Asana or equivalent), post progress 
 
 **Task-tracker comments are the source of truth** for progress and prior attempts. Read them **before starting**. Reuse an existing plan/PR they point to rather than starting over.
 
-The old single “AI first attempt done; needs review” comment after implement round 1 is **superseded**. Post **one comment per phase milestone** instead.
-
 write-plan, implement, and code-review **reference this file**. Do not fork a second format.
 
 ## Rules (identical for Plan, Implement, Review)
@@ -26,6 +24,8 @@ The skill that **finishes** the milestone posts the comment. A parent `/plan-imp
 | Review round N finished | code-review / PIR Phase C | `Review r1 — done` |
 
 Blocked work uses `blocked` and names the human action. Skip the comment if there is no tracker task.
+
+Body: `skills/plan-implement-review/scripts/tracker-comment.sh <Plan|Implement rN|Review rN> <status> <url> [human-action]` prints the lines below (never posts). Exit 2 = bad step/status/url, or `blocked` without a human action.
 
 ## Example
 

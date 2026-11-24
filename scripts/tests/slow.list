@@ -1,0 +1,10 @@
+bootstrap.test.sh
+verify-repo.test.sh
+install.test.sh
+post-git-check.test.sh
+install-hooks.test.sh
+claude-pre-tool-guard.test.sh
+detect-repo.test.sh
+git-approval-guard.test.sh
+check-privacy.test.sh
+check-clean-code.test.sh

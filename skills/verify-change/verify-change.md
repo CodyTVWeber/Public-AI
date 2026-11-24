@@ -13,6 +13,10 @@ description proves the behavior.
 Fill `assets/pr-body.md`. Every sentence in **What changed** has a row in **Proof**. Every Proof
 row has a **Try it** step that is one paste or one click.
 
+Before opening or updating the pull request, run `skills/verify-change/scripts/check-pr-body.sh <body-file>`.
+It checks the body against `assets/pr-body.md` (headers, tier, merge policy line, Review guide and Build
+labels, leftover placeholders, rollback for high tier, length). Exit 1 prints the `missing` list: fix it.
+
 Who may merge is a separate decision: the repo's merge policy (`skills/ai-risk/rules/merge-policy.md`).
 Proof in the description does not change it. Under `conservative` and `balanced`, a person
 approves before anything but a low-tier change merges.
@@ -87,13 +91,16 @@ not have to invent setup, find a port, or guess a payload.
 ## Capture
 
 - Keep evidence files out of the git tree. Attach them to the pull request so the forge hosts them.
-- On GitLab, upload with `skills/implement/scripts/upload-evidence.py`. On other forges, attach in the description.
-- Open every image and play every video before uploading. A blank frame, an error page, a login wall, or a before that matches the after is a failed capture. Capture again.
+- On GitLab, upload with `skills/implement/scripts/upload-evidence.py <project-id> <files>` (`--dry-run` validates first; exit 2 bad file, 4 upload failed). On other forges, attach in the description.
+- Run `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>` first: exit 1 (zero-byte, tiny, before = after) is a failed capture.
+- Then open every image and play every video. A blank frame, an error page, or a login wall is a failed capture. Capture again.
 - Before comes from a checkout of the base branch, built on its own. Not from this branch.
 - Use fake or local data. Leave production rows, secrets, and real personal data out of the description.
 - When the app cannot run in this environment, say so in the pull request and still leave Try it. Do not omit the section.
 
 ## Not ready for review
+
+`skills/implement/scripts/proof-check.sh <body-file> <scope.json>` reports the mechanical items below (exit 1 lists `missing[]`).
 
 - A behavior the diff touches with no proof row
 - A still image standing in for a behavior

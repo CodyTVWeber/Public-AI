@@ -92,3 +92,14 @@ Optional args:
 | `references/implementers.md` | Profiles, selection, resume |
 | `references/tracker-comments.md` | Shared tracker progress-comment format (Plan / Implement rN / Review rN) |
 | `scripts/run-implementer.sh` | CLI **fallback** launch/resume |
+| `scripts/lib-forge.sh` | Shared helpers sourced by the forge scripts below |
+| `scripts/forge-ctx.sh` | Host (GitLab/GitHub), project, branch, base, clean/dirty, behind/ahead as JSON |
+| `scripts/fresh-branch.sh` | Fetch, refuse a dirty tree, `checkout -b` from the remote default |
+| `scripts/pr-find.sh` | Open PR/MR for a head or topic: `reuse` / `conflict` / `create` (never creates) |
+| `scripts/diff-scope.sh` | Docs/UI/backend/DB/test-only flags from changed paths |
+| `scripts/mr-state.sh` | PR/MR state, pipeline, human threads, behind count, `next` action |
+| `scripts/ci-failure-tail.sh` | Trimmed log tail of a failed CI job |
+| `scripts/branch-behind.sh` | Behind/ahead and merge-conflict probe without touching the working tree |
+| `scripts/tests/*.test.sh` | Plain-bash tests (temp repos, stubbed `glab`/`gh`); each script also has `--help` |
+
+These scripts are read-only or local-git-only: they never push, merge, create PRs/MRs, or post comments. Exit codes: 0 ok, 1 check failed, 2 usage, 3 precondition.

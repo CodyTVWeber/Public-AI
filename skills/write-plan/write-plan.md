@@ -8,7 +8,7 @@ argument-hint: "[topic or task to plan]"
 
 Write one plan markdown file, then **commit, push, and ensure a PR exists** (create only if none already). That full sequence is “done” — not an optional follow-up.
 
-AI-agnostic: any agent that can edit files, run git, and run `gh` can execute this.
+AI-agnostic: any agent that can edit files and run git, `gh` or `glab` can execute this. Helper scripts live in `skills/plan-implement-review/scripts/` (repo-root-relative); each has `--help`.
 
 ## When to use
 
@@ -25,22 +25,39 @@ If this work came from a **tracker task** (e.g. Asana), follow [`../plan-impleme
 - Read existing comments **before** writing. If they already point at a plan/PR for this task, reuse it instead of starting over (that overrides “always a new branch” in §0).
 - After the plan PR exists, post **one Plan** comment. No task, no comments.
 
+## Discover first (discovery and technical-planning tasks)
+
+Applies when the ticket type is Discovery or Technical Planning, or the user says the plan starts from unknowns. Skip it when scope is already known.
+
+1. Run [`discover`](../discover/SKILL.md) on the ticket's question. Targets: the repos and forge projects the ticket names, else inferred. One wave, at most 8 scouts; the forge slice stays optional. Read-only; it writes nothing.
+2. Take its output into the plan:
+   - **Answer** and **Corrections** feed Context and Why this approach.
+   - **Gaps** become concrete steps or open questions in the plan.
+   - **Evidence** keeps its `path:line` citations. Unverified items stay marked unverified.
+   - **Read from** (refs and shas) goes in the Context header.
+3. No scout transcripts in the plan. An agent that cannot spawn subagents reads the named targets itself, from the latest default branch.
+
+## Discover first (discovery and technical-planning tasks)
+
+Applies when the ticket type is Discovery or Technical Planning, or the user says the plan starts from unknowns. Skip it when scope is already known.
+
+1. Run [`discover`](../discover/SKILL.md) on the ticket's question. Targets: the repos and forge projects the ticket names, else inferred. One wave, at most 8 scouts; the forge slice stays optional. Read-only; it writes nothing.
+2. Take its output into the plan:
+   - **Answer** and **Corrections** feed Context and Why this approach.
+   - **Gaps** become concrete steps or open questions in the plan.
+   - **Evidence** keeps its `path:line` citations. Unverified items stay marked unverified.
+   - **Read from** (refs and shas) goes in the Context header.
+3. No scout transcripts in the plan. An agent that cannot spawn subagents reads the named targets itself, from the latest default branch.
+
 ## 0. Always start from fresh latest main (non-negotiable)
 
 **Before writing any plan file**, leave the current feature branch and start clean. **Exception:** if tracker comments already point at a plan/PR for this task, reuse that head — see Tracker comments above.
 
-1. Note uncommitted work on the current branch — do **not** mix it into the plan branch.
-2. `git fetch origin main` (or project default base, usually `main`).
-3. Create and check out a **new** plan branch from **`origin/main` only**:
-   ```bash
-   git checkout -b <branch-name> origin/main
-   ```
-   Prefer plan header `**Branch:**` (e.g. `plan/<topic>`).  
-   **Never** branch from the currently checked-out feature branch.  
-   **Never** write the plan on top of feature-branch commits.
-4. Only after that checkout: write the plan under `docs/plans/…`.
-
-If fetch fails, stop and tell the user — do not invent a base.
+1. Uncommitted work on the current branch: never mix it into the plan branch.
+2. `skills/plan-implement-review/scripts/fresh-branch.sh <branch-name>` — fetches, then creates the branch from `origin/<default>` only. Prefer plan header `**Branch:**` (e.g. `plan/<topic>`).
+   - Exit 3 (dirty tree, fetch failed, branch exists) → stop and tell the user. Never invent a base, never stash.
+   - **Never** branch from, or write the plan on top of, feature-branch commits.
+3. Only after that: write the plan under `docs/plans/…`.
 
 ## 1. Write the file
 
@@ -63,42 +80,12 @@ If fetch fails, stop and tell the user — do not invent a base.
    (checkout + push there) instead of a brand-new branch.
 2. Commit **only** the plan file(s). Check `git status` first — do not sweep unrelated dirt.
 3. Push with `-u`.
-4. **PR — ALWAYS check before create. Never open a second PR for the same work.**
-
-   Run **both** checks; only create when **both** are empty:
-
-   ```bash
-   branch=$(git branch --show-current)
-   plan_file="YYYY-MM-DD_kebab-case-topic.md"   # the file you just wrote
-
-   # 1) Open PR already from this head?
-   existing=$(gh pr list --head "$branch" --base main --state open \
-     --json url -q '.[0].url')
-
-   # 2) Open PR for same plan filename / topic (any head)?
-   topic_pr=$(gh pr list --search "$plan_file" --state open \
-     --json url,headRefName,title -q '.[0].url')
-   # If empty, also search a short topic slug / Asana gid from the plan header.
-
-   if [ -n "$existing" ]; then
-     # Reuse — optionally refresh title/body: gh pr edit --title "…" --body "…"
-     echo "$existing"
-   elif [ -n "$topic_pr" ]; then
-     # Same work already has a PR on another head — DO NOT create another.
-     # Checkout that head and land the plan there, or stop and report topic_pr.
-     echo "Same-topic PR already open: $topic_pr — reuse that head; do not gh pr create"
-     exit 1
-   else
-     gh pr create --draft --base main
-     # short title; body = plan summary + test-plan checklist from Concrete steps
-   fi
-   ```
-
-   **Rules:**
-   - Never `gh pr create` until both checks above are empty.
-   - Never open a second PR for the same head branch.
-   - Never open a second PR for the same plan file / Asana / topic when one is already open.
-   - Prefer **one** PR that can later hold plan + implementation (not plan-only + fix).
+4. **PR — check before create. Never open a second PR for the same work.**
+   `skills/plan-implement-review/scripts/pr-find.sh <branch> <topic-token>` (token = kebab topic slug or task id; read-only). Act on `action`:
+   - `reuse` → push to `head_pr`; optionally refresh title/body (`gh pr edit` / `glab mr update`).
+   - `conflict` (exit 1) → same-topic PR on another head (`topic_prs`): check out that head and land the plan there, or stop and report it. Never create.
+   - `create` → open a **draft** PR/MR against the default branch (`gh pr create --draft` / `glab mr create --draft`): short title; body = plan summary + test-plan checklist from Concrete steps.
+   - One PR per head branch, per plan file, per task. Prefer **one** PR that later holds plan + implementation (not plan-only + fix).
 5. Report the PR URL as the final output (and to parent skill state if running inside plan-implement-review). If a tracker task originated this work, post the Plan comment (see Tracker comments).
 
 ## Integration with plan-implement-review
@@ -117,14 +104,18 @@ If `plan-builder=<profile-id>`, spawn that profile with this file as instruction
 
 - Starting a new plan when tracker comments already point at a plan/PR for this task
 - Writing a plan while still on a feature branch / stacking on feature commits
-- **`gh pr create` without first checking** `--head` **and** same-topic/plan-filename open PRs
+- Creating a PR without `pr-find.sh` saying `create`
 - Opening a **new** PR when one already exists for the same head branch / same Asana topic / same plan file
 - Plan-only PR **and** separate implementation PR for the same work when one PR can hold both
 - Plan file without any PR when the skill was asked for a durable plan (and none exists yet)
 - Asserting code locations without verification
 - Implementing the plan in the same turn unless user asked for the full loop
+- Planning a discovery or technical-planning ticket from memory or a stale checkout when `discover` could gather the context first
+- Planning a discovery or technical-planning ticket from memory or a stale checkout when `discover` could gather the context first
 
 ## Related
 
 - Sibling skill [`implement`](../implement/implement.md) (`/implement`) — code the plan; same one-PR rules.
 - [`plan-implement-review`](../plan-implement-review/plan-implement-review.md) — full loop.
+- [`discover`](../discover/SKILL.md) — parallel scouts for the context a discovery or technical-planning plan starts from.
+- [`discover`](../discover/SKILL.md) — parallel scouts for the context a discovery or technical-planning plan starts from.

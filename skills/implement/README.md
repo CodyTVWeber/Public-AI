@@ -31,8 +31,16 @@ cp <path-to-this-repo>/skills/implement/implement.md ~/.claude/commands/implemen
 
 ## PR rule (same as write-plan)
 
-Create a PR **only if** there is not already an open PR for this head branch / same ticket. Prefer **one PR** for plan + code.
+Create a PR **only if** there is not already an open PR for this head branch / same ticket. Prefer **one PR** for plan + code. Git/PR steps call `skills/plan-implement-review/scripts/{forge-ctx,pr-find,fresh-branch}.sh` (repo-root-relative); outside this repo, install that `scripts/` dir too.
 
 ## Tracker comments
 
 When the work came from a tracker task, post one short **Implement rN** progress comment per round. Format: [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).
+
+## Scripts
+
+| Script | Use | Exit |
+|---|---|---|
+| `scripts/upload-evidence.py <project-id> <files> [--host H] [--dry-run]` | Upload png/jpg/gif/webp/mp4/webm to a GitLab project; JSON `{file: markdown}` | 2 bad input, 3 no token/host, 4 upload failed |
+| `scripts/evidence-check.sh <files> [--before B --after A]` | Size, PNG dimensions, sha256; flags zero-byte, tiny, before = after | 1 problem |
+| `scripts/proof-check.sh <body> <scope.json>` (scope from `plan-implement-review/scripts/diff-scope.sh`) | PR/MR body vs scope: headings, build, review guide, tier, media/curl/query/diagram counts | 1 `missing[]` |

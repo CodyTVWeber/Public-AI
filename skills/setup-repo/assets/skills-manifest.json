@@ -1,0 +1,27 @@
+{
+  "core": [
+    "write-plan",
+    "implement",
+    "review",
+    "watch",
+    "plan-implement-review",
+    "plan-implement-review-watch",
+    "check-work",
+    "code-review",
+    "verify-change",
+    "ai-risk",
+    "pirw",
+    "ir",
+    "irw",
+    "rw",
+    "pi",
+    "pir",
+    "review-watch",
+    "implement-review",
+    "implement-review-watch",
+    "plan-implement",
+    "plan",
+    "setup-repo"
+  ],
+  "all": "*"
+}

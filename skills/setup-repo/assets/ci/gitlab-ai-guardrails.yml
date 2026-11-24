@@ -1,0 +1,25 @@
+.ai-guardrails:
+  stage: {{STAGE}}
+  image: python
+  variables:
+    GIT_DEPTH: "0"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  before_script:
+    - command -v jq >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y -qq jq)
+    - export AI_BASE="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$(git merge-base "origin/$CI_DEFAULT_BRANCH" HEAD)}"
+
+ai-guardrails-mr-size:
+  extends: .ai-guardrails
+  script:
+    - scripts/clean-code/pre-push-gate.sh "$AI_BASE"
+
+ai-guardrails-clean-code:
+  extends: .ai-guardrails
+  script:
+    - scripts/clean-code/code-quality-check.sh --changed "$AI_BASE"
+
+ai-guardrails-docs-lint:
+  extends: .ai-guardrails
+  script:
+    - scripts/clean-code/lint-docs.sh "$AI_BASE"

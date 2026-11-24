@@ -8,7 +8,7 @@ argument-hint: "[plan path or ticket]"
 
 Implement work from a **plan file**, Asana task, or explicit user fix list: code, lint/test green, commit, push, and **ensure a PR exists** (create only if none already).
 
-AI-agnostic: any agent that can edit files, run git, and run `gh` can execute this.
+AI-agnostic: any agent that can edit files and run git, `gh` or `glab` can execute this. Helper scripts live in `skills/plan-implement-review/scripts/` (repo-root-relative); each has `--help`.
 
 ## When to use
 
@@ -33,24 +33,12 @@ If this work came from a **tracker task**, read that task’s comments **before 
 
 ## 1. Git start (non-negotiable)
 
-1. **Dirty tree:** If `git status` shows uncommitted work (staged/unstaged/untracked that is not ignorable dirt), **stop and ask** the user how to handle WIP before `checkout` / `pull`. Do **not** stash, discard, or mix WIP into the implement branch without approval.
-2. `git fetch origin main`
-3. **Reuse vs create branch** (verify title/URL before checkout — do not trust the first search hit blindly):
-   ```bash
-   # Same-topic open PRs: prefer exact signals (Asana gid, plan filename) over broad keywords
-   existing=$(gh pr list --search "<asana-gid OR plan-filename>" --state open \
-     --json headRefName,url,title,body -q '.[0]')
-   # Also list by known heads if you already have plan/ or fix/ names
-   gh pr list --head "plan/<topic>" --state open --json url,headRefName
-   gh pr list --head "fix/<topic>" --state open --json url,headRefName
-   ```
-   - If an **open PR already exists** for this work (same Asana / same plan / same topic): check out that **head** branch, pull, implement **there** (add commits). Do **not** open another PR.
-   - Else if a **plan-only** branch/PR exists for the same topic:  
-     (a) check out the plan branch and implement on it (plan + code, **one PR**) — **preferred**, or  
-     (b) branch from `origin/main`, cherry-pick/include the plan commit, implement, one PR — then close the plan-only PR as consolidated.  
-     Prefer (a). Never leave plan-only + fix as two long-lived open PRs for the same ticket.
-   - Else: `git checkout -b <feat-branch> origin/main`
-4. Never implement on top of an unrelated feature branch.
+1. `skills/plan-implement-review/scripts/forge-ctx.sh` → `clean`, `branch`. Not clean: **stop and ask** the user how to handle WIP before any checkout/pull. Never stash, discard, or mix WIP into the implement branch without approval.
+2. `skills/plan-implement-review/scripts/pr-find.sh <planned-branch> <topic-token>` (planned branch per §0; token = kebab topic slug or task id). Verify the returned title/URL before checkout. Act on `action`:
+   - `reuse` → check out `head_pr.branch`, pull, implement there (add commits). No second PR.
+   - `conflict` (exit 1) → same-topic PR on another head, e.g. plan-only. **Preferred:** check out `topic_prs[0].branch` and implement on it (plan + code, one PR). Alternative: branch from the default branch, include the plan commit, then close the plan-only PR as consolidated. Never leave plan-only + fix both open.
+   - `create` → `skills/plan-implement-review/scripts/fresh-branch.sh <feat-branch>` (fetches, branches from `origin/<default>`; exit 3 → stop).
+3. Never implement on top of an unrelated feature branch.
 
 ## 2. Implement
 
@@ -65,41 +53,21 @@ If this work came from a **tracker task**, read that task’s comments **before 
 6. **Prove it for the reviewer.** Follow [`verify-change`](../verify-change/verify-change.md). The PR/MR body uses that skill's template: what changed, build, proof, and Try it steps a person can paste.
    - Look of a screen: before/after images. Behavior (click, type, motion, a sequence): a short video. Backend: curl plus an HTTP file, the response, and a trace or log. Database: a read-only query and its result. A deep change: a diagram of the path.
    - Before = the base branch built from a fresh clone in `/tmp/pir-<topic>/before/` (never the feature branch). After = branch tip. Save captures to `/tmp/pir-<topic>/evidence/`, never into the repo. Open every file: blank, error, or identical before/after frames = failed capture.
-   - Attach on the PR/MR. GitLab: `scripts/upload-evidence.py`. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
+   - Attach on the PR/MR. GitLab: `skills/implement/scripts/upload-evidence.py`. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
    - App can't run here → say so in the PR and still leave Try it. Never skip silently. Do not merge unless the repo's merge policy (`ai-risk`) lets an agent merge this tier. Fill the PR body's Risk and Review guide sections.
 7. **Remote rewritten under you.** `git push` rejected or `git fetch` shows `forced update` → never force-push. Make a backup branch, `git reset --hard origin/<branch>`, cherry-pick your new commits, recheck, push as fast-forward.
 
-## 3. PR — ALWAYS check before create (never open a second PR)
+## 3. PR — check before create (never open a second PR)
 
-**Mandatory before any `gh pr create`:** re-check same-topic open PRs (not only current head).  
-If either check returns a URL, **reuse that PR** — do not create.
+Re-run `skills/plan-implement-review/scripts/pr-find.sh "$(git branch --show-current)" <topic-token>` (state may have changed since §1). Act on `action`:
 
-```bash
-branch=$(git branch --show-current)
-# 1) This head
-existing=$(gh pr list --head "$branch" --base main --state open --json url -q '.[0].url')
-# 2) Same topic / Asana / plan filename (any head) — verify title/body match before reuse
-topic_pr=$(gh pr list --search "<asana-gid OR plan-filename>" --state open \
-  --json url,headRefName,title -q '.[0].url')
-if [ -n "$existing" ]; then
-  gh pr edit --title "…" --body "…"   # when plan-only → has code
-  echo "$existing"
-elif [ -n "$topic_pr" ]; then
-  # Wrong head for same topic: checkout that head or consolidate — do NOT create a second PR
-  echo "Same-topic PR already open: $topic_pr — implement on its head instead"
-  exit 1
-else
-  # Approval: if AGENTS/git-workflow require it, propose title/body and wait before gh pr create
-  gh pr create --base main --title "…" --body "…"
-fi
-```
+- `reuse` → push there; refresh title/body when plan-only became code (`gh pr edit` / `glab mr update`).
+- `conflict` (exit 1) → wrong head for the same topic: implement on that head instead; do NOT create.
+- `create` → if `AGENTS.md` / git-workflow require approval, propose title/body and wait; then `gh pr create --base <default>` / `glab mr create`.
 
 **Rules:**
 
-- Never `gh pr create` until both checks above are empty.
-- Never open a second PR for the same head branch.
-- Never open a second PR for the same Asana/topic/plan file if one open PR already carries that work (push to that branch instead).
-- Prefer **one PR** containing plan doc + implementation when both exist.
+- One PR per head branch, per task/topic/plan file. Prefer **one PR** containing plan doc + implementation.
 - Body: [`verify-change` template](../verify-change/assets/pr-body.md), plus the plan link or path.
 
 ## 4. Done criteria

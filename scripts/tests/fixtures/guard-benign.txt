@@ -1,0 +1,58 @@
+ls -la
+pwd
+cat README.md
+git status
+git status -sb
+git log --oneline -5
+git log --grep=push --oneline
+git diff
+git diff --staged
+git diff main...HEAD -- scripts/push.sh
+git show HEAD
+git branch -a
+git tag -l
+git remote -v
+git fetch origin
+git ls-files
+git ls-tree HEAD
+git rev-parse HEAD
+git rev-list --count HEAD
+git describe --tags
+git blame README.md
+git shortlog -sn
+git grep -n commit
+git cat-file -p HEAD
+git config --get user.name
+git config --get core.hooksPath
+git config core.hooksPath
+git config -l
+git stash list
+git reflog
+git worktree list
+git merge-base main HEAD
+git add -A
+git checkout -b feature
+git switch main
+git restore README.md
+git rebase --abort
+git branch --merged | xargs git branch -d
+git ls-files | xargs grep -l TODO
+git diff --name-only | xargs wc -l
+python3 -m pytest tests/test_push.py
+python3 scripts/tool.py
+bash ./scripts/run-tests.sh
+make test
+npm test
+echo "git push is next"
+grep -rn "git commit" docs/
+rg cherry-pick .
+find . -name '*.sh'
+echo $HOME
+ls $HOME/bin
+gh pr view 12
+gh pr list
+gh api repos/o/r/pulls
+gh api graphql -f query='query{viewer{login}}'
+glab mr view 3
+glab api projects/1
+git status && git log --oneline | head -5

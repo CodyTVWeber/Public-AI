@@ -20,6 +20,8 @@ The repo file `docs/rules/ai-merge-policy.md` contains one line: `Merge policy: 
 or org policy that agents already load and that names this repo also counts.
 
 - Missing file, unknown value, or a policy the agent cannot quote: `conservative`
+- `scripts/merge-policy.sh` does this lookup: it ignores HTML comments and fenced code, takes the
+  strictest of several disagreeing lines, and prints `{profile, auto_merge_low, source}`
 - Repo and org disagree: the stricter one wins
 - The agent quotes the source (file path or policy name) in the pull request before it merges
 - Changing the line is a high-tier change, because it governs agents. It gets its own pull

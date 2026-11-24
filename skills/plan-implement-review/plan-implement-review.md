@@ -58,14 +58,16 @@ If the user does **not** specify `implementer`, pick the **cheap/fast implemente
 
 ## Configuration (parse from user message)
 
+`skills/plan-implement-review/scripts/pir-args.sh --default plan,implement,review "<args>"` → JSON `{phases, ticket, plan_builder, no_plan, implementer, fix_comments, max_rounds, task}`. Exit 2 (unknown phase, gap in phases, bad value) → ask once.
+
 | Key | Default | Notes |
 |-----|---------|-------|
 | `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-4.5-low`) |
 | `plan-builder` | `self` | `self` = orchestrator; or a profile id |
 | `max-rounds` | `3` | Implement attempts (not review count alone) |
-| `plan-only` / `implement-only` / `review-only` | off | Run a single phase |
+| `phases=` · `plan-only` / `implement-only` / `review-only` | `plan,implement,review` | Contiguous run; aliases (`pi`, `ir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
 
-State directory: `/tmp/pir-<topic>/` with `state.json`:
+State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` creates `/tmp/pir-<topic>/state.json` (exit 3 = exists → `get`). Read and write only through `pir-state.sh get [KEY]` · `set KEY=VALUE…` · `status`; never hand-edit. Keys:
 
 ```json
 {
@@ -81,14 +83,13 @@ State directory: `/tmp/pir-<topic>/` with `state.json`:
   "reasoning_effort": "low",
   "round": 1,
   "max_rounds": 3,
-  "regression_command": "npm run test:system:regression",
+  "regression_command": "make regression",
   "regression_status": "pending"
 }
 ```
 
-- **`subagent_id`**: host background-agent id (Grok `spawn_subagent` → use with `resume_from`).
-- **`session_id`**: CLI session UUID when using CLI fallback; also store if the host exposes one.
-- Prefer **one durable id** and always write it to `state.json` after launch for reuse.
+- **`subagent_id`**: host background-agent id (use with `resume_from`). **`session_id`**: CLI/host session id.
+- Write the id right after launch (`pir-state.sh set subagent_id=<id>`); prefer one durable id.
 
 ## Session continuity (keep implementer context)
 
@@ -96,8 +97,7 @@ Background agents **finish a turn** but context is kept when you **resume the sa
 
 1. Round 1 launch → capture `subagent_id` and/or `session_id`.
 2. Rounds 2–3 → **resume same agent** with review feedback (`resume_from=<subagent_id>` or CLI `--resume <session_id>`).
-3. Store both in `state.json` when available.
-4. Resume **must** use the **same model + same effort** as launch (Grok: model switch can fail with `MODEL_SWITCH_INCOMPATIBLE_AGENT`).
+3. Resume **must** use the **same model + same effort** as launch (Grok: model switch can fail with `MODEL_SWITCH_INCOMPATIBLE_AGENT`).
 
 If resume fails: re-launch with full plan path + all prior review notes (degraded; warn user).
 
@@ -107,10 +107,10 @@ Details per profile: `references/implementers.md`.
 
 Canonical rules: [`references/tracker-comments.md`](references/tracker-comments.md). Sibling **write-plan**, **implement**, and **code-review** reference that file — do not fork a second format.
 
-1. **Before Phase A:** read the task’s comments. Reuse any plan/PR they already point to.
-2. After Phase A succeeds: **Plan** milestone comment (write-plan posts this; orchestrator only if it did not).
-3. After each Phase B round: **Implement rN** comment (implementer posts this; orchestrator only if it did not).
-4. After each Phase C: **Review rN** comment.
+- **Before Phase A:** read the task’s comments; reuse any plan/PR they point to
+- Milestones: **Plan** (after A), **Implement rN** (after each B), **Review rN** (after each C). The finishing skill posts; orchestrator only if it did not
+
+Body: `skills/plan-implement-review/scripts/tracker-comment.sh <Plan|Implement rN|Review rN> <status> <url> [human-action]` prints it (≤3 lines, never posts); you post it.
 
 No task, no comments. Comments only — never otherwise edit the tracker task.
 
@@ -123,9 +123,8 @@ Skip if `implement-only` or plan already exists and user says use it.
 
 1. If `plan-builder=self` (default): orchestrator runs **write-plan** fully.
 2. If `plan-builder=<profile-id>`: spawn that profile as a **background agent** with `write-plan.md` + user task; wait for draft plan PR URL.
-3. After success, record in `state.json`: `plan_path`, `plan_branch`, `plan_pr`, `topic`.
-4. Ensure the **Plan** tracker comment exists if this work came from a task (`references/tracker-comments.md`; skip if write-plan already posted it).
-5. Respect project red lines (migrations immutable, no force-push through conflicts, approval before risky deploys).
+3. After success: `pir-state.sh set plan_path=… plan_branch=… plan_pr=…`.
+4. Respect project red lines (migrations immutable, no force-push through conflicts, approval before risky deploys).
 
 ### Research ownership — reasoning-heavy work belongs to the planner, not the orchestrator
 
@@ -141,6 +140,8 @@ When a user assigns explicit model tiers to roles (e.g. `plan-builder=opus`, che
 **Canonical instructions:** sibling skill [`implement`](../implement/implement.md)  
 (also installed as `/implement`). Do not fork a second implement workflow — load and execute **implement** via the implementer agent.
 
+Before every attempt (launch or resume): `skills/plan-implement-review/scripts/pir-state.sh inc-round --topic <topic>`. Exit 3 = rounds spent → hand off; never a 4th attempt. `run-implementer.sh` does this itself.
+
 ### Preferred: background agent (connected)
 
 1. Resolve cheap/fast profile (`grok-4.5-low` when orchestrator is Grok 4.5 high).
@@ -150,16 +151,15 @@ When a user assigns explicit model tiers to roles (e.g. `plan-builder=opus`, che
    - `description`: `[implementer] <topic> r1`
    - Prompt includes: absolute plan path, branch, implement skill path, one-PR rules, project red lines
    - `capability_mode` that allows code edit + git (not read-only)
-3. Save returned **`subagent_id`** → `state.json`.
+3. Save returned **`subagent_id`** (`pir-state.sh set subagent_id=<id> implementer_id=<profile>`).
 4. Wait for completion via host wait tool (do not abandon the agent).
 5. **Rounds 2–3:** `spawn_subagent` with `resume_from: <subagent_id>` + review feedback file contents; same model/effort.
 6. On failure: surface agent output; do not pretend green.
 7. Consolidate plan-only vs implement PR per **implement** skill §1.
-8. After the round finishes: ensure the **Implement rN** tracker comment exists if this work came from a task (skip if the implementer already posted it).
 
 ### Fallback only: detached CLI
 
-Use `scripts/run-implementer.sh` only if background agents are unavailable. Still capture `session_id` for `--resume`. Prefer generating `--session-id` on launch and writing it to `state.json` immediately.
+Use `skills/plan-implement-review/scripts/run-implementer.sh` only if background agents are unavailable. It validates the profile and CLI first, counts the round and stores `session_id` via `pir-state.sh`, and prints JSON `{round, profile, model, session_id, exit_code, out, err}`. Exit 3 = rounds spent; exit 1 = implementer CLI failed (see `err`).
 
 Respect project rules: e.g. **never `git worktree`** if the repo forbids it — run on the plan/feat branch in-repo instead.
 
@@ -168,14 +168,12 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
 - Absolute plan path
 - Feature branch name + existing PR URL if any
 - Path to sibling skill `implement/implement.md` (or “run /implement”)
-- **Git cadence (default):** **commit often**, **do not push** unless the user or orchestrator explicitly says push
-  - Commit after each meaningful green step (framework, J1, J2 fix, docs) — local checkpoints
-  - Do **not** wait for full suite green to make the first commit of WIP
-  - Push is orchestrator/user-owned for PIR unless pre-authorized for that run
+- **Git cadence:** **commit often** (each meaningful green step; WIP counts); **do not push** unless the user or orchestrator says so — push is orchestrator-owned unless pre-authorized
 - “Ensure PR exists only if none; one PR with plan when possible — usually already open”
 - “No product changes outside plan; flag plan gaps instead”
 - Project `AGENTS.md` / migration rules if present
 - “You are the cheap/fast implementer; keep changes minimal and plan-faithful”
+- Commit messages in the repo's numbered format: `skills/plan-implement-review/scripts/commit-msg.sh <branch> <item>...`
 - If work came from a tracker task: one **Implement rN** comment per sibling `plan-implement-review/references/tracker-comments.md` — comments only, never edit the task
 
 ## Phase C — Review
@@ -184,10 +182,14 @@ Respect project rules: e.g. **never `git worktree`** if the repo forbids it — 
 2. Prefer project review skill if available; else structured findings:
    - Severity: bug | suggestion | nit
    - File:line, description, fix suggestion
-3. Verdict:
-   - **approve** → Phase E (system regression) — **do not** final-report as done until E finishes
-   - **fix required** and `round < max_rounds` → Phase D
-   - **fix required** and rounds exhausted → stop; hand issues + `subagent_id` / `session_id` to user; **skip** Phase E unless user asks
+3. Count blocking findings (bug severity or missing proof) `k`, then `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `{next, reason}` (`r`, `m` = `pir-state.sh get round` / `get max_rounds`):
+
+| next | Do |
+|---|---|
+| `gate` | Phase E — **do not** final-report as done until E finishes |
+| `fix` | Phase D |
+| `hand_off` | Stop; hand issues + `subagent_id` / `session_id` to user; **skip** Phase E unless asked |
+| `wait` | Implementer not finished |
 
 Review is **read-only**. Do not apply code fixes in the review step; the implementer applies them.
 
@@ -196,7 +198,7 @@ After the verdict: **Review rN** tracker comment if this work came from a task (
 ## Phase D — Feed findings to implementer
 
 1. Write `${STATE}/review-roundN.md` with issues.
-2. **Resume** the same background implementer (`round := round + 1`).
+2. `inc-round`, then **resume** the same background implementer.
 3. Return to Phase C after implement exits.
 
 ## Plan updates mid-loop
@@ -212,11 +214,12 @@ If review finds a **product/plan** gap:
 
 ### Command
 
-1. Resolve from project docs, in order:
-   - Explicit npm/script named in `AGENTS.md` / `docs/rules/testing.md` / `tests/system/README.md` as **PIR end gate** or **system regression**
-   - Default for this product when present: **`npm run test:system:regression`**
-2. If no system-regression script exists in the repo: record `regression_status: skipped` + reason in the final report; still run `npm run lint && npm run test` (or project equivalent) if not already green on the tip commit.
-3. Store chosen command in `state.json` → `regression_command`.
+`skills/plan-implement-review/scripts/regression-gate.sh <repo-dir> --base origin/<base>` → `{status, command, source, log_tail}`. Exit 3 = dirty tree → commit/stash first.
+
+- Discovery order (also in `--help`): documented gate → explicit regression script/target → lint → typecheck → unit-test chain. Nothing found → `skipped`: give the reason in the final report
+- `pir-state.sh set regression_status=<status> regression_command=<command>`
+- `failed` + `pre_existing: true` (same failures on base) → report, don't block
+- Then `verdict.sh --phase gate --regression <status> --round <r> --max <m> --blocking 0`
 
 ### When to run
 
@@ -224,32 +227,17 @@ If review finds a **product/plan** gap:
 |-----------|----------------|
 | Review **approve** (any round) | **Yes** — always |
 | Docs-only / plan-only (no app code) | Prefer run if cheap; may skip with explicit note if zero runtime surface |
-| `review-only` / `plan-only` flags | No (unless user asks) |
-| Rounds exhausted without approve | No (unless user asks) |
-| Regression fails | **Not done** — treat as review fail: Phase D if rounds remain, else hand failures to user |
+| `review-only` / `plan-only` flags, or rounds exhausted without approve | No (unless user asks) |
 
-### How
-
-1. On the **implement branch** tip (clean tree preferred).
-2. Run the resolved command (full boot + happy paths; do not substitute unit tests alone).
-3. On **pass**: `regression_status: passed` → Final report.
-4. On **fail**: `regression_status: failed`; capture log tail; if `round < max_rounds`, Phase D with regression failures as fix list; else stop and report.
-5. Do **not** claim PIR complete, or merge-ready, without pass or an explicit user skip.
+Run on the **implement branch** tip; never substitute unit tests alone when a full regression exists. `done` → Final report. `fix` → Phase D with the log tail as fix list. `hand_off` → stop and report. Never call PIR complete or merge-ready without a pass or an explicit user skip.
 
 ### Implementer prompt addition
 
-Include: “Unit/lint green is required each commit; **orchestrator** runs `npm run test:system:regression` (or project PIR gate) after review approve — you may run it if local Supabase is up and it speeds feedback.”
+Include: “Unit/lint green is required each commit; **orchestrator** runs the project regression gate after review approve — you may run it if its local dependencies are up and it speeds feedback.”
 
 ## Round budget
 
-| Implement attempt | After |
-|-------------------|--------|
-| 1 | First code from plan |
-| 2 | First fix pass |
-| 3 | Last fix pass |
-| stop | Approve **+ Phase E** or 3 attempts reviewed |
-
-No automatic 4th implement.
+Attempt 1 = first code; 2–3 = fix passes. Stop on approve **+ Phase E**, or when 3 attempts are reviewed. No automatic 4th implement: `inc-round` exits 3 at `round == max_rounds`.
 
 ## Safety
 

@@ -8,7 +8,7 @@ Profiles for a **cheap / fast / low-effort** coding agent. The orchestrator (str
 |-----------|----------|
 | Host **background subagent** (`spawn_subagent`, `background: true`) — orchestrator remains connected and can `resume_from` | Detached CLI via `scripts/run-implementer.sh` when no agent API exists |
 
-Always persist **`subagent_id`** (background agent) and/or **`session_id`** (CLI) in `/tmp/pir-<topic>/state.json` for fix rounds.
+Always persist **`subagent_id`** (background agent) and/or **`session_id`** (CLI) with `skills/plan-implement-review/scripts/pir-state.sh set` (state: `/tmp/pir-<topic>/state.json`) for fix rounds. `run-implementer.sh` does this itself.
 
 ## Availability check
 
@@ -26,13 +26,13 @@ grok models 2>/dev/null | head -20
 | Field | Value |
 |-------|--------|
 | CLI | `grok` |
-| Model | `grok-4.5` |
+| Model | `<grok model>` |
 | Effort | **`low`** (`--reasoning-effort low` / `--effort low`) |
-| Background agent | `spawn_subagent` with `model: "grok-4.5"`, `background: true`, `description: "[implementer] …"`. If the host cannot set effort on spawn, put `reasoning_effort: low` in the agent prompt and prefer CLI flags when using CLI fallback. |
-| Launch (CLI fallback) | `grok --model grok-4.5 --reasoning-effort low --always-approve --session-id <uuid> --max-turns 80 --output-format json --prompt-file <file>` |
-| Resume (CLI) | `grok --model grok-4.5 --reasoning-effort low --always-approve --resume <sessionId> --cwd <repo> --max-turns 60 --output-format json --prompt-file <file>` |
+| Background agent | `spawn_subagent` with `model: "<grok model>"`, `background: true`, `description: "[implementer] …"`. If the host cannot set effort on spawn, put `reasoning_effort: low` in the agent prompt and prefer CLI flags when using CLI fallback. |
+| Launch (CLI fallback) | `grok --model <grok model> --reasoning-effort low --always-approve --session-id <uuid> --max-turns 80 --output-format json --prompt-file <file>` |
+| Resume (CLI) | `grok --model <grok model> --reasoning-effort low --always-approve --resume <sessionId> --cwd <repo> --max-turns 60 --output-format json --prompt-file <file>` |
 | Resume (agent) | `spawn_subagent` + `resume_from: <subagent_id>` + same model; do **not** change effort mid-session |
-| Session id | Pre-generate UUID with `--session-id` on launch **or** parse JSON `sessionId` / `session_id`; always write to `state.json` immediately |
+| Session id | Pre-generate UUID with `--session-id` on launch **or** parse JSON `sessionId` / `session_id`; write it with `pir-state.sh set session_id=…` immediately |
 | Notes | **Use this when orchestrator is Grok 4.5 high** (or any Grok 4.5 plan/review run). Same model family, lower cost/latency. |
 
 ### `composer-2.5` — Grok Composer (if model id available)
@@ -40,7 +40,7 @@ grok models 2>/dev/null | head -20
 | Field | Value |
 |-------|--------|
 | CLI | `grok` |
-| Model | `grok-composer-2.5-fast` (only if `grok models` lists it) |
+| Model | `<composer model>` (only if `grok models` lists it) |
 | Launch / resume | See historical Composer flags; **skip profile** if model id unknown |
 | Resume caveat | Composer may bind agent type; resume must use same model |
 
@@ -49,7 +49,7 @@ grok models 2>/dev/null | head -20
 | Field | Value |
 |-------|--------|
 | CLI | `grok` |
-| Model | `grok-4.5` |
+| Model | `<grok model>` |
 | Effort | default/high (omit `--reasoning-effort low`) |
 | Notes | **Only** when user forces `implementer=grok-4.5` or low path is broken. Not the default. |
 
