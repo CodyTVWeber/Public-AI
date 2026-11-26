@@ -177,4 +177,20 @@ class Box:
         return len(items)
 FIX
 expect_clean "clean python" tidy.py
+for ext in mjs cjs; do
+fx "bill.$ext" <<'FIX'
+// computes the bill
+function compute(a, b, c, d) {
+  try {
+    return a / 1000;
+  } catch (e) {
+  }
+}
+FIX
+expect_rule "$ext added comment" "bill.$ext" added-comment
+expect_rule "$ext params" "bill.$ext" param-count
+expect_rule "$ext empty catch" "bill.$ext" empty-catch
+expect_rule "$ext magic number" "bill.$ext" magic-number
+done
+
 finish

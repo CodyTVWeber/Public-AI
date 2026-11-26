@@ -59,7 +59,7 @@ function researchRefSteps(ctx) {
 function privacySteps(ctx) {
   if (!ctx.on("privacy")) return [];
   if (!ctx.publicRoot) return missingClone("privacy");
-  const specs = ["check-privacy.sh", "install-hooks.sh"].map((name) => ({
+  const specs = ["check-privacy.sh", "install-hooks.sh", "lint/check-languages.sh"].map((name) => ({
     id: "privacy:" + name, path: "scripts/" + name, src: source(ctx, "scripts/" + name), reason: PRIVACY_REASON }));
   return [...copySteps(ctx, specs), new Step("privacy:patterns", "manual", "scripts/check-privacy.sh", PATTERNS_HINT)];
 }

@@ -102,9 +102,17 @@ One background agent per repo: plans its slice, delegates to implementers. Orche
 
 - Default: one implementer, one checkout.
 - Isolated work (before-build, scratch runs) → fresh clone.
-- Worktrees only for parallel slices.
+- Worktrees: allowed for any effort on one branch that splits into cleanly mergeable slices across worker agents (plan, fix list, port, sweep), not only PIR runs.
 
-**When.** Plan splits into ≥ 2 slices with disjoint owned paths, each earning its own agent. Else one implementer. Cap `max-slices` = 4 (override: `--max-slices`, `PIR_MAX_SLICES`).
+**When.** Work splits into ≥ 2 slices with disjoint owned paths, each earning its own agent, merging back without conflicts by construction. Else one implementer. Cap `max-slices` = 4 (override: `--max-slices`, `PIR_MAX_SLICES`).
+
+| Situation | Do |
+|---|---|
+| Disjoint paths, same repo, base committed | Worktree per slice (below) |
+| Disjoint paths, uncommitted base | Commit the base first (local commit, push later); never fork an uncommitted tree |
+| Different repos | No worktree; one worker per repo |
+| Paths overlap or slice B needs A's output | One worker, or sequence A → B |
+| Shared tree without worktrees (emergency) | Only one worker stages/commits; others edit owned paths only |
 
 - Judgment: planner/orchestrator names slices + owned paths in plan (`slices=` list; one `{name, paths[]}` each).
 - Mechanical: `skills/implement/scripts/slices-check.sh SLICES.json` fails on bad names, count over cap, or overlapping path globs. Fix split, then continue.
@@ -112,7 +120,7 @@ One background agent per repo: plans its slice, delegates to implementers. Orche
 **How.** Root = `${TMPDIR:-/tmp}/pir-<topic>/wt`, outside repo.
 - Clone mode root: `${XDG_CACHE_HOME:-$HOME/.cache}/pir-<topic>/wt` (TMPDIR purge can't reach it).
 
-1. Feature branch exists, tree clean (§1).
+1. Feature branch exists, tree clean (§1); uncommitted work → commit it as the base first.
 2. `skills/implement/scripts/worktree-split.sh --base <feat> --topic <topic> --slices a,b,c` → branch `<feat>--<slice>` + checkout `<root>/<slice>` per slice, from feature tip. (`--`, not `/`: git can't hold `feat/x` and `feat/x/a` together.)
 3. One subagent per checkout, prompt below. Subagents:
    - Edit only owned paths. Commit often on slice branch (§2.4 approval applies; PIR run pre-authorizes).

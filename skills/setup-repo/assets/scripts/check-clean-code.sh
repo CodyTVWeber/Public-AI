@@ -20,7 +20,7 @@ esac
 
 SOFT="${FILE_SOFT:-200}"
 HARD="${FILE_HARD:-400}"
-LEGACY_EXTS='ts+tsx+js+jsx+mjs+kt+java+py+go+rb+rs+swift+cs+php+scala'
+LEGACY_EXTS='ts+tsx+js+jsx+mjs+cjs+kt+java+py+go+rb+rs+swift+cs+php+scala'
 CODE_EXT="\\.(${LEGACY_EXTS//+/|})\$"
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 analyzer="$here/code-quality-check.sh"
@@ -58,7 +58,7 @@ comment_body() {
         return 1
       fi
       ;;
-    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.kt|*.java|*.go|*.rs|*.swift|*.cs|*.php|*.scala)
+    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.kt|*.java|*.go|*.rs|*.swift|*.cs|*.php|*.scala)
       if [[ "$line" =~ ^[[:space:]]*// ]]; then
         body=$(printf '%s\n' "$line" | sed -E 's|^[[:space:]]*//[[:space:]]*||; s/[[:space:]]+$//')
       elif [[ "$line" =~ ^[[:space:]]*/\* ]]; then

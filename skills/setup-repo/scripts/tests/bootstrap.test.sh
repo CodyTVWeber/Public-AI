@@ -183,6 +183,7 @@ assert_eq "research ref registered" "true" "$(jq -r '[.hooks.SessionStart[].hook
 assert_contains "approval wording in the section" "$(cat "$m/AGENTS.md")" "Never auto-commit. Never auto-push."
 [ -x "$m/scripts/check-privacy.sh" ] && ok || bad "privacy gate installed"
 assert_contains "privacy script reads the local patterns file" "$(cat "$m/scripts/check-privacy.sh")" "info/privacy-patterns"
+[ -x "$m/scripts/lint/check-languages.sh" ] && ok || bad "language check installed"
 assert_eq "privacy patterns manual step is listed" "manual" "$(step_action "$(plan "$m" --with privacy)" privacy:patterns)"
 assert_contains "patterns step names the strict switch" "$(plan "$m" --with privacy | jq -r '.steps[] | select(.id == "privacy:patterns") | .reason')" "PRIVACY_REQUIRE_PATTERNS=1"
 decision="$(jq -nc --arg c 'git push' '{tool_name:"Bash",tool_input:{command:$c}}' | (cd "$m" && scripts/guard/git-approval-guard.sh) | jq -r '.hookSpecificOutput.permissionDecision')"
