@@ -14,7 +14,7 @@ git --no-pager push, env X=1 git push, sh -c "git push", chained, via a git alia
   check-mr-size.sh cannot measure (no base ref, crash)    -> ask the user (never silently allow)
   CLEAN_CODE_SKIP=<non-0> anywhere in the command         -> ask the user
   no changes to measure (exit 2), or not a push/MR create -> allow
-Parses commands with git-scan.sh (python3); without it a coarser regex decides what counts as a push.
+Parses commands with git-scan.sh (node); without it a coarser regex decides what counts as a push.
 Exit: 0 allow or ask (JSON on stdout), 2 block
 EOF
 }

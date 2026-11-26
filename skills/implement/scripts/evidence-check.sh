@@ -43,18 +43,15 @@ sha_of() {
 }
 
 png_dims() {
-  python3 -I - "$1" <<'PY'
-import struct
-import sys
-
-with open(sys.argv[1], "rb") as f:
-    head = f.read(24)
-if head[:8] == b"\x89PNG\r\n\x1a\n" and head[12:16] == b"IHDR":
-    w, h = struct.unpack(">II", head[16:24])
-    print(f"{w} {h}")
-else:
-    print("0 0")
-PY
+  node -e '
+const { openSync, readSync, closeSync } = require("node:fs");
+const head = Buffer.alloc(24);
+const fd = openSync(process.argv[1], "r");
+const n = readSync(fd, head, 0, 24, 0);
+closeSync(fd);
+const ok = n >= 24 && head.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex")) && head.toString("latin1", 12, 16) === "IHDR";
+console.log(ok ? `${head.readUInt32BE(16)} ${head.readUInt32BE(20)}` : "0 0");
+' "$1"
 }
 
 entries="[]"

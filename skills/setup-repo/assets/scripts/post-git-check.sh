@@ -19,7 +19,7 @@ Every finding, analyzer errors included, arrives as hookSpecificOutput.additiona
 The hook never exits 2, so a finished commit never forces a follow-up commit; the errors are fixed in
 the next planned change and the push gate re-checks them.
 Env: POST_GIT_SKIP=1, CLEAN_CODE_SKIP=1 or CC_SKIP=1 skip the hook.
-Needs jq, python3 and git-scan.sh next to this script; any missing piece exits 0.
+Needs jq, node and git-scan.sh next to this script; any missing piece exits 0.
 Exit: 0 always (2 only for a usage error)
 USAGE
 }

@@ -13,25 +13,35 @@ check() {
 }
 
 mkpng() {
-  python3 -I - "$1" "$2" "$3" <<'PY'
-import os
-import struct
-import sys
-import zlib
+  node - "$1" "$2" "$3" <<'JS'
+const { writeFileSync } = require("node:fs");
+const { randomBytes } = require("node:crypto");
+const { deflateSync, crc32 } = require("node:zlib");
 
-path, size, seed = sys.argv[1], sys.argv[2], int(sys.argv[3])
-w, h = (int(part) for part in size.split("x"))
-raw = b"".join(b"\x00" + os.urandom(3 * w) if seed else b"\x00" + bytes(3 * w) for _ in range(h))
+const [path, size, seed] = [process.argv[2], process.argv[3], Number(process.argv[4])];
+const [w, h] = size.split("x").map(Number);
+const rows = Array.from({ length: h }, () => Buffer.concat([Buffer.from([0]), seed ? randomBytes(3 * w) : Buffer.alloc(3 * w)]));
 
+function chunk(type, data) {
+  const t = Buffer.from(type, "latin1");
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(Buffer.concat([t, data])));
+  return Buffer.concat([len, t, data, crc]);
+}
 
-def chunk(t, d):
-    return struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d))
-
-
-open(path, "wb").write(
-    b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
-)
-PY
+const ihdr = Buffer.alloc(13);
+ihdr.writeUInt32BE(w, 0);
+ihdr.writeUInt32BE(h, 4);
+ihdr.set([8, 2, 0, 0, 0], 8);
+writeFileSync(path, Buffer.concat([
+  Buffer.from("89504e470d0a1a0a", "hex"),
+  chunk("IHDR", ihdr),
+  chunk("IDAT", deflateSync(Buffer.concat(rows))),
+  chunk("IEND", Buffer.alloc(0)),
+]));
+JS
 }
 
 run() { set +e; "$@" >"$tmp/out" 2>"$tmp/err"; code=$?; set -e; }

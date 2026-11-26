@@ -35,6 +35,6 @@ Work **back** from event start. Label each duration **stated** (from event/sourc
 
 **Output order chronological:** prep and before-departure tasks **above** depart line.
 
-Compute: `scripts/event-backtime.py --start ISO --buffer-min N --drive-min N --load-min N --getready-min N [--prep-min N] [--stated drive,…] [--text]`. Prints ordered table with each step's basis (stated, estimate, recommendation). Pass only durations you have; minutes are inputs, not defaults.
+Compute: `scripts/event-backtime.mjs --start ISO --buffer-min N --drive-min N --load-min N --getready-min N [--prep-min N] [--stated drive,…] [--text]`. Prints ordered table with each step's basis (stated, estimate, recommendation). Pass only durations you have; minutes are inputs, not defaults.
 
 Never invent deadlines. Prep duration = recommendation → say so.

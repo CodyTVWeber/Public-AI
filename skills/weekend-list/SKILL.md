@@ -23,7 +23,7 @@ One **readable** checklist. Deliver the rendered sheet, not status chatter.
 | Section | What belongs |
 |---------|----------------|
 | **Carryover** | Still-open items from before this weekend |
-| **Weekend** | This Saturday–Sunday (dates: `scripts/weekend-dates.py`, JSON) |
+| **Weekend** | This Saturday–Sunday (dates: `scripts/weekend-dates.mjs`, JSON) |
 | **Weekday prep** | Work for the coming week, not this weekend's doing |
 
 - One item, one section. Source and date decide the bucket, not an invented P0/P1

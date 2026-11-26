@@ -29,7 +29,7 @@ Close obligation only when:
 - **Recipient**, **amount**, **purpose** match that obligation exactly.
 - Receipt exists (or user confirms payment completed).
 
-Compare: `scripts/payment-match.py --expect JSON --actual JSON` (recipient, amount, purpose). Exit 1 → leave open, say which field differs. Script prints field names only, never values.
+Compare: `scripts/payment-match.mjs --expect JSON --actual JSON` (recipient, amount, purpose). Exit 1 → leave open, say which field differs. Script prints field names only, never values.
 
 ## Do not
 

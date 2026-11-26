@@ -75,7 +75,7 @@ Sender Name
 3. **Delta:** list only open items. "Also for the record" block = agreed items that must appear in the document.
 4. **Document-shaped asks:** "please write in the order form: ..." over open-ended questions when signing or closing.
 5. **Layers:** separate easily confused layers (license vs support, included vs excluded) as short sub-bullets.
-6. **Banned phrases:** [references/style-guide.md](references/style-guide.md). `scripts/draft-lint.py` enforces.
+6. **Banned phrases:** [references/style-guide.md](references/style-guide.md). `scripts/draft-lint.mjs` enforces.
 7. **Never send** without explicit go-ahead. Drafts are files, not sent mail.
 
 ## Workflow
@@ -84,7 +84,7 @@ Sender Name
 2. List open items (scratch table; keep out of email).
 3. Draft in skeleton.
 4. Save durable drafts at `scripts/draft-path.sh TOPIC` (`draft-<topic>.md`).
-5. `scripts/draft-lint.py FILE`. Exit 1 lists `{line, rule}`. Fix each; rerun until 0.
+5. `scripts/draft-lint.mjs FILE`. Exit 1 lists `{line, rule}`. Fix each; rerun until 0.
 6. Show path. Wait for send go-ahead.
 
 ## Config

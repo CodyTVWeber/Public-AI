@@ -26,7 +26,7 @@ USAGE
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 ASSETS="$SKILL_DIR/assets"
-PYRUN="$SKILL_DIR/scripts/lib/pyrun.sh"
+SETTINGS_MERGE="$SKILL_DIR/scripts/lib/setuplib/settings_merge.mjs"
 DEFAULT_GROUPS="guard,docs-lint,analyzer,stop,post-git"
 
 copies=(); overwrites=(); target=""; force=0; githooks=1; rules=1; doc=1; dry=0; post_git=1; groups="$DEFAULT_GROUPS"
@@ -101,8 +101,8 @@ copy_dir() {
 install_files() {
   [ "$rules" -eq 1 ] && copy_dir "$ASSETS/rules" "$target/.claude/rules" '*.md'
   copy_dir "$ASSETS/scripts" "$target/scripts/clean-code" '*.sh'
-  copy_dir "$ASSETS/scripts/cleancode" "$target/scripts/clean-code/cleancode" '*.py'
-  copy_dir "$ASSETS/scripts/gitscan" "$target/scripts/clean-code/gitscan" '*.py'
+  copy_dir "$ASSETS/scripts/cleancode" "$target/scripts/clean-code/cleancode" '*.mjs'
+  copy_dir "$ASSETS/scripts/gitscan" "$target/scripts/clean-code/gitscan" '*.mjs'
   [ "$dry" -eq 1 ] || chmod +x "$target"/scripts/clean-code/*.sh 2>/dev/null || true
   return 0
 }
@@ -135,7 +135,7 @@ install_settings() {
     settings='{"status":"skipped","missing":[]}'
     return 0
   fi
-  settings="$("$PYRUN" setuplib.settings_merge "$target/.claude/settings.json" "$groups" "${flags[@]+"${flags[@]}"}")" || {
+  settings="$(node "$SETTINGS_MERGE" "$target/.claude/settings.json" "$groups" "${flags[@]+"${flags[@]}"}")" || {
     echo "settings.json is not valid JSON: merge the hooks by hand" >&2
     settings='{"status":"invalid","missing":[]}'
   }

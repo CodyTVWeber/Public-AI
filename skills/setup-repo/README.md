@@ -136,8 +136,8 @@ Env knobs: `MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `MR_BASE`; 
 
 ## Code-quality analyzer
 
-`scripts/clean-code/code-quality-check.sh` runs a Python 3 standard-library package
-(`cleancode/`) through `python3 -I`. Findings count only when the offending line, or any line of the
+`scripts/clean-code/code-quality-check.sh` runs a Node built-ins-only package
+(`cleancode/`) through `node`. Findings count only when the offending line, or any line of the
 offending function, changed against `HEAD` (the whole file when it is untracked or added), so existing
 debt stays silent.
 
@@ -205,7 +205,7 @@ scripts/bootstrap.sh        plan and apply by profile and flags
 scripts/verify-repo.sh      post-install checks
 scripts/link-skills.sh      symlink skills from a Public-AI clone
 scripts/install.sh          the one file writer (rules, scripts, hooks, add-on copies)
-scripts/lib/                Python modules behind the wrappers (setuplib/)
+scripts/lib/                Node modules behind the wrappers (setuplib/*.mjs)
 assets/rules                clean-code.md, ban-comments.md, docs-current-or-dated.md, small-mrs.md, research-latest-main.md
 assets/scripts              check-mr-size.sh, check-clean-code.sh, claude-pre-tool-guard.sh, post-git-check.sh,
                             pre-push-gate.sh, git-scan.sh, lint-docs.sh, code-quality-check.sh

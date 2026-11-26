@@ -48,4 +48,4 @@ Applies to all agent output: chat replies, drafts, PR descriptions. Extends [ema
 
 - [ ] Scannable in 30 seconds?
 - [ ] Would a person say it out loud?
-- [ ] Written drafts: `python3 -I skills/email-style/scripts/draft-lint.py FILE --profile output` exit 0. Exit 1 → fix listed lines.
+- [ ] Written drafts: `node skills/email-style/scripts/draft-lint.mjs FILE --profile output` exit 0. Exit 1 → fix listed lines.

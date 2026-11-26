@@ -69,7 +69,7 @@ Reviewer who follows Try it and sees the stated result has verified the behavior
 ## Capture
 
 - Keep evidence files out of the git tree. Attach to the PR so the forge hosts them
-- GitLab: `skills/implement/scripts/upload-evidence.py <project-id> <files>` (`--dry-run` validates first; exit 2 bad file, 4 upload failed). Other forges: attach in the description
+- GitLab: `skills/implement/scripts/upload-evidence.mjs <project-id> <files>` (`--dry-run` validates first; exit 2 bad file, 4 upload failed). Other forges: attach in the description
 - Run `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>` first. Exit 1 (zero-byte, tiny, before = after) = failed capture
 - Open every image and play every video. Blank frame, error page, or login wall = failed capture; capture again
 - Before = checkout of the base branch, built on its own. Not this branch

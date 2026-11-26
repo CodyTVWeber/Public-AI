@@ -150,5 +150,18 @@ out="$(printf '%s' "$push_json" | (cd "$up" && MR_BASE=main "$up/guard/claude-pr
 assert_rc "a branch with no upstream is analysed against the base" 2 $rc
 
 "$scripts/check-mr-size.sh" --help >/dev/null; assert_rc "mr-size help" 0 $?
+
+cp "$scripts/check-mr-size.sh" "$repo/guard/"
+printf 'risk: high\n' > "$repo/.mr-size"
+blocked 'git push'
+rm -f "$repo/.mr-size"
+blocked 'git push'
+printf 'risk: low\n' > "$repo/.mr-size"
+out="$(cd "$repo" && MR_BASE=main MR_SIZE_HARD=10 MR_SIZE_SOFT=5 "$repo/guard/check-mr-size.sh")"; rc=$?
+assert_rc "low-risk over hard limit exits 0" 0 $rc
+assert_contains "low-risk advisory line" "$out" "low-risk repo (.mr-size): size is advisory"
+assert_contains "low-risk keeps size table" "$out" "changed lines in"
+allowed 'git push'
+rm -f "$repo/.mr-size"
 out="$(cd "$small" && MR_BASE=main "$scripts/check-mr-size.sh" --print-base)"; assert_eq "print-base" main "$out"
 finish

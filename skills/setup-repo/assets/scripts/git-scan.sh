@@ -23,7 +23,7 @@ Prints one tag per line:
   deny:no-verify, deny:hookspath  hook bypass; hooksPath writes via git -c, git config, GIT_CONFIG_*
   deny:skip, skip-soft            CLEAN_CODE_SKIP, SKIP=, HUSKY=0
   unparsed                        the command only partly parsed
-Exit: 0 tags printed (possibly none), 2 usage, 3 python3 missing
+Exit: 0 tags printed (possibly none), 2 usage, 3 node missing
 USAGE
 }
 
@@ -31,6 +31,6 @@ case "${1:-}" in
   -h|--help) usage; exit 0 ;;
   -*) usage >&2; exit 2 ;;
 esac
-command -v python3 >/dev/null 2>&1 || exit 3
+command -v node >/dev/null 2>&1 || exit 3
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
-exec python3 -I -B -c 'import sys; sys.path.insert(0, sys.argv[1]); from gitscan.cli import main; sys.exit(main(sys.argv[2:]))' "$here" "$@"
+exec node "$here/gitscan/main.mjs" "$@"

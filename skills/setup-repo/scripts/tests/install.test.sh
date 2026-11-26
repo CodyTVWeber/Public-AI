@@ -22,11 +22,10 @@ assert_eq "hooksPath set" ".githooks" "$(git -C "$a" config --local core.hooksPa
 assert_contains "claude hooks wired" "$(cat "$a/.claude/settings.json")" "lint-docs.sh --hook"
 assert_contains "pre-tool guard wired" "$(cat "$a/.claude/settings.json")" "claude-pre-tool-guard.sh"
 assert_contains "snippet in CLAUDE.md" "$(cat "$a/CLAUDE.md")" "## Clean code and small MRs"
-for f in scripts/clean-code/code-quality-check.sh scripts/clean-code/cleancode/cli.py scripts/clean-code/cleancode/lexer.py; do
+for f in scripts/clean-code/code-quality-check.sh scripts/clean-code/cleancode/cli.mjs scripts/clean-code/cleancode/lexer.mjs; do
   [ -e "$a/$f" ] && ok || bad "installed $f"
 done
 [ -x "$a/scripts/clean-code/code-quality-check.sh" ] && ok || bad "analyzer wrapper executable"
-[ ! -e "$a/scripts/clean-code/cleancode/__pycache__" ] && ok || bad "no bytecode written"
 assert_eq "PostToolUse analyzer matcher" '"Write|Edit|MultiEdit"' "$(jq -c '.hooks.PostToolUse[] | select(.hooks[].command | endswith("code-quality-check.sh --hook")) | .matcher' "$a/.claude/settings.json")"
 assert_contains "Stop hook wired" "$(cat "$a/.claude/settings.json")" "code-quality-check.sh --stop-hook"
 assert_contains "post-git hook wired on Bash" "$(jq -c '[.hooks.PostToolUse[] | select(.matcher == "Bash") | .hooks[].command]' "$a/.claude/settings.json")" "post-git-check.sh"
@@ -61,7 +60,7 @@ cat > "$d/.claude/settings.json" <<'JSON'
 JSON
 out="$("$install" "$d" --no-rules --no-githooks 2>&1)"; assert_rc "no-rules install ok" 0 $?
 [ -e "$d/.claude/rules" ] && bad "no-rules skips rules" ".claude/rules exists" || ok
-[ -e "$d/scripts/clean-code/cleancode/cli.py" ] && ok || bad "no-rules still installs the analyzer"
+[ -e "$d/scripts/clean-code/cleancode/cli.mjs" ] && ok || bad "no-rules still installs the analyzer"
 assert_eq "existing permissions kept" '["Bash(ls)"]' "$(jq -c '.permissions.allow' "$d/.claude/settings.json")"
 assert_eq "existing PostToolUse hook kept and merged into its group" '["echo mine","\"$CLAUDE_PROJECT_DIR\"/scripts/clean-code/code-quality-check.sh --hook"]' "$(jq -c '[.hooks.PostToolUse[] | select(.matcher == "Write|Edit|MultiEdit") | .hooks[].command]' "$d/.claude/settings.json")"
 assert_eq "existing Stop hook kept and merged into its group" '["echo done","\"$CLAUDE_PROJECT_DIR\"/scripts/clean-code/code-quality-check.sh --stop-hook"]' "$(jq -c '[.hooks.Stop[0].hooks[].command]' "$d/.claude/settings.json")"

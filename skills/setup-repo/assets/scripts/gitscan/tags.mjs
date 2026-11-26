@@ -1,0 +1,15 @@
+export const COMMIT = "commit";
+export const PUSH = "push";
+export const MR_CREATE = "mr-create";
+export const COMMIT_LIKE = "commit-like";
+export const PUSH_LIKE = "push-like";
+export const FORGE_WRITE = "forge-write";
+export const ASK_DYNAMIC = "ask-dynamic";
+export const ASK_UNKNOWN = "ask-unknown-git";
+export const ASK_INTERPRETER = "ask-interpreter";
+export const DENY_NO_VERIFY = "deny:no-verify";
+export const DENY_HOOKSPATH = "deny:hookspath";
+export const DENY_SKIP = "deny:skip";
+export const SKIP_SOFT = "skip-soft";
+export const UNPARSED = "unparsed";
+export const GATE_TAGS = new Set([COMMIT, PUSH, COMMIT_LIKE, PUSH_LIKE]);

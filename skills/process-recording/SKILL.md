@@ -19,7 +19,7 @@ Output: transcript + action table.
    - tier: **committed** / **conditional** / **optional**
    - confidence: clear | quiet/uncertain
 3. **Cross-check** quiet or uncertain speech with supported audio/video review. Ambiguity left → **flag**. No invented replay. No guess → task.
-4. **Dedupe** against the **actual** task list before filing: `scripts/dedupe-tasks.py NEW.json EXISTING.json` → `{new, duplicates}` (exact match after normalizing). Link existing item per duplicate. Judge near-matches yourself.
+4. **Dedupe** against the **actual** task list before filing: `scripts/dedupe-tasks.mjs NEW.json EXISTING.json` → `{new, duplicates}` (exact match after normalizing). Link existing item per duplicate. Judge near-matches yourself.
 5. **File** in the task list the user names, on the owner's behalf. Filer ≠ assignee is fine.
 
 ## Never

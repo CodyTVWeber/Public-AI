@@ -9,7 +9,8 @@ Installs git hooks (once per clone):
   pre-commit   scripts/check-privacy.sh            (staged content and file names), then
                scripts/clean-code/check-clean-code.sh when present, else
                skills/setup-repo/assets/scripts/check-clean-code.sh (the canonical copy; it also
-               runs the code-quality analyzer in --staged mode)
+               runs the code-quality analyzer in --staged mode), then
+               scripts/lint/check-languages.sh --staged when present (Bash or JavaScript only)
   commit-msg   scripts/check-privacy.sh --message  (the commit message)
   pre-push     scripts/check-privacy.sh --range auto (added lines, names, messages and binaries of the
                commits being pushed; blocks on findings), then scripts/clean-code/check-mr-size.sh when
@@ -68,7 +69,9 @@ HOOK
 PRE_COMMIT_BODY='"$root/scripts/check-privacy.sh" || exit $?
 clean_code="$root/scripts/clean-code/check-clean-code.sh"
 [ -x "$clean_code" ] || clean_code="$root/skills/setup-repo/assets/scripts/check-clean-code.sh"
-[ -x "$clean_code" ] && { "$clean_code" || exit $?; }'
+[ -x "$clean_code" ] && { "$clean_code" || exit $?; }
+languages="$root/scripts/lint/check-languages.sh"
+[ -x "$languages" ] && { "$languages" --staged || exit $?; }'
 COMMIT_MSG_BODY='"$root/scripts/check-privacy.sh" --message "$1" || exit $?'
 PRE_PUSH_BODY='"$root/scripts/check-privacy.sh" --range auto || exit $?
 size_check="$root/scripts/clean-code/check-mr-size.sh"

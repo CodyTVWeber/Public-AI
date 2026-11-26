@@ -4,7 +4,7 @@ set -uo pipefail
 usage() {
   cat <<'EOF2'
 Usage: run-all.sh [--fast] [-h|--help]
-Runs every *.test.sh under scripts/ and skills/ (plain bash, no framework).
+Runs every *.test.sh (bash) and *.test.mjs (node --test) under scripts/ and skills/.
   (default)  full run: every test file
   --fast     smoke tier: skips the test files whose basename is listed in
              scripts/tests/slow.list (one basename per line, the slowest quarter by wall time)
@@ -36,6 +36,15 @@ while IFS= read -r -d '' t; do
   count=$((count + 1))
   bash "$t" || failed=$((failed + 1))
 done < <(find "$root/scripts" "$root/skills" -type f -name '*.test.sh' -print0 2>/dev/null | sort -z)
+
+while IFS= read -r -d '' t; do
+  if [ "$fast" -eq 1 ] && is_slow "$t"; then
+    skipped=$((skipped + 1))
+    continue
+  fi
+  count=$((count + 1))
+  node --test "$t" || failed=$((failed + 1))
+done < <(find "$root/scripts" "$root/skills" -type f -name '*.test.mjs' -print0 2>/dev/null | sort -z)
 
 echo "run-all: $count test files, $failed failed, $skipped skipped"
 [ "$failed" -eq 0 ]

@@ -9,9 +9,17 @@ One reviewable concern per MR. Small changes get faster, more careful reviews, m
 | ≤ 200 | Ideal |
 | 201-400 | Fine |
 | 401-800 | Warn: say why it can't split, or split |
-| > 800 | Blocked on push / MR creation until split (or override with stated reason) |
+| > 800 | Blocked on push / MR creation until split (or override with stated reason). Low-risk repo: advisory |
 
 Env-tunable: `MR_SIZE_SOFT` (warn), `MR_SIZE_HARD` (block).
+
+## Low-risk repos
+
+- Qualifies: ships nothing that runs for users (no deployed app, service, job, or data). E.g. docs, AI config/skills/rules, personal tooling
+- Never qualifies: deployed code, shared libraries, infra
+- Declare: tracked `.mr-size` at repo root, line `risk: low`
+- Effect: > 800 block → advisory line `low-risk repo (.mr-size): size is advisory`, exit 0
+- Split advice unchanged. One concern per commit still applies
 
 ## How to keep it small
 

@@ -24,7 +24,7 @@ ln -sfn <path-to-this-repo>/skills/outline-output ~/.agents/skills/outline-outpu
 ## Lint
 
 ```bash
-python3 -I skills/email-style/scripts/draft-lint.py FILE --profile output
+node skills/email-style/scripts/draft-lint.mjs FILE --profile output
 ```
 
 Checks banned phrases, emoji, time-zone labels, opening length. Exit 0 clean, 1 violations, 2 usage; install `email-style` alongside.

@@ -31,7 +31,7 @@ Every actionable event carries, when known:
 - **Source-email link** + **searchable subject** (find mail without the entry)
 
 - Unknown field: leave blank, say so. Never fill from memory.
-- Lint draft: `scripts/event-entry-lint.py FILE` (exit 1 lists missing labels).
+- Lint draft: `scripts/event-entry-lint.mjs FILE` (exit 1 lists missing labels).
 
 No new access or authority; follow platform connection, approval, safety rules.
 

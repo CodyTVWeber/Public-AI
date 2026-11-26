@@ -10,7 +10,9 @@ Usage: check-mr-size.sh [base-ref | --print-base]
 Measures the current branch against its base and enforces the small-MR budget.
 Env:   MR_SIZE_SOFT (default 400) warn above; MR_SIZE_HARD (default 800) fail above;
        MR_BASE overrides base detection; CLEAN_CODE_SKIP=1 skips the check.
-Exit:  0 ok or warn, 1 over the hard limit, 2 no changes to measure, 3 cannot measure (not a repo, no base ref).
+Low-risk: a tracked .mr-size at repo root with the line "risk: low" makes the hard limit advisory
+       (exit 0). Only for repos shipping nothing that runs for users (docs, AI config, personal tooling).
+Exit:  0 ok, warn, or low-risk advisory; 1 over the hard limit; 2 no changes to measure; 3 cannot measure (not a repo, no base ref).
 EOF
     exit 0 ;;
 esac
@@ -58,7 +60,15 @@ git diff --numstat "$RANGE" -- . "${EXCLUDES[@]}" \
   | awk '$1!="-"{n=split($3,p,"/"); d=(n>1)?p[1]"/"((n>2)?p[2]:""):"."; t[d]+=$1+$2} END{for(d in t) printf "%6d  %s\n", t[d], d}' \
   | sort -rn | head -8
 
-if [ "$total" -gt "$HARD" ]; then
+low_risk=0
+if grep -Eqx 'risk:[[:space:]]*low[[:space:]]*' "$(git rev-parse --show-toplevel)/.mr-size" 2>/dev/null; then
+  low_risk=1
+fi
+
+if [ "$total" -gt "$HARD" ] && [ "$low_risk" -eq 1 ]; then
+  echo "low-risk repo (.mr-size): size is advisory"
+  exit 0
+elif [ "$total" -gt "$HARD" ]; then
   echo "BLOCKED: over $HARD lines. Split by concern (refactor / behavior / deps / generated), stack the pieces."
   echo "See .claude/rules/small-mrs.md. Override once with CLEAN_CODE_SKIP=1 and say why in the MR."
   exit 1

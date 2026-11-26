@@ -64,7 +64,7 @@ Not for: investigation with no code change; plan-only docs (`/write-plan`).
    - Screen look → before/after images. Behavior (click, type, motion, sequence) → short video. Backend → curl + HTTP file, response, trace or log. Database → read-only query + result. Deep change → diagram of path.
    - Before = base branch built from fresh clone in `/tmp/pir-<topic>/before/` (never feature branch). After = branch tip.
    - Captures → `/tmp/pir-<topic>/evidence/`, never in repo. Open every file: blank, error, or identical before/after frames = failed capture.
-   - Attach on PR/MR. GitLab: `skills/implement/scripts/upload-evidence.py`. Comments carry prefix `🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`. Orchestrator posts unless run pre-authorized the implementer.
+   - Attach on PR/MR. GitLab: `skills/implement/scripts/upload-evidence.mjs`. Comments carry prefix `🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`. Orchestrator posts unless run pre-authorized the implementer.
    - App can't run here → say so in PR, still leave Try it. Never skip silently.
    - Don't merge unless repo merge policy (`ai-risk`) lets an agent merge this tier.
    - Fill PR body Risk and Review guide sections.

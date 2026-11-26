@@ -41,7 +41,7 @@ When the work came from a tracker task, post one short **Implement rN** progress
 
 | Script | Use | Exit |
 |---|---|---|
-| `scripts/upload-evidence.py <project-id> <files> [--host H] [--dry-run]` | Upload png/jpg/gif/webp/mp4/webm to a GitLab project; JSON `{file: markdown}` | 2 bad input, 3 no token/host, 4 upload failed |
+| `scripts/upload-evidence.mjs <project-id> <files> [--host H] [--dry-run]` | Upload png/jpg/gif/webp/mp4/webm to a GitLab project; JSON `{file: markdown}` | 2 bad input, 3 no token/host, 4 upload failed |
 | `scripts/evidence-check.sh <files> [--before B --after A]` | Size, PNG dimensions, sha256; flags zero-byte, tiny, before = after | 1 problem |
 | `scripts/proof-check.sh <body> <scope.json>` (scope from `plan-implement-review/scripts/diff-scope.sh`) | PR/MR body vs scope: headings, build, review guide, tier, media/curl/query/diagram counts | 1 `missing[]` |
 | `scripts/slices-check.sh SLICES.json [--max-slices N]` | Slice names, count cap (default 4), non-empty paths, disjoint path globs; JSON `{ok, errors, overlaps}` | 1 invalid or overlap, 3 bad input |

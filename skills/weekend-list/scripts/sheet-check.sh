@@ -5,7 +5,7 @@ usage() {
   cat <<'USAGE'
 Usage: sheet-check.sh FILE.pdf [--max-pages N]
 Checks a printable sheet: US Letter page size, at most N pages (default 2), no URLs in the text.
-Uses pdfinfo and pdftotext when present. Without pdfinfo a python3 scan of the file is tried;
+Uses pdfinfo and pdftotext when present. Without pdfinfo a node scan of the file is tried;
 anything that cannot be determined is skipped with a warning, never failed.
 Stdout: {"ok", "pages", "size", "urls", "skipped": [...], "failures": [...]}.
 Exit: 0 ok, 1 check failed, 2 usage.
@@ -36,19 +36,19 @@ if command -v pdfinfo >/dev/null 2>&1; then
   pages=$(printf '%s\n' "$info" | awk -F': *' '/^Pages:/ {print $2}')
   size=$(printf '%s\n' "$info" | awk -F': *' '/^Page size:/ {print $2}')
 else
-  fallback=$(python3 -I - "$file" <<'PY' || true
-import re
-import sys
-
-data = open(sys.argv[1], "rb").read()
-pages = len(re.findall(rb"/Type\s*/Page(?![s\w])", data))
-box = re.search(rb"/MediaBox\s*\[\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\]", data)
-size = ""
-if box:
-    w, h = float(box.group(3)) - float(box.group(1)), float(box.group(4)) - float(box.group(2))
-    size = f"{w:g} x {h:g} pts"
-print(f"{pages or ''}|{size}")
-PY
+  fallback=$(node - "$file" <<'JS' || true
+const { readFileSync } = require("node:fs");
+const data = readFileSync(process.argv[2]).toString("latin1");
+const pages = (data.match(/\/Type\s*\/Page(?![\w])/g) || []).length;
+const box = /\/MediaBox\s*\[\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\]/.exec(data);
+let size = "";
+if (box) {
+  const w = Number(box[3]) - Number(box[1]);
+  const h = Number(box[4]) - Number(box[2]);
+  size = `${w} x ${h} pts`;
+}
+console.log(`${pages || ""}|${size}`);
+JS
 )
   pages="${fallback%%|*}"
   size="${fallback#*|}"

@@ -95,7 +95,7 @@ assert_contains "core files go through install.sh" "$log" "--no-claude-hook"
 assert_contains "add-on files go through install.sh --copy" "$log" "--copy"
 assert_contains "the guard copy names its destination" "$log" "scripts/guard/git-approval-guard.sh"
 [ -x "$d/scripts/guard/research-ref.sh" ] && ok || bad "add-on copy is executable"
-assert_eq "setuplib holds no file-copy code" "" "$(grep -rlE 'shutil[.]copy|copyfile|filecmp' "$here/../lib/setuplib" || true)"
+assert_eq "setuplib holds no file-copy code" "" "$(grep -rlE 'copyFile|cpSync|filecmp' "$here/../lib/setuplib" || true)"
 r="$TMPROOT/removed"; go_bare "$r"
 apply "$r" >/dev/null
 rm "$rules/research-latest-main.md"
