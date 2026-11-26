@@ -55,6 +55,14 @@ Local-only work (repo files, local database) is out of scope; local git commits 
 - Exploratory searches: parallel cheaper subagents, one per area; the main agent decides and synthesizes
 - Large plans: delegate CLI and MCP execution steps to subagents
 
+## Frustration: fix the agent
+
+Frustration, or "work harder" with no specific defect, means the agent's setup is the likely fault. Do not repeat the same approach harder.
+
+- **Suggest the tweak:** rules, skills, hooks, model, effort, strategy, guidance, and cleanup of bad practices. Name the levers that fit and a concrete avenue for each
+- **Also** fix any defect the message names
+- Rule: [rules/frustration-fix-agent.md](../rules/frustration-fix-agent.md)
+
 ## Teaching mode (off by default)
 
 On only when the user asks to learn or be walked through:
