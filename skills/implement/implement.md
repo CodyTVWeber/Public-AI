@@ -43,6 +43,7 @@ If this work came from a **tracker task**, read that task’s comments **before 
 ## 2. Implement
 
 1. Follow the plan’s **Concrete steps** in order; stay inside **Out of scope**.
+   - UI: a frame is pixel-authority only when the plan's Design source of truth marks it `exact`; `partial` = follow the agreed parts and ask on the rest; `reference` = inspiration only ([figma-fidelity](../align/references/figma-fidelity.md)).
 2. Grep/read before editing; match project `AGENTS.md` / red lines (migrations immutable, no remote DB without approval, etc.).
 3. Run project checks until green, e.g. `npm run lint && npm run test` (or project equivalent). Do not disable tests/lint.
 4. **Commits — approval + format:**
@@ -56,6 +57,50 @@ If this work came from a **tracker task**, read that task’s comments **before 
    - Attach on the PR/MR. GitLab: `skills/implement/scripts/upload-evidence.py`. Comments carry an attribution prefix (`🤖 _Posted by <AI assistant> (AI) on behalf of @<user>_`). Orchestrator posts unless the run pre-authorized the implementer.
    - App can't run here → say so in the PR and still leave Try it. Never skip silently. Do not merge unless the repo's merge policy (`ai-risk`) lets an agent merge this tier. Fill the PR body's Risk and Review guide sections.
 7. **Remote rewritten under you.** `git push` rejected or `git fetch` shows `forced update` → never force-push. Make a backup branch, `git reset --hard origin/<branch>`, cherry-pick your new commits, recheck, push as fast-forward.
+
+## Budget
+
+| Limit | Rule |
+|---|---|
+| Effort | `medium` by default; `low` for a mechanical plan (renames, docs, config, one file, no new logic). Never raise it yourself; two failed rounds go back to the orchestrator |
+| Context | 200k tokens per agent. Read only the plan, the files its steps name, and test output tails; no whole-repo reads or full logs |
+| Checkpoint | At about 150k used, or when the rest of the plan will not fit in 50k: commit green work, write `handoff.md` beside the plan (done steps, next step, files touched, open problems), end the turn |
+| Next agent | The orchestrator starts a fresh agent with the plan and `handoff.md` instead of resuming this one |
+| Slices | A plan too large for one agent splits into parallel slices below; each slice has its own budget |
+
+## Parallel slices (worktrees)
+
+Default: one implementer, one checkout. Isolated work (before-build, scratch runs) = a fresh clone. Worktrees only for parallel slices below.
+
+**When.** The plan splits into ≥2 slices whose owned paths are disjoint, and each slice earns its own agent. Else one implementer. Cap `max-slices` = 4 (override: `--max-slices`, `PIR_MAX_SLICES`).
+- Judgment: the planner/orchestrator names slices and owned paths in the plan (`slices=` list; one `{name, paths[]}` each).
+- Mechanical: `skills/implement/scripts/slices-check.sh SLICES.json` fails on bad names, count over the cap, or overlapping path globs. Fix the split, then continue.
+
+**How.** Root = `${TMPDIR:-/tmp}/pir-<topic>/wt`, outside the repo (clone mode: `${XDG_CACHE_HOME:-$HOME/.cache}/pir-<topic>/wt`, which a TMPDIR purge cannot reach).
+1. Feature branch exists, tree clean (§1).
+2. `skills/implement/scripts/worktree-split.sh --base <feat> --topic <topic> --slices a,b,c` → branch `<feat>--<slice>` + checkout `<root>/<slice>` per slice, from the feature tip. (`--`, not `/`: git cannot hold `feat/x` and `feat/x/a` together.)
+3. One subagent per checkout, prompt below. Subagents edit only owned paths, commit often on their slice branch (§2.4 approval rule applies; a PIR run pre-authorizes it), never push, never leave their checkout, never edit shared state (`state.json`, plan file). Slice-level lint/tests run inside the checkout.
+4. When all report: orchestrator alone runs `skills/implement/scripts/worktree-merge.sh --into <feat> --topic <topic> --slices <ordered csv>` (`git merge --no-ff`; merge, never rebase). Order is stated in the plan or by dependency. The script creates merge commits, so it needs the same explicit approval as a commit in repos that gate commits; the git approval guard does not see git run inside scripts.
+5. Conflict (exit 1, `conflict.files`) stops the run: report the files, resolve by judgment, commit the merge, merge the `pending` slices.
+6. Full regression gate and UI/proof evidence (§2.6) run **once**, on the integrated feature branch.
+7. Push and PR only from the feature branch (§3).
+
+**Cleanup is mandatory**, on success, abort and failure paths alike, before the phase reports done:
+- `skills/implement/scripts/worktree-clean.sh --topic <topic>` removes checkouts, deletes merged slice branches, prunes, and checks the count. It acts only on slices named in `manifest.json` or registered under the root in `git worktree list` (clone mode: clones whose origin is this repo); anything else is listed in `skipped[]` and left alone. A failed `git status` counts as dirty.
+- Result: `git worktree list` shows only the main checkout; the report says so (`worktrees_left: 0`).
+- Slice commits not merged, uncommitted changes, or skipped slices block cleanup (`kept[]`/`skipped[]`, exit 1): list them to the human. `--force` discards them; use only on a human decision.
+
+**Fallback `--mode clone`.** Use when the repo's `AGENTS.md`/`CLAUDE.md` forbids worktrees (search both for a worktree ban) or `git worktree` fails. One local clone per slice at `<root>/<slice>`, default root outside TMPDIR (see How); `worktree-merge.sh --mode clone` fetches each slice branch (forced, so reruns after amend/reset work) into `refs/pir/<topic>/<slice>` first; same `worktree-clean.sh --mode clone`. Everything else is identical.
+
+**Slice subagent prompt (minimum).**
+
+```text
+Repo: <main checkout path>      Checkout: <root>/<slice>      Branch: <feat>--<slice>
+Owned paths: <globs>            Plan section: <path#heading>
+Work only in your checkout and only in owned paths. Commit often on your branch.
+Do not push. Do not leave your checkout. Do not edit state files or the plan.
+Report: changed files, slice test/lint result, anything outside your paths you needed.
+```
 
 ## 3. PR — check before create (never open a second PR)
 
@@ -74,6 +119,7 @@ Re-run `skills/plan-implement-review/scripts/pr-find.sh "$(git branch --show-cur
 
 - [ ] Plan steps implemented (or explicit gaps listed)
 - [ ] Lint/tests green
+- [ ] Slices used: all merged, `worktree-clean.sh` ran, `git worktree list` = main checkout only (stated in the report)
 - [ ] Pushed (after approval when required)
 - [ ] **Exactly one** open PR for this work; URL reported
 - [ ] PR/MR description has Build, Proof, and Try it from `verify-change`, including images for look, video for behavior, and curl, log, or query for backend and database
@@ -99,5 +145,6 @@ When invoked as the **implementer** inside `/plan-implement-review`:
 - Plan-only PR **and** separate implement PR left both open for the same work
 - Silent commit/push/PR when project rules require approval and no session pre-auth
 - Disabling tests/lint to get green
+- Worktrees outside parallel slices, inside the repo directory, or left behind after the phase; slices with overlapping owned paths; slice agents that push or merge
 - Force-push / remote DB / migrations edits against project red lines without explicit approval
 - Skipping tracker comments when the work came from a task, posting per command, or editing the task besides a comment
