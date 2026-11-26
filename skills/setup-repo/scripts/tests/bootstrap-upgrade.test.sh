@@ -117,5 +117,6 @@ assert_contains "no record: pristine old copy is named" "$(jq -r '.steps[] | sel
 assert_contains "no record: local edit stays a plain differs" "$(jq -r '.steps[] | select(.path == ".claude/rules/ban-comments.md") | .reason' <<<"$plan")" "exists and differs"
 apply "$s" --upgrade >/dev/null
 assert_eq "upgrade replaces the pristine old copy" "$(tail -1 "$rules/clean-code.md")" "$(tail -1 "$s/.claude/rules/clean-code.md")"
+assert_eq "upgrade records the replaced stale copy" "true" "$(jq -r '.files | has(".claude/rules/clean-code.md")' "$s/.claude/ai-guardrails.json")"
 assert_eq "upgrade keeps the local edit" "my local edit" "$(tail -1 "$s/.claude/rules/ban-comments.md")"
 finish

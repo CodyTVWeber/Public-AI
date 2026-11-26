@@ -37,4 +37,5 @@ def take_stale(ctx, item):
         return None
     if ctx.options.upgrade:
         ctx.upgrade_paths.add(item["path"])
+        ctx.installed[item["path"]] = item["src"]
     return STALE_COPY
