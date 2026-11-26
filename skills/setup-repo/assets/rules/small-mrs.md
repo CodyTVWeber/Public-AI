@@ -9,7 +9,7 @@ Three checks on the same MR. Each total is its own files only. A large doc diff 
 | Check | Files | Warn | Block |
 |---|---|---|---|
 | App | Product source and everything else counted | > 400 | > 800 |
-| Support | Shell scripts; `scripts/`, `tools/`, `bin/`, `hooks/`, `skills/`, `rules/`; CI (`.github/`, `.gitlab/`, `.circleci/`, `ci/`); AI setup (`.claude/`, `.cursor/`, `.cursorrules`); git hooks (`.githooks/`, `.husky/`); lint and format config; Makefile and Dockerfile | > 800 | > 1600 |
+| Support | Shell scripts anywhere; `scripts/` anywhere; repo-root `tools/`, `bin/`, `hooks/`, `skills/`, `rules/`, `ci/`; CI (`.github/`, `.gitlab/`, `.circleci/`); AI setup (`.claude/`, `.cursor/`, `.cursorrules`); git hooks (`.githooks/`, `.husky/`); lint and format config; Makefile and Dockerfile | > 800 | > 1600 |
 | Docs | `*.md`, `*.mdx`, `*.rst`, `*.adoc`, `*.asciidoc`, and anything under `docs/`, `doc/`, or `documentation/` | > 2000 | > 4000 |
 
 App bands: ≤ 200 ideal, 201-400 fine, 401-800 warn, > 800 block. Support is that scale doubled. Docs are the wide band: prose reviews differently from code, and a doc MR can be long without hiding a behavior change.

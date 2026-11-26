@@ -10,6 +10,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [deterministic-checks.md](deterministic-checks.md) | Scripts decide mechanical checks. AI judges only the gaps. | the scripts that file names |
 | [ai-thinking-dense.md](ai-thinking-dense.md) | Reasoning is telegraphic; fewest tokens that still decide. | review |
 | [agent-neutral-names.md](agent-neutral-names.md) | Name generic assets for the job, not a vendor. | review |
+| [agent-source.md](agent-source.md) | Edit `AGENTS.md` only. Vendor files redirect there. | review |
 | [small-mrs.md](small-mrs.md) | One concern per MR; app, support, and docs sized apart; stack safest first. | `check-mr-size-app.sh`, `check-mr-size-support.sh`, `check-mr-size-docs.sh`, `post-git-check.sh` (size note after a commit) |
 | [research-latest-main.md](research-latest-main.md) | Research from the fetched default branch. | `scripts/guard/research-ref.sh` |
 | [glossary-overloaded-terms.md](glossary-overloaded-terms.md) | One glossary entry per term with two meanings; list misleading code names. | review, plan check |

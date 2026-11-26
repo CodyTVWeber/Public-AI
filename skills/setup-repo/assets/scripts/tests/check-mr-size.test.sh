@@ -87,4 +87,11 @@ out="$(run_size "$check")"; rc=$?
 assert_rc "a doc renamed into product code counts as app" 1 $rc
 assert_contains "renamed file is in the app total" "$out" "BLOCKED app:"
 
+add_file src/hooks/useThing.ts 9
+add_file src/rules/price.ts 4
+out="$(run_size "$check")"; rc=$?
+assert_rc "nested app hooks and rules still block as app" 1 $rc
+assert_contains "app code under hooks/ stays on the app budget" "$out" "mr-size app: 69 changed lines"
+assert_contains "support total ignores nested app dirs" "$out" "mr-size support: 118 changed lines"
+
 finish

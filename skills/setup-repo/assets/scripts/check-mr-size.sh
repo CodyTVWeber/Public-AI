@@ -16,7 +16,8 @@ Usage: check-mr-size.sh [base-ref] [--only app|support|docs] [--print-base]
   --only NAME    run one budget: app, support, or docs. Default runs all three.
 Measures the current branch against its base. Three budgets on the same MR, counted apart:
   app      product source and every other counted file. MR_SIZE_SOFT (400) / MR_SIZE_HARD (800)
-  support  shell scripts; scripts/, tools/, bin/, hooks/, skills/, rules/; CI dirs;
+  support  shell scripts anywhere; scripts/ anywhere; repo-root tools/, bin/, hooks/,
+           skills/, rules/, ci/; CI dirs;
            .claude/, .cursor/, .cursorrules; .githooks/, .husky/; lint and format config;
            Makefile and Dockerfile.
            MR_SIZE_SUPPORT_SOFT (800) / MR_SIZE_SUPPORT_HARD (1600)
@@ -98,8 +99,9 @@ bucket_of() {
     *lint*.mjs|*lint*.js|*lint*.cjs) printf support; return ;;
   esac
   case "/$path/" in
-    */scripts/*|*/script/*|*/tools/*|*/bin/*|*/hooks/*|*/skills/*|*/rules/*) printf support; return ;;
-    */.github/*|*/.gitlab/*|*/.circleci/*|*/ci/*) printf support; return ;;
+    /scripts/*|/script/*|*/scripts/*|*/script/*) printf support; return ;;
+    /tools/*|/bin/*|/hooks/*|/skills/*|/rules/*|/ci/*) printf support; return ;;
+    */.github/*|*/.gitlab/*|*/.circleci/*) printf support; return ;;
     */.claude/*|*/.cursor/*|*/.githooks/*|*/.husky/*) printf support; return ;;
   esac
   printf app
