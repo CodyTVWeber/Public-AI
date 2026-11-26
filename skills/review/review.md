@@ -1,6 +1,6 @@
 ---
 name: review
-description: Read-only review of an implement branch or PR/MR against its plan, then the final regression gate. Checks the description proves the change (images, video, curls, queries, Try it steps) per verify-change. Use for "review this", /review, or the review phase of plan-implement-review-watch.
+description: Read-only multi-stage review of an implement branch or PR/MR against its plan. Runs only the review-* stage skills the diff needs (plan, logic, non-happy-logic, tests, security, data, ui, dependencies, infra, concurrency, code-quality, proof), then the final regression gate. Use for "review this", /review, or the review phase of plan-implement-review-watch.
 argument-hint: "[PR/MR number | branch] [plan path]"
 ---
 
@@ -8,32 +8,32 @@ argument-hint: "[PR/MR number | branch] [plan path]"
 
 Read-only. Never edit code here; findings go back to the implementer. Host CLI: `gh` or `glab`, whichever the repo uses.
 
-## 1. Review
+## 1. Pick stages
 
-1. Diff the branch against the base (`git diff origin/<base>...HEAD`) and the plan's Concrete steps / Out of scope
-2. Prefer a project review skill if one exists; else structured findings: severity (bug · suggestion · nit), `file:line`, description, fix
-3. Check the repo's own rules files (contributor/agent guidelines, lint and style configs) against the diff
-4. Styling-only change → snapshot/test diffs must be class-string or structure only
+`skills/review/scripts/stages.sh <base>` → `{stages:[{id, skill, active, reason, files[]}]}`. `plan` and `proof` always run; every other stage runs only when its `reason` shows a signal in the diff (thresholds: `stages.sh -h`). Name the stages in one line (`stages: plan, logic, security, proof`); skipped ones need no mention. Turn on a skipped stage only when the diff plainly needs it, and say why.
 
-## 2. Proof check (blocking)
+| Skill | Looks at | Active when |
+|---|---|---|
+| [review-plan](../review-plan/review-plan.md) | scope vs plan, unplanned files, repo rules | always |
+| [review-logic](../review-logic/review-logic.md) | main-path logic vs acceptance criteria | 5+ added non-test code lines |
+| [review-non-happy-logic](../review-non-happy-logic/review-non-happy-logic.md) | errors, boundaries, nulls, timeouts, external-call failure | logic on, and added lines handle those |
+| [review-tests](../review-tests/review-tests.md) | coverage and quality of tests | code or tests changed |
+| [review-security](../review-security/review-security.md) | authn/authz, injection, secrets, crypto | security paths or risky tokens |
+| [review-data](../review-data/review-data.md) | schema, migrations, queries | schema, model, migration, SQL |
+| [review-ui](../review-ui/review-ui.md) | design fidelity, accessibility, states | UI files |
+| [review-dependencies](../review-dependencies/review-dependencies.md) | added or bumped packages | manifest or lockfile |
+| [review-infra](../review-infra/review-infra.md) | CI, containers, IaC, env, flags | config or deploy paths |
+| [review-concurrency](../review-concurrency/review-concurrency.md) | races, retries, caches, unbounded work | locks, async, cache, retry, queries |
+| [review-code-quality](../review-code-quality/review-code-quality.md) | clean-code floor, docs rule, via scripts | code or docs changed |
+| [review-proof](../review-proof/review-proof.md) | the description proves the change | always |
 
-Follow [`verify-change`](../verify-change/verify-change.md). The description is the review.
+- Findings: severity (bug · suggestion · nit), stage id, `file:line`, description, fix
+- Prefer a project review skill for a stage when one exists
+- Diff over ~400 lines with 3+ active stages → one read-only subagent per stage skill, results merged here; smaller diffs run inline
 
-1. `skills/plan-implement-review/scripts/diff-scope.sh <base> > scope.json`, then `skills/implement/scripts/proof-check.sh <body-file> scope.json`. Exit 1 → each `missing[]` item is a bug-severity finding (headings, build, review guide, tier, rollback, curl/http/query/image/diagram counts)
-2. Evidence files on disk → `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>`. Exit 1 → failed capture
+## 2. Run
 
-Judge by eye what scripts can't:
-
-| Check | Fail when |
-|---|---|
-| Build | The run is red |
-| Look of a screen | The image is blank or a login wall, or before was captured on the feature branch |
-| Behavior | A click, type, motion, or sequence has no short video |
-| Backend, Database | The response, trace, or result doesn't show the change, or the database isn't named |
-| Try it | A reviewer cannot re-run the proof from the description in a few minutes |
-
-- Open every image and play every video. Judge by eye, not filenames
-- Any fail → `fix required`; missing proof is a bug-severity finding
+Run each active stage skill in table order; `proof` last. A `bug` from any stage makes the verdict `fix required`.
 
 ## 3. Verdict
 
@@ -52,4 +52,4 @@ Judge by eye what scripts can't:
 
 ## Output
 
-Verdict · findings table · evidence check result · regression status. ≤ 15 lines unless findings need more.
+Verdict · stages run · findings table (stage column) · evidence check result · regression status. ≤ 15 lines unless findings need more.
