@@ -108,6 +108,33 @@ assert_eq "force overwrites" "overwrite" "$(jq -r '.files[] | select(.path == "s
 "$install" "$TMPROOT/missing" >/dev/null 2>&1; assert_rc "non-repo target is usage error" 2 $?
 "$install" "$a" --bogus >/dev/null 2>&1; assert_rc "bad flag" 2 $?
 
-cmp -s "$here/../../assets/scripts/lint-docs.sh" "$here/../../../../scripts/lint/lint-docs.sh" && ok || bad "assets lint-docs.sh matches scripts/lint/lint-docs.sh"
+assert_eq "every default hook registers an explicit timeout" "true" "$(jq -r '[.hooks[][].hooks[] | .timeout | type == "number"] | all' "$a/.claude/settings.json")"
+assert_eq "guard timeout" "20" "$(jq -r '.hooks.PreToolUse[].hooks[] | select(.command | endswith("claude-pre-tool-guard.sh")) | .timeout' "$a/.claude/settings.json")"
+assert_eq "post-git timeout" "20" "$(jq -r '.hooks.PostToolUse[].hooks[] | select(.command | endswith("post-git-check.sh")) | .timeout' "$a/.claude/settings.json")"
+assert_eq "stop timeout" "60" "$(jq -r '.hooks.Stop[].hooks[].timeout' "$a/.claude/settings.json")"
+assert_eq "analyzer timeout" "20" "$(jq -r '.hooks.PostToolUse[].hooks[] | select(.command | endswith("code-quality-check.sh --hook")) | .timeout' "$a/.claude/settings.json")"
+assert_eq "docs-lint timeout" "10" "$(jq -r '.hooks.PostToolUse[].hooks[] | select(.command | endswith("lint-docs.sh --hook")) | .timeout' "$a/.claude/settings.json")"
+assert_eq "add-on hooks have timeouts" "true" "$(jq -r '[.hooks[][].hooks[] | .timeout | type == "number"] | all' "$f/.claude/settings.json")"
+
+k="$TMPROOT/k"; mk "$k"
+printf 'one\n' > "$TMPROOT/src-a.txt"; printf '#!/bin/sh\n' > "$TMPROOT/src-b.sh"; chmod +x "$TMPROOT/src-b.sh"
+json="$("$install" "$k" --copy "$TMPROOT/src-a.txt" docs/a.txt --copy "$TMPROOT/src-b.sh" scripts/b.sh 2>/dev/null)"; assert_rc "copy-only ok" 0 $?
+assert_eq "copy-only writes the listed files" "one" "$(cat "$k/docs/a.txt")"
+[ -x "$k/scripts/b.sh" ] && ok || bad "copy keeps the executable bit"
+for bad_dest in ../out.txt a/../../out.txt /abs/out.txt; do
+  "$install" "$k" --copy "$TMPROOT/src-a.txt" "$bad_dest" >/dev/null 2>&1; assert_rc "copy dest $bad_dest refused" 2 $?
+done
+[ ! -x "$k/docs/a.txt" ] && ok || bad "copy leaves plain files non-executable"
+assert_eq "copy-only reports create and the source" "create $TMPROOT/src-a.txt" "$(jq -r '.files[0] | .status + " " + .src' <<<"$json")"
+[ -e "$k/scripts/clean-code" ] || [ -e "$k/.claude" ] || [ -e "$k/.githooks" ] && bad "copy-only installs nothing else" "extra files" || ok
+assert_eq "copy-only leaves hooksPath alone" "" "$(git -C "$k" config --local --get core.hooksPath || true)"
+printf 'two\n' > "$TMPROOT/src-a.txt"
+json="$("$install" "$k" --copy "$TMPROOT/src-a.txt" docs/a.txt 2>/dev/null)"
+assert_eq "differing copy is kept" "differs one" "$(jq -r '.files[0].status' <<<"$json") $(cat "$k/docs/a.txt")"
+json="$("$install" "$k" --copy "$TMPROOT/src-a.txt" docs/a.txt --overwrite docs/a.txt 2>/dev/null)"
+assert_eq "--overwrite replaces the named file" "overwrite two" "$(jq -r '.files[0].status' <<<"$json") $(cat "$k/docs/a.txt")"
+json="$("$install" "$k" --dry-run --copy "$TMPROOT/src-a.txt" docs/new.txt 2>/dev/null)"
+[ -e "$k/docs/new.txt" ] && bad "copy dry run writes nothing" || ok
+"$install" "$k" --copy only-one-arg >/dev/null 2>&1; assert_rc "--copy needs two arguments" 2 $?
 
 finish

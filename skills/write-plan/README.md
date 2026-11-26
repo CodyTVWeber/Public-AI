@@ -10,6 +10,10 @@ Branch and PR steps call `skills/plan-implement-review/scripts/{fresh-branch,pr-
 
 If the work came from a **tracker task** (e.g. Asana), post one Plan comment — rules in [tracker-comments.md](../plan-implement-review/references/tracker-comments.md).
 
+Large or vague tasks are offered [`align`](../align/) first; UI tasks get a design fidelity check ([figma-fidelity](../align/references/figma-fidelity.md)). An existing `docs/align/<topic>/spec.md` is the plan's scope source.
+
+A change that deploys also gets a Monitoring plan ([template](../monitor/assets/templates/monitoring-plan.md), checked by `skills/monitor/scripts/check-plan.sh`); [`monitor`](../monitor/) runs it after the PROD deploy.
+
 ## Install
 
 ### Grok

@@ -57,6 +57,8 @@ for f in .claude/rules/clean-code.md scripts/clean-code/post-git-check.sh script
 done
 assert_eq "pointer CLAUDE.md" "@AGENTS.md" "$(cat "$a/CLAUDE.md")"
 assert_eq "skills linked with absolute paths" "$clone/skills/review" "$(readlink "$a/.claude/skills/review")"
+assert_contains "each link has its own exclude entry" "$(cat "$a/.git/info/exclude")" ".claude/skills/review"
+assert_not_contains "no directory-wide exclude hides team skills" "$(cat "$a/.git/info/exclude")" ".claude/skills/"$'\n'
 [ -e "$a/.claude/skills/nameless" ] && bad "skill without SKILL.md is skipped" || ok
 assert_contains "links stay local" "$(cat "$a/.git/info/exclude")" ".claude/skills/"
 assert_eq "settings registers the git check" "true" "$(jq -r '[.hooks.PostToolUse[] | select(.matcher == "Bash") | .hooks[].command] | any(endswith("post-git-check.sh"))' "$a/.claude/settings.json")"
@@ -180,8 +182,9 @@ assert_eq "approval gate registered" "true" "$(jq -r '[.hooks.PreToolUse[].hooks
 assert_eq "research ref registered" "true" "$(jq -r '[.hooks.SessionStart[].hooks[].command] | any(contains("research-ref.sh"))' "$m/.claude/settings.json")"
 assert_contains "approval wording in the section" "$(cat "$m/AGENTS.md")" "Never auto-commit. Never auto-push."
 [ -x "$m/scripts/check-privacy.sh" ] && ok || bad "privacy gate installed"
-assert_eq "employer pattern ships empty" "" "$(grep -E '^EMPLOYER_PATTERN=' "$m/scripts/check-privacy.sh" | sed -E 's/^EMPLOYER_PATTERN="\$\{PRIVACY_EMPLOYER_PATTERN:-(.*)\}"$/\1/')"
-assert_eq "privacy manual step is listed" "manual" "$(step_action "$(plan "$m" --with privacy)" privacy:employer-pattern)"
+assert_contains "privacy script reads the local patterns file" "$(cat "$m/scripts/check-privacy.sh")" "info/privacy-patterns"
+assert_eq "privacy patterns manual step is listed" "manual" "$(step_action "$(plan "$m" --with privacy)" privacy:patterns)"
+assert_contains "patterns step names the strict switch" "$(plan "$m" --with privacy | jq -r '.steps[] | select(.id == "privacy:patterns") | .reason')" "PRIVACY_REQUIRE_PATTERNS=1"
 decision="$(jq -nc --arg c 'git push' '{tool_name:"Bash",tool_input:{command:$c}}' | (cd "$m" && scripts/guard/git-approval-guard.sh) | jq -r '.hookSpecificOutput.permissionDecision')"
 assert_eq "installed approval gate asks on push" "ask" "$decision"
 
@@ -204,7 +207,7 @@ assert_eq "missing clone is a manual skills step" "manual" "$(step_action "$out"
 
 link_out="$("$LINK" "$n" --skills-from "$clone" --skills core 2>/dev/null)"; assert_rc "link-skills ok" 0 $?
 assert_eq "link-skills reports links" "create" "$(jq -r '.links[] | select(.name == "review") | .status' <<<"$link_out")"
-assert_contains "link-skills warns on a name with no skill" "$(jq -r '.warnings | join(" ")' <<<"$link_out")" "skipped check-work"
+assert_contains "link-skills warns on a name with no skill" "$(jq -r '.warnings | join(" ")' <<<"$link_out")" "skipped plan-implement-review-watch"
 assert_eq "link-skills is idempotent" "same" "$(jq -r '.links[] | select(.name == "review") | .status' <<<"$("$LINK" "$n" --skills-from "$clone" 2>/dev/null)")"
 all_out="$("$LINK" "$n" --skills-from "$clone" --skills all 2>/dev/null)"
 assert_eq "all links every skill with a SKILL.md" "6" "$(jq -r '[.links[] | select(.status != "skipped")] | length' <<<"$all_out")"
