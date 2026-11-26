@@ -23,7 +23,7 @@ Findings count only on lines the change touches. Tune with the `CC_*`, `MR_SIZE_
 ### Guard limits
 
 - The approval guard reads the command line only. A script, Makefile target, or package script that runs `git commit` or `git push` inside (`./push.sh`, `make push`, `npm run release`) is not analysed and passes unless the command line names the action.
-- Text built at runtime (base64, string concatenation, a downloaded script) passes the same way.
+- Text built at runtime (base64, string concatenation, a downloaded script) passes the same way, and so do plain `rebase` and `pull`.
 - Gated as a commit: `merge`, `cherry-pick`, `revert`, `am`, `rebase -x`, `commit-tree`, `update-ref`, `submodule foreach`. `send-pack` is gated as a push. `gh pr merge|create`, `glab mr merge|create` and `gh|glab api` writes ask.
 - Text piped into a shell, inline code in `python`, `perl`, `ruby`, `node`, `awk`, an unknown git subcommand (a possible alias), and a command word built at runtime ask when the text names a commit or push.
 - Any `core.hooksPath` write (`git -c`, `git config`, `GIT_CONFIG_*`, `--config-env`) and `--no-verify` on a gated command are denied.

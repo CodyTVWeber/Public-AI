@@ -19,11 +19,17 @@ Run from this skill's directory. `<t>` is the target (argument, else the current
 2. **Summarize** in 8 lines or fewer: forge and CI, stacks, hook system found, conflicts, legacy debt,
    the recommended profile and flags with their reasons
 3. **Ask** only what `recommend.questions[]` lists (profile, ci, approval-gate), through AskUserQuestion
-   when available. No questions listed means take the recommended flags
-4. **Plan.** `scripts/bootstrap.sh <t> --plan [--profile P] [--with a,b] [--without a,b] [--hooks-via V]`.
+   when available. No questions listed means take the recommended flags. Ask once more when the team has not
+   agreed to the guardrails: `--profile local` installs them without touching a tracked file
+   (hooks in `.claude/settings.local.json` and `.git/hooks`, a note in `.git/info/local-guardrails.md`,
+   every installed path in `.git/info/exclude`). Skills: default `--skills core` (6 plus 15 support skills); `core+aliases`, `all`, `none`
+   or a comma list are opt-in, and the source is `--skills-from PATH` or `$PUBLIC_AI_DIR` (neither set: a `manual` step)
+4. **Plan.** `scripts/bootstrap.sh <t> --plan [--profile P|--local] [--with a,b] [--without a,b] [--hooks-via V] [--skills SET] [--skills-from PATH]`.
    Show a digest of 10 lines or fewer: counts per action, every `manual` step with its reason, the notes
 5. **Apply.** `scripts/bootstrap.sh <t> --apply --yes` with the same flags. Never commit for the user
-6. **Verify.** `scripts/verify-repo.sh <t>`. A failed check means fix the cause, re-run apply, verify again
+6. **Verify.** `scripts/verify-repo.sh <t>`. A failed check means fix the cause, re-run apply, verify again.
+   `drift` lists installed files `changed-upstream`, `modified-locally`, `removed-upstream` or `missing`; to take new upstream versions
+   run `bootstrap.sh <t> --apply --yes --upgrade` (modified files stay untouched unless `--force`, and are reported)
 7. **Wire the linter** for the detected stack, merging the snippet into existing config rather than replacing it:
    - JS/TS: import `cleanCodeRules` from `assets/lint/eslint.clean-code.js` and spread it into a flat-config entry for `src/**`; relax for tests, generated code, data tables
    - Kotlin/Java: `assets/lint/detekt-clean-code.yml` into the detekt config
@@ -39,6 +45,7 @@ Run from this skill's directory. `<t>` is the target (argument, else the current
 | `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks |
 | `standard` (default) | minimal + Claude Code hooks (PreToolUse guard on push and MR create, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + AGENTS.md section + core skill symlinks |
 | `factory` | standard + ci + ai-risk + pr-template; no approval gate (factories run unattended) |
+| `local` | standard guardrails with tracked files unchanged: `settings.local.json`, `.git/hooks`, `.git/info/exclude`, note in `.git/info/local-guardrails.md`; no `ci` |
 
 Add-ons through `--with`: `ci`, `ai-risk`, `pr-template`, `approval-gate`, `privacy`, `research-ref`.
 `approval-gate` is for human-gated repos. CI is the control a PR cannot silently delete: local hooks and
@@ -53,14 +60,18 @@ Add-ons through `--with`: `ci`, `ai-risk`, `pr-template`, `approval-gate`, `priv
   `.git/hooks` chained, kept as `.bak`), lefthook and the pre-commit framework (snippet only). An existing
   different `core.hooksPath` is never overridden
 - The AGENTS.md section is replaced between its markers; `CLAUDE.md` pointer files are never edited
-- Skills are absolute symlinks into a Public-AI clone (`--skills-from`, else `$PUBLIC_AI_DIR`, else
-  `~/code/Public-AI`), listed in `.git/info/exclude` so they stay local. `scripts/link-skills.sh` relinks
+- Skills are absolute symlinks into a Public-AI clone (`--skills-from`, else `$PUBLIC_AI_DIR`; no other default),
+  one `.git/info/exclude` entry per link so they stay local and the team's own skills stay visible.
+  `scripts/link-skills.sh` relinks
+- The install record (`.claude/ai-guardrails.json`, local: `.git/info/local-guardrails.json`) holds the source commit and a hash per
+  installed file; `--upgrade` re-applies files changed upstream only
 
 ## Bare install
 
 `scripts/install.sh <t>` copies rules, scripts and hooks without detection, plan or profile. Flags:
 `--force`, `--no-claude-hook`, `--claude-hooks LIST`, `--no-post-git`, `--no-githooks`, `--no-rules`,
-`--no-doc`, `--dry-run`. `bootstrap.sh` calls it.
+`--no-doc`, `--dry-run`, `--copy SRC DEST`, `--overwrite DEST`. It is the only code that copies files into a target;
+`bootstrap.sh` decides and calls it.
 
 ## Rules for this skill
 

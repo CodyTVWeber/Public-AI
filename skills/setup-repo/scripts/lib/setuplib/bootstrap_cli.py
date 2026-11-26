@@ -4,39 +4,43 @@ import sys
 
 from .bs_options import UsageError, parse
 from .detect_cli import build_profile
+from .drift import CHANGED_UPSTREAM, MODIFIED_LOCALLY, compute_drift
 from .doc_render import NO_PIPELINE
 from .plan_model import Context
+from .record import load_record
 from .repo import Repo
 from .steps_ci import CONTROL_NOTE, ci_steps
 from .steps_core import core_steps
 from .steps_doc import doc_steps, manifest_step
 from .steps_files import addon_file_steps, claude_hook_steps
+from .sources import SKILL_DIR, find_public_root, source_root
 from .steps_hooks import hook_steps, resolve_hooks_via
+from .steps_local import exclude_step
 from .steps_skills import skills_steps
 
-SKILL_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 PRECONDITION_ERROR = 3
 ACTION_COLUMN = 6
+LOCAL_NOTE = "local profile: tracked files stay unchanged; installed paths are excluded in .git/info/exclude and the install record is in .git/info"
 ACTIONS = ("create", "merge", "skip", "manual")
-
-
-def find_public_root():
-    root = os.path.realpath(os.path.join(SKILL_DIR, "..", ".."))
-    marker = os.path.join(root, "scripts", "check-privacy.sh")
-    return root if os.path.isdir(os.path.join(root, "skills", "ai-risk")) and os.path.isfile(marker) else None
 
 
 def build_context(options):
     repo = Repo(options.target)
     detected = build_profile(repo, False)
     via, note = resolve_hooks_via(options, detected)
-    return Context(options=options, repo=repo, detected=detected, features=options.features, hooks_via=via,
-                   hooks_note=note, skill_dir=SKILL_DIR, public_root=find_public_root())
+    ctx = Context(options=options, repo=repo, detected=detected, features=options.features, hooks_via=via,
+                  hooks_note=note, skill_dir=SKILL_DIR, public_root=find_public_root())
+    ctx.drift = compute_drift(ctx.root, load_record(ctx.root), source_root())
+    ctx.drift_map = {item["path"]: item["status"] for item in ctx.drift}
+    if options.upgrade:
+        ctx.upgrade_paths = {item["path"] for item in ctx.drift if item["status"] == CHANGED_UPSTREAM}
+    return ctx
 
 
 def build_steps(ctx):
     steps = core_steps(ctx) + addon_file_steps(ctx) + hook_steps(ctx) + claude_hook_steps(ctx)
-    return steps + ci_steps(ctx) + skills_steps(ctx) + doc_steps(ctx) + [manifest_step(ctx)]
+    steps += ci_steps(ctx) + skills_steps(ctx) + doc_steps(ctx)
+    return steps + exclude_step(ctx) + [manifest_step(ctx)]
 
 
 def run_steps(steps):
@@ -62,6 +66,11 @@ def plan_notes(ctx):
         notes.append(CONTROL_NOTE)
     else:
         notes.append(NO_PIPELINE)
+    kept = [item["path"] for item in ctx.drift if item["status"] == MODIFIED_LOCALLY]
+    if kept:
+        notes.append("modified locally, never overwritten without --force: " + ", ".join(kept))
+    if ctx.local:
+        notes.append(LOCAL_NOTE)
     if ctx.on("approval-gate"):
         notes.append("approval-gate is for human-gated repos: every commit and push waits for approval; unattended factories leave it off")
     return notes
@@ -106,7 +115,7 @@ def main(argv):
         run_steps(steps)
     summary = summarize(steps)
     result = {"target": ctx.root, "mode": options.mode, "applied": options.mode == "apply", "profile": options.profile,
-              "features": ctx.features, "hooks_via": ctx.hooks_via, "steps": [step.public() for step in steps],
+              "features": ctx.features, "hooks_via": ctx.hooks_via, "drift": ctx.drift, "steps": [step.public() for step in steps],
               "summary": summary, "notes": plan_notes(ctx)}
     print(json.dumps(result, indent=2))
     print_digest(steps, summary, options.mode)

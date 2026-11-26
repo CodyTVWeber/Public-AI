@@ -13,11 +13,13 @@ Usage: install.sh <target-repo> [flags]
   --no-rules        skip .claude/rules/*.md for repos that hold the canonical rules themselves
   --no-doc          skip the clean-code section in AGENTS.md or CLAUDE.md
   --dry-run         write nothing; report what each step would do
+  --copy SRC DEST   copy-only mode: copy SRC to DEST (relative to the target); repeatable. Installs nothing else
+  --overwrite DEST  with --copy: overwrite DEST when it differs (without --force); repeatable
 Core copier: installs the prebuilt clean-code rules, scripts, the code-quality analyzer
 (scripts/clean-code/cleancode/), the git-command scanner (scripts/clean-code/gitscan/) and hooks into a
 git repo. Idempotent. Never edits linter configs. bootstrap.sh calls it; run it directly for a bare install.
 Stdout: JSON {target, dry_run, files:[{path,status}], settings, git_hooks, doc, linters}; text on stderr.
-  file status: create, same, differs (kept), overwrite (--force)
+  file status: create, same, differs (kept), overwrite (--force or --overwrite); each file also reports its src
 Exit: 0 ok, 2 usage
 USAGE
 }
@@ -27,7 +29,7 @@ ASSETS="$SKILL_DIR/assets"
 PYRUN="$SKILL_DIR/scripts/lib/pyrun.sh"
 DEFAULT_GROUPS="guard,docs-lint,analyzer,stop,post-git"
 
-target=""; force=0; githooks=1; rules=1; doc=1; dry=0; post_git=1; groups="$DEFAULT_GROUPS"
+copies=(); overwrites=(); target=""; force=0; githooks=1; rules=1; doc=1; dry=0; post_git=1; groups="$DEFAULT_GROUPS"
 while [ $# -gt 0 ]; do
   case "$1" in
     --force) force=1 ;;
@@ -38,6 +40,8 @@ while [ $# -gt 0 ]; do
     --no-rules) rules=0 ;;
     --no-doc) doc=0 ;;
     --dry-run) dry=1 ;;
+    --copy) [ $# -ge 3 ] || { usage >&2; exit 2; }; case "/$3/" in /../*|*/../*|//*) echo "--copy DEST must be relative and stay inside the target: $3" >&2; exit 2 ;; esac; copies+=("$2" "$3"); shift 2 ;;
+    --overwrite) shift; [ $# -gt 0 ] || { usage >&2; exit 2; }; overwrites+=("$1") ;;
     -h|--help) usage; exit 0 ;;
     -*) echo "unknown flag: $1" >&2; exit 2 ;;
     *) target="$1" ;;
@@ -52,7 +56,15 @@ target="$(cd "$target" && git rev-parse --show-toplevel)"
 files_json="[]"
 
 record() {
-  files_json="$(jq -c --arg p "$1" --arg s "$2" '. + [{path:$p,status:$s}]' <<<"$files_json")"
+  files_json="$(jq -c --arg p "$1" --arg s "$2" --arg src "$3" '. + [{path:$p,status:$s,src:$src}]' <<<"$files_json")"
+}
+
+wants_overwrite() {
+  local item
+  for item in "${overwrites[@]+"${overwrites[@]}"}"; do
+    [ "$item" = "$1" ] && return 0
+  done
+  return 1
 }
 
 copy_file() {
@@ -60,14 +72,22 @@ copy_file() {
   rel="${dest#"$target"/}"
   if [ ! -e "$dest" ]; then status=create
   elif cmp -s "$src" "$dest"; then status=same
-  elif [ "$force" -eq 1 ]; then status=overwrite
+  elif [ "$force" -eq 1 ] || wants_overwrite "$rel"; then status=overwrite
   else status=differs
   fi
-  record "$rel" "$status"
+  record "$rel" "$status" "$src"
   case "$status" in create|overwrite) ;; *) return 0 ;; esac
   [ "$dry" -eq 1 ] && return 0
   mkdir -p "$(dirname "$dest")"
   cp "$src" "$dest"
+  [ ! -x "$src" ] || chmod +x "$dest"
+}
+
+install_copies() {
+  local i
+  for ((i = 0; i < ${#copies[@]}; i += 2)); do
+    copy_file "${copies[i]}" "$target/${copies[i + 1]}"
+  done
 }
 
 copy_dir() {
@@ -154,12 +174,17 @@ linter_hints() {
   printf '%s\n' "${hints[@]+"${hints[@]}"}" | jq -Rnc '[inputs | select(length > 0)]'
 }
 
-git_hooks=""; settings=""; doc_json=""
-install_files
-install_githooks
-install_settings
-install_doc
-linters="$(linter_hints)"
+git_hooks='{"status":"skipped","note":"copy-only"}'; settings='{"status":"skipped","missing":[]}'
+doc_json='{"status":"skipped","path":null}'; linters="[]"
+if [ "${#copies[@]}" -gt 0 ]; then
+  install_copies
+else
+  install_files
+  install_githooks
+  install_settings
+  install_doc
+  linters="$(linter_hints)"
+fi
 
 jq -nc --arg t "$target" --argjson dry "$dry" --argjson files "$files_json" --argjson s "$settings" \
   --argjson g "$git_hooks" --argjson d "$doc_json" --argjson l "$linters" \

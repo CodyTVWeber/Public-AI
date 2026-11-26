@@ -1,15 +1,30 @@
 {
   "core": [
     "write-plan",
+    "align",
     "implement",
     "review",
     "watch",
+    "plan-implement-review-watch"
+  ],
+  "support": [
     "plan-implement-review",
-    "plan-implement-review-watch",
-    "check-work",
-    "code-review",
     "verify-change",
-    "ai-risk",
+    "monitor",
+    "review-plan",
+    "review-logic",
+    "review-non-happy-logic",
+    "review-tests",
+    "review-security",
+    "review-data",
+    "review-ui",
+    "review-dependencies",
+    "review-infra",
+    "review-concurrency",
+    "review-code-quality",
+    "review-proof"
+  ],
+  "aliases": [
     "pirw",
     "ir",
     "irw",
@@ -21,7 +36,9 @@
     "implement-review-watch",
     "plan-implement",
     "plan",
-    "setup-repo"
+    "apirw",
+    "apirwm",
+    "code-review"
   ],
   "all": "*"
 }

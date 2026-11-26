@@ -1,6 +1,4 @@
-import filecmp
 import os
-import shutil
 import stat
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -37,6 +35,10 @@ class Context:
     skill_dir: str
     public_root: Optional[str]
     cache: dict = field(default_factory=dict)
+    installed: dict = field(default_factory=dict)
+    upgrade_paths: set = field(default_factory=set)
+    drift_map: dict = field(default_factory=dict)
+    drift: list = field(default_factory=list)
 
     @property
     def assets(self):
@@ -45,6 +47,14 @@ class Context:
     @property
     def root(self):
         return self.repo.root
+
+    @property
+    def local(self):
+        return self.options.profile == "local"
+
+    @property
+    def settings_rel(self):
+        return ".claude/settings.local.json" if self.local else ".claude/settings.json"
 
     def on(self, feature):
         return feature in self.features
@@ -92,26 +102,7 @@ def file_step(ctx, spec, data):
     return Step(step_id, "create", rel, reason, run=lambda: write_bytes(dest, data, executable))
 
 
-def copy_step(ctx, spec, src):
-    data = read_bytes(src)
-    if data is None:
-        return Step(spec["id"], "manual", spec["path"], "source file missing: " + os.path.basename(src))
-    return file_step(ctx, spec, data)
-
-
 def copy_tree_files(src_dir, pattern_ext):
     if not os.path.isdir(src_dir):
         return []
     return sorted(name for name in os.listdir(src_dir) if name.endswith(pattern_ext))
-
-
-def same_file(first, second):
-    try:
-        return filecmp.cmp(first, second, shallow=False)
-    except OSError:
-        return False
-
-
-def copy_file(src, dest):
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
-    shutil.copyfile(src, dest)

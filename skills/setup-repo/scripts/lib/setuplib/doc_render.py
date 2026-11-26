@@ -12,12 +12,12 @@ INSTALLED_LINES = {
     "rules": "Rules: `.claude/rules/` holds clean-code, ban-comments, small-mrs, docs-current-or-dated and research-latest-main.",
     "scripts": "Analyzer, size gate and git-command scanner: `scripts/clean-code/`.",
     "git-hooks": "Git hooks: pre-commit runs `check-clean-code.sh` (analyzer on staged lines), pre-push runs `pre-push-gate.sh` (branch size). Wired via {via}.",
-    "claude-hooks": "Claude Code hooks in `.claude/settings.json`: PreToolUse(Bash) guard on push and MR create (size and clean code), PostToolUse docs lint and analyzer after edits, Stop analyzer.",
+    "claude-hooks": "Claude Code hooks in `{settings}`: PreToolUse(Bash) guard on push and MR create (size and clean code), PostToolUse docs lint and analyzer after edits, Stop analyzer.",
     "post-git-hook": "PostToolUse(Bash) `post-git-check.sh`: analyzer on each commit's lines, subject length, branch size, one-PR reminder after push, conflict files after merge or pull.",
     "ai-risk": "AI risk: `docs/rules/` holds risk tiers, merge policy (`conservative`, auto-merge off) and agent-stop rules; `scripts/ai-risk/` classifies a change.",
     "pr-template": "PR template: `{template}`; `scripts/clean-code/check-pr-body.sh` validates a body against it.",
     "approval-gate": "Approval gate: `scripts/guard/git-approval-guard.sh` (PreToolUse on Bash).",
-    "privacy": "Privacy gate: `scripts/check-privacy.sh`; the employer pattern ships empty.",
+    "privacy": "Privacy gate: `scripts/check-privacy.sh`; local patterns live in `<git-dir>/info/privacy-patterns` (`--strict` or `PRIVACY_REQUIRE_PATTERNS=1` blocks when missing).",
     "research-ref": "Research ref: `scripts/guard/research-ref.sh` (SessionStart) reports when the checkout is behind the default branch.",
     "ci": "CI: `{ci}` runs the same `scripts/clean-code/*` checks on every merge request.",
 }
@@ -37,7 +37,7 @@ FALLBACK_NOTE = "No known stack: pick a linter that can cap nesting depth, param
 
 def installed_block(ctx):
     template = forge_template(ctx.detected["git"]["forge"]) or "the forge's PR template"
-    values = {"via": ctx.hooks_via, "template": template, "ci": ci_file_path(ctx) or "pipeline"}
+    values = {"via": ctx.hooks_via, "template": template, "ci": ci_file_path(ctx) or "pipeline", "settings": ctx.settings_rel}
     lines = [text.format(**values) for name, text in INSTALLED_LINES.items() if name in ALWAYS_INSTALLED or ctx.on(name)]
     return "\n".join("- " + line for line in lines)
 
@@ -45,8 +45,9 @@ def installed_block(ctx):
 def skills_block(ctx):
     if not ctx.on("skills"):
         return "No skills linked."
-    return ("Skills are symlinks in `.claude/skills/` (local, excluded from git) into a Public-AI clone at `$PUBLIC_AI_DIR`; "
-            "set `" + ctx.options.skills + "`. Relink: `" + PUBLIC_AI_VAR + "link-skills.sh . --skills " + ctx.options.skills + "`.")
+    return ("Skills are symlinks `.claude/skills/<name>` (local, one `.git/info/exclude` entry per link) into a Public-AI clone at "
+            "`$PUBLIC_AI_DIR`; set `" + ctx.options.skills + "`. Relink: `" + PUBLIC_AI_VAR + "link-skills.sh . --skills "
+            + ctx.options.skills + "`.")
 
 
 def stack_block(ctx):
@@ -72,13 +73,15 @@ def flags_line(ctx):
         parts.append("--without " + ",".join(options.without))
     if options.hooks_via != "auto":
         parts.append("--hooks-via " + options.hooks_via)
+    if options.skills != "core":
+        parts.append("--skills " + options.skills)
     return " ".join(parts)
 
 
 def rerun_block(ctx):
     bootstrap = PUBLIC_AI_VAR + "bootstrap.sh . " + flags_line(ctx)
     return ("`" + bootstrap + " --plan`, then `--apply`. Check with `" + PUBLIC_AI_VAR + "verify-repo.sh .`. "
-            "Generated-file edits survive a re-run: differing files are kept unless `--force`.")
+            "`--upgrade` re-applies files changed upstream and keeps locally modified ones. Differing files are kept unless `--force`.")
 
 
 def approval_block(ctx):

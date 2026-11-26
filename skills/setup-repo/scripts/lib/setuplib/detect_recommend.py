@@ -1,18 +1,9 @@
-import os
+from .skills_sets import SOURCE_HINT, source_dir
 
 DEBT_HIGH_FILES = 10
 APPROVAL_WORDS = ("never auto-commit", "explicit approval", "approval before")
 HOOKS_VIA = {"husky": "husky", "lefthook": "lefthook", "pre-commit": "precommit", "githooks": "githooks"}
-CLONE_ENV = "PUBLIC_AI_DIR"
-CLONE_DEFAULT = "~/code/Public-AI"
 PROFILES = ("minimal", "standard", "factory")
-
-
-def skills_clone():
-    for candidate in (os.environ.get(CLONE_ENV, ""), os.path.expanduser(CLONE_DEFAULT)):
-        if candidate and os.path.isdir(os.path.join(candidate, "skills")):
-            return candidate
-    return None
 
 
 def hooks_via(parts):
@@ -52,6 +43,12 @@ def approval_flag(parts):
     return None
 
 
+def skills_flag(clone):
+    if clone:
+        return {"flag": "--skills core", "reason": "PUBLIC_AI_DIR names a clone: 6 core and 15 support skills are symlinked; --skills core+aliases adds the one-line aliases"}
+    return {"flag": "--skills none", "reason": "no skills source: " + SOURCE_HINT + " to link the core and support skills"}
+
+
 def debt_note(debt):
     high = debt["files_over_400_lines"] >= DEBT_HIGH_FILES or debt["files_with_comment_density_high"] >= DEBT_HIGH_FILES
     if not high:
@@ -84,9 +81,7 @@ def recommend(parts):
     approval = approval_flag(parts)
     if approval:
         flags.append({"flag": approval[0], "reason": approval[1]})
-    clone = skills_clone()
-    flags.append({"flag": "--skills core" if clone else "--skills none",
-                  "reason": "Public-AI clone found: skills are symlinked" if clone else "no Public-AI clone found: set PUBLIC_AI_DIR or pass --skills-from"})
+    flags.append(skills_flag(source_dir(None)))
     notes = [note for note in (debt_note(parts["legacy_debt"]),) if note]
     if parts["monorepo"]["is_monorepo"]:
         notes.append("monorepo: install once at the root; wire linter snippets per package dir")
