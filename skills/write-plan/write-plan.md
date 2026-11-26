@@ -28,6 +28,7 @@ If this work came from a **tracker task** (e.g. Asana), follow [`../plan-impleme
 ## Align first
 
 1. `skills/align/scripts/assess.sh "<task>"` (absent → skip this step). `suggest_align` true → say why in one line (`reasons`) and offer [`align`](../align/align.md). Never block. Declined → write "align skipped by user" in Context.
+   Plan spans repos or ≥ 3 slices → write `Lead: project AI per repo` in Context ([implement §Project AI](../implement/implement.md)).
 2. An align dir exists (`docs/align/<topic>/`, or `align=<path>`): `spec.md` is the scope source. Fold the spec, ADRs and glossary into the plan once (Terms, Decisions, Acceptance criteria sections); never commit or link the align dir. `(non-blocking)` open questions go in Risks. `Aligned: no` or a `(blocking)` question → stop and ask.
 3. `ui` true: before planning, ask once for the Figma link(s) (none given → plan from the repo's design system and say so) and run [figma-fidelity](../align/references/figma-fidelity.md). The plan carries its **Design source of truth** table; the implementer and reviewer treat only `exact` frames as pixel-authority.
 

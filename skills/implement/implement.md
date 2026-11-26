@@ -68,6 +68,20 @@ If this work came from a **tracker task**, read that task’s comments **before 
 | Next agent | The orchestrator starts a fresh agent with the plan and `handoff.md` instead of resuming this one |
 | Slices | A plan too large for one agent splits into parallel slices below; each slice has its own budget |
 
+## Project AI (lead agent)
+
+One background agent per repo that plans its slice of the work and delegates to implementers; the orchestrator only aligns, reviews, gates.
+
+| Use when | Skip when |
+|---|---|
+| Multi-repo change → one project AI per repo | One repo, ≤ 3 plan steps |
+| ≥ 3 parallel slices | Mechanical plan (low effort) |
+| Plan + code won't fit one 200k budget | Orchestrator context has room |
+
+- Project AI: `medium` effort; runs `write-plan` for its repo, cuts slices, spawns implementers, merges, reports `{repo, branch, slices, status}`
+- Implementers report to their project AI, never the orchestrator
+- Cross-repo contract (API, schema, event) is decided by the orchestrator first; project AIs never change it
+
 ## Parallel slices (worktrees)
 
 Default: one implementer, one checkout. Isolated work (before-build, scratch runs) = a fresh clone. Worktrees only for parallel slices below.
