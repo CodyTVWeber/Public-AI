@@ -8,32 +8,31 @@ description: >
 
 # Payments
 
-Research is not authorization. Do not pay from this skill.
-
-This skill grants no new access or authority; follow the platform's existing connection, approval and safety rules.
+- Research is not authorization. Never pay from this skill.
+- Grants no access or authority. Follow platform's existing connection, approval, safety rules.
 
 ## Amount kinds
 
-| Kind | What it is | Authorizes paying? | Closes the obligation? |
-|------|------------|--------------------|------------------------|
+| Kind | What it is | Authorizes paying? | Closes obligation? |
+|------|------------|--------------------|--------------------|
 | **Estimated** | Research or calculation | No | No |
-| **Agreed** | User confirmed this amount | No (still needs a pay instruction) | No |
-| **Receipted** | Actual completed receipt | Already paid | Only if recipient, amount, and purpose **all match** |
+| **Agreed** | User confirmed amount | No (needs pay instruction) | No |
+| **Receipted** | Actual completed receipt | Already paid | Only if recipient, amount, purpose **all match** |
 
-Keep the three distinct in every row. Do not collapse “I calculated $X” into agreed or paid.
+Keep three distinct in every row. Never collapse "I calculated $X" into agreed or paid.
 
 ## Closing
 
-Close an obligation only when:
+Close obligation only when:
 
-- An obligation **already exists** (do not invent a **Done** row to fill a table)
-- **Recipient**, **amount**, and **purpose** match that obligation exactly
-- A receipt (or the user confirming the payment completed) exists
+- Obligation **already exists**. Never invent a **Done** row to fill a table.
+- **Recipient**, **amount**, **purpose** match that obligation exactly.
+- Receipt exists (or user confirms payment completed).
 
-Compare with `scripts/payment-match.py --expect JSON --actual JSON` (recipient, amount, purpose). Exit 1 → leave open and say which field differs; the script prints field names only, never values.
+Compare: `scripts/payment-match.py --expect JSON --actual JSON` (recipient, amount, purpose). Exit 1 → leave open, say which field differs. Script prints field names only, never values.
 
 ## Do not
 
-- Treat research, a quote, or a calculator result as approval to pay
+- Treat research, quote, or calculator result as approval to pay
 - Invent Done / paid rows
 - Store payment handles, account numbers, or receipt URLs in this repo

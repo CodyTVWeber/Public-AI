@@ -6,7 +6,7 @@ argument-hint: "<task> [phases=align,plan,implement,review,watch,monitor] [ticke
 
 # Plan → Implement → Review → Watch
 
-Orchestrator drives; each phase is its own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with a watch phase and [`verify-change`](../verify-change/verify-change.md) proof in the PR/MR.
+Orchestrator drives. Each phase = own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with watch phase and [`verify-change`](../verify-change/verify-change.md) proof in PR/MR.
 
 | Phase | Skill | Who runs it |
 |---|---|---|
@@ -17,11 +17,11 @@ Orchestrator drives; each phase is its own skill, run in order. Extends [plan-im
 | D Fix | `implement` again | Same implementer, resumed with `review-roundN.md` |
 | E Gate | `skills/plan-implement-review/scripts/regression-gate.sh` (`review` §4) | Orchestrator |
 | F Watch | `watch` | Orchestrator, self-paced |
-| G Monitor | `monitor` | Orchestrator, self-paced, read-only, starts after the change is deployed to PROD |
+| G Monitor | `monitor` | Orchestrator, self-paced, read-only, starts after change deployed to PROD |
 
 ## Phases and aliases
 
-`phases=` picks a contiguous run of the six skills (default `plan` through `watch`; `align` and `monitor` only when asked). Aliases only set it:
+`phases=` picks contiguous run of the six skills. Default `plan` through `watch`. `align` and `monitor` only when asked. Aliases only set it:
 
 | Phases | Short | Long |
 |---|---|---|
@@ -35,73 +35,85 @@ Orchestrator drives; each phase is its own skill, run in order. Extends [plan-im
 | align → plan → implement → review → watch → monitor | `apirwm` | — |
 | monitor | `m` | — |
 
-`plan` alone = `write-plan` (same as `phases=plan`). Other runs go through `phases=`, e.g. `phases=align,plan`, `phases=align` or `phases=watch,monitor`.
+`plan` alone = `write-plan` (same as `phases=plan`). Other runs via `phases=`, e.g. `phases=align,plan`, `phases=align`, `phases=watch,monitor`.
 
-Starting mid-chain needs that phase's input: align needs only a task or a document; implement needs a plan path, ticket or checklist; review needs a branch/PR (+ plan); watch needs a PR/MR number; monitor needs proof of the PROD deploy and a Monitoring plan or the diff. Missing → ask once.
+Starting mid-chain needs that phase's input. Missing → ask once.
+- align: task or document
+- implement: plan path, ticket, or checklist
+- review: branch/PR (+ plan)
+- watch: PR/MR number
+- monitor: proof of PROD deploy + Monitoring plan or diff
 
 ## 0. Setup
 
-1. Parse args: `skills/plan-implement-review/scripts/pir-args.sh "<args>"` → JSON `{phases, ticket, no_plan, implementer, fix_comments, max_rounds, window, cadence, task}`. Exit 2 (unknown phase, non-contiguous run, bad value) → ask once. `ticket` null → plain branch names, commits `<type>: <desc>`; `implementer` null → cheap tier of the orchestrator's model family
-2. Vague term in the task → one-line flag: what was said, what it could mean, which you assume
-3. Repo location unknown → search by distinctive text; several clones → ask. Isolated work = a fresh clone under a scratch workspace (`<workspace>/<topic>/<repo>`). Worktrees are allowed only for parallel implement slices (implement §Parallel slices) and are merged and removed before the phase ends.
-4. State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` (exit 3 = exists → `get`). Keys in [plan-implement-review](../plan-implement-review/) Configuration; touch only via `get` / `set KEY=VALUE`
-5. Mark proof early: any behavior, screen, backend, or database change → `verify-change` evidence is mandatory in B, C and F
+1. Parse args: `skills/plan-implement-review/scripts/pir-args.sh "<args>"` → JSON `{phases, ticket, no_plan, implementer, fix_comments, max_rounds, window, cadence, task}`. Exit 2 (unknown phase, non-contiguous run, bad value) → ask once.
+   - `ticket` null → plain branch names, commits `<type>: <desc>`.
+   - `implementer` null → cheap tier of orchestrator's model family.
+2. Vague term in task → one-line flag: what was said, what it could mean, which you assume.
+3. Repo location unknown → search by distinctive text. Several clones → ask.
+   - Isolated work = fresh clone under scratch workspace (`<workspace>/<topic>/<repo>`).
+   - Worktrees only for parallel implement slices (implement §Parallel slices). Merged and removed before phase ends.
+4. State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` (exit 3 = exists → `get`). Keys: [plan-implement-review](../plan-implement-review/) Configuration. Touch only via `get` / `set KEY=VALUE`.
+5. Mark proof early: any behavior, screen, backend, or database change → `verify-change` evidence mandatory in B, C, F.
 
 ## A0. Align
 
-Run `align`. It writes `docs/align/<topic>/` and ends with a read-back. The chain stops here until `alignment.md` says `Aligned: yes`; `Aligned: no` or a blocking question → ask, do not plan. Pass the topic dir to Plan as `align=<dir>`. Run alone (`phases=align`), the report is the doc paths and the aligned state.
+Run `align`. Writes `docs/align/<topic>/`, ends with read-back. Chain stops until `alignment.md` says `Aligned: yes`. `Aligned: no` or blocking question → ask, don't plan. Pass topic dir to Plan as `align=<dir>`. Run alone (`phases=align`): report = doc paths + aligned state.
 
 ## A. Plan
 
-Run `write-plan`. `no-plan` → skip; put a 5-line inline checklist (scope, steps, out of scope, screens touched) in the implementer prompt. Synthesis and judgment belong to the planner; the orchestrator only does mechanical grep.
+Run `write-plan`. `no-plan` → skip; put 5-line inline checklist (scope, steps, out of scope, screens touched) in implementer prompt. Synthesis and judgment belong to planner; orchestrator only does mechanical grep.
 
-**Check the plan before B.** Review compares code to the plan, so a wrong plan passes review. Before spawning the implementer, compare the plan with the user's own words and the ticket:
+**Check plan before B.** Review compares code to plan, so wrong plan passes review. Before spawning implementer, compare plan with user's own words and ticket:
 
-- Every user statement about the domain (what a term means, what is stored or sent) appears in the plan and nothing in it contradicts them
-- Each overloaded term uses its glossary meaning ([glossary-overloaded-terms](../../rules/glossary-overloaded-terms.md))
-- Any decision that changes what is stored, sent or returned is listed under **Needs your OK**
+- Every user statement about domain (what a term means, what is stored or sent) appears in plan. Nothing contradicts it.
+- Each overloaded term uses glossary meaning ([glossary-overloaded-terms](../../rules/glossary-overloaded-terms.md)).
+- Any decision changing what is stored, sent, or returned → listed under **Needs your OK**.
 
-Mismatch, or anything under Needs your OK → stop and ask, even for local-only runs. Never settle it silently in the plan's rationale.
+Mismatch, or anything under Needs your OK → stop, ask, even for local-only runs. Never settle silently in plan rationale.
 
 ## B. Implement
 
-Spawn a **background sub-agent** if the host supports it (cheap model, same effort for every resume); otherwise run the implement skill yourself in a separate pass. Prompt minimum: repo path, branch, plan path or checklist, "run `implement`", commit often, **do not push**, `verify-change` proof in the PR/MR, repo rules. Before each attempt `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`. Wait on it; don't poll its transcript.
+- Spawn **background sub-agent** if host supports it (cheap model, same effort every resume). Otherwise run implement skill yourself in separate pass.
+- Prompt minimum: repo path, branch, plan path or checklist, "run `implement`", commit often, **do not push**, `verify-change` proof in PR/MR, repo rules.
+- Before each attempt: `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`.
+- Wait on it. Don't poll its transcript.
 
-Parallel slices follow implement §Parallel slices; the orchestrator owns merging and cleanup; evidence and the regression gate run once on the integrated branch.
+Parallel slices follow implement §Parallel slices. Orchestrator owns merging and cleanup. Evidence and regression gate run once on integrated branch.
 
 ## C–E. Review loop
 
-1. Run `review` on the branch; count blocking findings `k`
+1. Run `review` on branch. Count blocking findings `k`.
 2. `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `next`:
-   - `gate` → `regression-gate.sh <repo> --base origin/<base>` (exit 3 = dirty tree), `pir-state.sh set regression_status=<status>`, then `verdict.sh --phase gate --regression <status> …` and follow its `next`
-   - `done` → push (feature branch only) → draft PR/MR with the `verify-change` body (Build, Proof, Try it) → F
-   - `fix` → write `review-roundN.md`, `inc-round`, resume the same implementer, back to 1
-   - `hand_off` → stop; hand findings + `implementer_id` to the user
-   - `wait` → implementer or gate not finished
+   - `gate` → `regression-gate.sh <repo> --base origin/<base>` (exit 3 = dirty tree). `pir-state.sh set regression_status=<status>`. Then `verdict.sh --phase gate --regression <status> …` and follow its `next`.
+   - `done` → push (feature branch only) → draft PR/MR with `verify-change` body (Build, Proof, Try it) → F.
+   - `fix` → write `review-roundN.md`, `inc-round`, resume same implementer, back to 1.
+   - `hand_off` → stop. Hand findings + `implementer_id` to user.
+   - `wait` → implementer or gate not finished.
 
-Review owns the proof check: a change without the `verify-change` evidence for its kind (image, video, curl, query, diagram) is `fix required`.
+Review owns proof check: change without `verify-change` evidence for its kind (image, video, curl, query, diagram) = `fix required`.
 
 ## F. Watch
 
-Interim note first (URL, gate result, evidence summary), then run `watch <n>` with `fix-comments`. Final report held until the last phase run stops or hands off.
+Interim note first (URL, gate result, evidence summary). Then run `watch <n>` with `fix-comments`. Final report held until last phase run stops or hands off.
 
 ## G. Monitor
 
 Run `monitor` with `window=` (default `1h`) and `cadence=` (default `10m`).
 
-- Input: the plan's Monitoring plan, else one built from the diff ([write-plan](../write-plan/write-plan.md) §1)
-- Starts only when watch reports merged **and** deployed to PROD, with proof (deploy link, or a served version). Otherwise one line naming what is missing; resume with `phases=monitor`
-- Read-only: observe and report, never act
-- `degraded` → stop, give evidence and a recommended action, ask the human
-- Final report line: monitor verdict · window · signals ok/warn/fail/unknown
+- Input: plan's Monitoring plan, else one built from diff ([write-plan](../write-plan/write-plan.md) §1).
+- Starts only when watch reports merged **and** deployed to PROD, with proof (deploy link or served version). Otherwise one line naming what's missing. Resume with `phases=monitor`.
+- Read-only: observe and report, never act.
+- `degraded` → stop, give evidence + recommended action, ask human.
+- Final report line: monitor verdict · window · signals ok/warn/fail/unknown.
 
 ## Rules
 
-- Max 3 implement rounds, enforced by `inc-round`; no automatic 4th. Watch has its own 2 fix rounds
-- Never force-push, merge, approve or mark ready without being asked
-- Remote branch rewritten under you → never overwrite (see `implement` §1)
-- External posts carry an attribution prefix
-- Report ≤ 8 lines per tick; details live in the PR/MR description
+- Max 3 implement rounds, enforced by `inc-round`. No automatic 4th. Watch has own 2 fix rounds.
+- Never force-push, merge, approve, or mark ready without being asked.
+- Remote branch rewritten under you → never overwrite (see `implement` §1).
+- External posts carry attribution prefix.
+- Report ≤ 8 lines per tick. Details live in PR/MR description.
 
 ## Final report
 

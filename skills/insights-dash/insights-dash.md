@@ -1,86 +1,90 @@
-Update a growth tracking dashboard at a user-defined path.
+Update growth tracking dashboard at user-defined path.
 
-## Step 0 — Locate rules file
+## Step 0: Locate rules file
 
-Look for `growth-rules.md` in the same directory as `report.html`. The rules file defines what to measure, how to score it, and where data lives.
+Find `growth-rules.md` in same dir as `report.html`. It defines what to measure, how to score, where data lives.
 
-- If found: read it and follow its `## Focus Areas` and `## Data Sources` sections exactly.
-- If not found: create it using the **bootstrap flow** below, then proceed.
+- Found → follow its `## Focus Areas` and `## Data Sources` exactly.
+- Not found → bootstrap flow below, then proceed.
 
 ### Bootstrap flow (first run only)
-Ask the user:
-1. What is the directory path where the dashboard lives (or should be created)?
-2. What are 2–4 growth areas they want to track? For each, ask:
-   - What does success look like? (the target state)
-   - How would you measure progress? (what signal, command, or data source shows it?)
-   - How often does it change? (daily / weekly / per-period)
-3. What is the period cadence for history cards? (weekly, sprint, monthly, etc.)
-4. Do they want this run automatically going forward? If yes, see Step 7 below.
 
-Generate `growth-rules.md` from their answers using the template at the bottom of this file.
-Generate a starter `report.html` if none exists — use `templates/report.html` in this skill's directory as the structural and visual base.
+Ask user:
 
-## Step 1 — Gather data
+1. Dashboard dir path (or where to create it).
+2. 2–4 growth areas. Per area:
+   - Success = target state?
+   - Measure how? (signal, command, or data source)
+   - Change frequency? (daily / weekly / per-period)
+3. Period cadence for history cards? (weekly, sprint, monthly, etc.)
+4. Run automatically going forward? Yes → Step 7.
 
-For each focus area defined in `growth-rules.md`, run the commands listed under its `source:` field. Run all sources in parallel where possible.
+Generate `growth-rules.md` from answers using template at bottom.
+Generate starter `report.html` if none: base on `templates/report.html` in skill dir.
 
-Also collect period stats (sessions, messages, commits or equivalent) using the commands in `## Data Sources`.
+## Step 1: Gather data
 
-## Step 2 — Score each focus area
+- Per focus area: run its `source:` commands. Run all sources in parallel where possible.
+- Collect period stats (sessions, messages, commits or equivalent) via `## Data Sources`.
 
-Apply the formula in each focus area's `score_formula:` field. Clamp results to 0–100.
+## Step 2: Score
 
-**Overall** = average of all focus area scores.
+- Apply each area's `score_formula:`. Clamp 0–100.
+- **Overall** = average of area scores.
 
-## Step 3 — Update report.html
+## Step 3: Update report.html
 
-1. Read existing `report.html` to find the current period in Period History.
-2. If the new data covers a different date range, add a new period card using the stats from Step 1.
-3. Update focus area numbers, progress bar widths, and percentages.
+1. Read `report.html`; find current period in Period History.
+2. Different date range → add period card from Step 1 stats.
+3. Update focus-area numbers, progress bar widths, percentages.
 4. Recalculate overall % and its progress bar.
-5. Update the fun quote if the data yields a better one.
+5. Update fun quote if data yields a better one.
 
-## Step 4 — Update growth-rules.md
+## Step 4: Update growth-rules.md
 
-Append to the `## Period History Notes` section: the period date range, key metric values, and any scoring corrections or new signals discovered this run.
+Append to `## Period History Notes`: date range, key metric values, scoring corrections or added signals found this run.
 
-## Step 5 — Commit (private repo)
+## Step 5: Commit (private repo)
 
 ```
 git -C <dashboard-dir> add .
 git commit -m "chore: update growth track [date range]"
 ```
 
-## Step 6 — Sync to public repo (if configured)
+## Step 6: Sync to public repo (if configured)
 
-Check `growth-rules.md` for a `public_repo:` field. If present:
+Check `growth-rules.md` for `public_repo:`. If present:
 
-### 6a — Sensitivity scan
-Before writing anything, load the blocked patterns from `~/.claude/rules/public-repo-sensitivity.md` and scan all content destined for the public repo. Flag any match and stop — do not write until all matches are resolved.
+### 6a: Sensitivity scan
 
-If any match: report what matched, stop, ask user how to handle it.
+- Load blocked patterns from `~/.claude/rules/public-repo-sensitivity.md`. Scan all content destined for public repo.
+- Match → report what matched, stop, ask user how to handle. Write nothing until resolved.
 
-### 6b — Apply aliases and write
-1. Read the alias mapping from `## Public Aliases` in the **private** `growth-rules.md`
-2. Apply aliases to all content (replace private names with generic labels)
-3. Write sanitized `report.html` and `growth-rules.md` to `<public_repo>/growth/`
-4. Re-run the sensitivity scan on the written files to confirm clean
+### 6b: Apply aliases and write
 
-### 6c — Show diff, wait for approval
-Run `git -C <public_repo> diff` (staged and unstaged) and show the full output.
-**Do NOT commit** — wait for explicit user approval before running any `git commit` in the public repo.
+1. Read alias mapping from `## Public Aliases` in **private** `growth-rules.md`.
+2. Apply aliases to all content (private names → generic labels).
+3. Write sanitized `report.html` and `growth-rules.md` to `<public_repo>/growth/`.
+4. Re-run sensitivity scan on written files.
 
-Output one line: private commit hash + "public repo staged, awaiting your approval".
+### 6c: Show diff, wait for approval
 
-## Step 7 — Offer to automate with /loop
+- Run `git -C <public_repo> diff` (staged + unstaged). Show full output.
+- **Do NOT commit.** Wait for explicit user approval before any `git commit` in public repo.
+- Output one line: private commit hash + "public repo staged, awaiting your approval".
 
-If the user wants this running on its own cadence (asked at bootstrap, or any time they ask "how do I automate this"), suggest scheduling it with `/loop`:
+## Step 7: Automate with /loop
+
+If user wants own cadence (asked at bootstrap, or asks "how do I automate this"), suggest:
 
 ```
 /loop once a week, run '/insights' and then run '/insights-dash', commit and push.
 ```
 
-Substitute the cadence the user actually wants (daily, weekly, per-sprint). Tell them: recurring `/loop` jobs auto-expire after 7 days — a weekly job fires once, then needs to be rescheduled. They can re-run `/loop` after each fire, or ask to make it `durable: true` so it survives a restart (still subject to the 7-day expiry).
+Substitute cadence (daily, weekly, per-sprint). Tell user:
+
+- Recurring `/loop` jobs auto-expire after 7 days. Weekly job fires once, then needs rescheduling.
+- Options: re-run `/loop` after each fire, or ask for `durable: true` (survives restart; 7-day expiry still applies).
 
 ---
 
@@ -125,8 +129,8 @@ Schema per area:
 
 ## Data Sources
 
-Commands to gather period-level stats (sessions, messages, events, commits, etc.).
-These populate the Period History cards and provide denominators for focus area formulas.
+Commands for period-level stats (sessions, messages, events, commits, etc.).
+Populate Period History cards and provide denominators for focus-area formulas.
 
 | Stat | Command | Notes |
 |---|---|---|
@@ -134,10 +138,10 @@ These populate the Period History cards and provide denominators for focus area 
 
 ## Scoring Notes
 
-Add calibration notes here as you run the dashboard over time:
-- Which signals turned out to be misleading and why
-- Corrections to formulas after observing real data
-- Signals that were added or removed
+Calibration notes, added over time:
+- Misleading signals and why
+- Formula corrections after observing real data
+- Signals added or removed
 
 ## Period History Notes
 

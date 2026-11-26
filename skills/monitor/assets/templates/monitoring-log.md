@@ -2,4 +2,4 @@
 
 Date: {{DATE}}
 
-Appended while the window runs; frozen by the `## Final` entry. A correction is a new dated log that links back.
+Appended during window. Frozen by `## Final` entry. Correction = separate dated log linking back.
