@@ -11,6 +11,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [small-mrs.md](small-mrs.md) | One concern per MR; stack safest first. | `check-mr-size.sh`, `post-git-check.sh` (size note after a commit) |
 | [research-latest-main.md](research-latest-main.md) | Research from the fetched default branch. | `scripts/guard/research-ref.sh` |
 | [glossary-overloaded-terms.md](glossary-overloaded-terms.md) | One glossary entry per term with two meanings; list misleading code names. | review, plan check |
+| [delegate-work.md](delegate-work.md) | Lead decides and does tiny writes; a reused cheaper worker does volume. | review |
 
 `skills/setup-repo/assets/rules/` mirrors this directory for installation. `scripts/lint/check-copies.sh` fails on drift (pairs listed in `scripts/lint/copies.list`); `--fix` copies here → there.
 - [ai-files-telegraphic](ai-files-telegraphic.md) — AI-facing files: telegraphic, dense, human-scannable

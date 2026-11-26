@@ -38,6 +38,7 @@
 | `scripts/lint/lint-docs.sh [BASE]` | Docs rule: time-relative wording in added lines of Current docs; edits, deletes, or missing `Date:` header on dated `YYYY-MM-DD-*.md` docs ([rules/docs-current-or-dated.md](rules/docs-current-or-dated.md)) | Claude Code `PostToolUse` (Write, Edit), `.md` only |
 | `scripts/lint/check-copies.sh` | Every pair in `scripts/lint/copies.list` (`rules/*.md` and `lint-docs.sh` into `skills/setup-repo/assets/`) stays byte-identical. `--fix` copies canonical over copy | Run before commit |
 | `scripts/check-privacy.sh` | Privacy patterns in staged content, staged file names, binaries (blocked unless in `.privacyallow-binaries`), commit message; local patterns from `<git-dir>/info/privacy-patterns` (`--strict` or `PRIVACY_REQUIRE_PATTERNS=1` blocks when missing). `--range REV` scans commit range (added lines, names, messages, binaries). Version pins | git `pre-commit`, `commit-msg`, `pre-push` (`scripts/install-hooks.sh`; pre-push scans `@{u}..HEAD`, then branch size) |
+| `scripts/lint/check-duplicates.sh <repo>` | Files in `<repo>` byte-identical to a tracked file here and absent from its install record (LICENSE allowed); JSON `{duplicates}` | Run on downstream repos |
 | `scripts/lint/check-1k-cross.sh <base>` | Files growing from ≤1000 lines to over 1000 | `code-review` skill step |
 | `scripts/lint/verdict-parse.sh <file>` | Last `VERDICT: PASS` or `FAIL` in `check-work` output | `check-work` skill step |
 | `skills/review/scripts/stages.sh <base>` | Review stage skills (`review-<id>`) applying to diff, from changed paths and added lines. `plan` and `proof` always; rest only on signal and above size threshold | `review` skill step 1 |
@@ -61,7 +62,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 
 - No comments: [ban-comments](rules/ban-comments.md)
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
-- Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md)
+- Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 
 ## AI auto-merge is off
 
