@@ -64,7 +64,7 @@ Generated code, type barrels, pure data tables, migrations, large fixtures. No m
 
 ## Enforcement
 
-- `code-quality-check.sh` (shipped by `setup-repo`) checks self-check items 1-10 on changed lines: after every edit (Claude Code `PostToolUse`), when agent stops (`Stop`), at git pre-commit (`--staged`). Errors block; warnings advise
+- Write to this floor while editing. `code-quality-check.sh` (shipped by `setup-repo`) checks self-check items 1-10 on changed lines: after every edit (Claude Code `PostToolUse`), when the agent stops (`Stop`), at git pre-commit (`--staged`). Errors fail that step; warnings advise
 - Item 6 is `function-order` (warn): a caller below its callee, or a private helper above a public function in the same block. Cycles are skipped
 - A body that is one `if` with no `else`, once the function reaches 8 logic lines, is `guard-clause` (warn)
 - Judgment stays with review: item 11 (one definition per rule), 12 (names match docs). Item 13 is `lint-docs.sh`

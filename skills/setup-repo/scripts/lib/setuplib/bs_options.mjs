@@ -1,9 +1,11 @@
 import { validSet } from "./skills_sets.mjs";
 
-export const FEATURES = ["rules", "git-hooks", "claude-hooks", "post-git-hook", "agents-doc", "skills", "ci", "ai-risk",
+const AGENTS_DOC = "agents-doc";
+const SKILLS = "skills";
+export const FEATURES = ["rules", "git-hooks", "claude-hooks", "post-git-hook", AGENTS_DOC, SKILLS, "ci", "ai-risk",
   "pr-template", "approval-gate", "privacy", "research-ref"];
-const MINIMAL = ["rules", "git-hooks"];
-const STANDARD = [...MINIMAL, "claude-hooks", "post-git-hook", "agents-doc", "skills"];
+const MINIMAL = ["rules", "git-hooks", AGENTS_DOC];
+const STANDARD = [...MINIMAL, "claude-hooks", "post-git-hook", SKILLS];
 const PROFILES = { minimal: MINIMAL, standard: STANDARD, factory: [...STANDARD, "ci", "ai-risk", "pr-template"], local: STANDARD };
 const HOOKS_VIA = ["auto", "githooks", "husky", "lefthook", "precommit", "none"];
 
@@ -15,9 +17,10 @@ Repo-aware bootstrap of the AI guardrails (rules, clean-code scripts, git and Cl
 Prints the plan as JSON on stdout and a digest on stderr. --plan (default) writes nothing; --apply executes it.
 
 Profiles:
-  minimal   rules, clean-code scripts, git pre-commit and pre-push hooks
+  minimal   rules, clean-code scripts, git pre-commit and pre-push hooks, AGENTS.md guardrails section
+            (the floors, and that a miss fails the check)
   standard  minimal + Claude Code hooks (PreToolUse git guard, PostToolUse git check, PostToolUse analyzer and
-            docs lint, Stop analyzer) + AGENTS.md guardrails section + core skill symlinks (default)
+            docs lint, Stop analyzer) + core skill symlinks (default)
   factory   standard + ci + ai-risk + pr-template (no approval-gate: factories run unattended)
   local     standard guardrails without changing tracked files (alias --local): hooks in .claude/settings.local.json,
             git hooks in .git/hooks, a note in .git/info/local-guardrails.md instead of AGENTS.md, every installed
@@ -121,6 +124,6 @@ export function parse(argv) {
   options.mode = options.mode === "apply" ? "apply" : "plan";
   options.apply = options.mode === "apply";
   options.features = resolveFeatures(options.profile, options.with, options.without);
-  if (options.skills === "none") options.features = options.features.filter((name) => name !== "skills");
+  if (options.skills === "none") options.features = options.features.filter((name) => name !== SKILLS);
   return options;
 }

@@ -22,8 +22,8 @@ exit 0 ok, 1 check failed, 2 usage, 3 precondition.
 
 | Profile | Installs |
 |---|---|
-| `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks |
-| `standard` (default) | minimal + Claude Code hooks (PreToolUse guard, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + AGENTS.md section + core skill symlinks |
+| `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks, AGENTS.md section (floors, and that a miss fails the check) |
+| `standard` (default) | minimal + Claude Code hooks (PreToolUse guard, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + core skill symlinks |
 | `factory` | standard + `ci` + `ai-risk` + `pr-template` (no approval gate: factories run unattended) |
 | `local` (alias `--local`) | standard guardrails without changing tracked files; see Local profile |
 
@@ -117,6 +117,8 @@ Installs rules, scripts, `.githooks`, Claude hooks, and an appended "Clean code 
 ## Use as a skill
 
 Symlink or copy this directory to your agent's skills folder, then ask: "set up this repo". SKILL.md is the playbook.
+
+The AGENTS.md section (local: `.git/info/local-guardrails.md`) states these floors and that a miss fails the check, so the agent sees them while editing. Claude Code also loads `.claude/rules/`.
 
 ## What it enforces
 

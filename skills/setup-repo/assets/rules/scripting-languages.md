@@ -24,6 +24,6 @@ Scripts are Bash or JavaScript. Nothing else.
 
 ## Enforcement
 
-- `scripts/lint/check-languages.sh --staged | --range REV`: fails when added files use another language's extension
+- Write scripts in Bash or JavaScript. `scripts/lint/check-languages.sh --staged | --range REV` fails the commit when an added file uses another language's extension
 - Repo `.languageexempt`: one path regex per line, skipped
 - Runs in git `pre-commit` (after clean-code)

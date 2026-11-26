@@ -134,7 +134,7 @@ run_hook() {
     check_untracked "$rel"
   fi
   [[ ${#violations[@]} -eq 0 ]] && exit 0
-  printf 'docs rule (rules/docs-current-or-dated.md) violated in %s: %s\n' "$rel" "$(printf '%s\n' "${violations[@]}" | jq -sc .)" >&2
+  printf 'docs check failed in %s (rules/docs-current-or-dated.md). This edit fails until the file meets the rule: %s\n' "$rel" "$(printf '%s\n' "${violations[@]}" | jq -sc .)" >&2
   exit 2
 }
 

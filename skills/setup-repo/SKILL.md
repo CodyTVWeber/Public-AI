@@ -34,8 +34,8 @@ Run from this skill's directory. `<t>` = target (argument, else current repo; mu
 
 | Profile | Installs |
 |---|---|
-| `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks |
-| `standard` (default) | minimal + Claude Code hooks (PreToolUse guard on push and MR create, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + AGENTS.md section + core skill symlinks |
+| `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks, AGENTS.md section (floors, and that a miss fails the check) |
+| `standard` (default) | minimal + Claude Code hooks (PreToolUse guard on push and MR create, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + core skill symlinks |
 | `factory` | standard + ci + ai-risk + pr-template; no approval gate (factories run unattended) |
 | `local` | standard guardrails, tracked files unchanged: `settings.local.json`, `.git/hooks`, `.git/info/exclude`, note in `.git/info/local-guardrails.md`; no `ci` |
 
@@ -67,4 +67,5 @@ Run from this skill's directory. `<t>` = target (argument, else current repo; mu
 - Reuse shipped assets; do not rewrite per repo. Tune with env vars (`MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `CC_FUNC_WARN`, `CC_FUNC_ERROR`, `CC_PARAMS_ERROR`, `CC_NEST_WARN`, `CC_NEST_ERROR`, `CC_FILE_WARN`, `CC_FILE_ERROR`, `CC_DISABLE`), not script edits
 - Never weaken an existing stricter rule in the target
 - `CLEAN_CODE_SKIP=1` and `CC_SKIP=1` are one-command overrides. Tell the user whenever either is used
+- A check (git hook, Claude hook, CI, linter snippet) ships with the AGENTS guardrails section, so the agent sees the floors while editing and knows a miss fails the check. `--without agents-doc` is named in the plan; the hooks still fail the change
 - Good start, not a framework: no checks beyond what ships unless the user asks

@@ -23,7 +23,7 @@ assert_eq "every step has the contract fields" "true" "$(jq -r '[.steps[] | has(
 assert_eq "actions come from the contract" "true" "$(jq -r '[.steps[].action] | all(. == "create" or . == "merge" or . == "skip" or . == "manual")' <<<"$json")"
 
 json="$(plan "$a" --profile minimal)"
-assert_eq "minimal steps" "rules scripts git-hooks manifest" "$(step_ids "$json")"
+assert_eq "minimal steps" "rules scripts git-hooks agents-doc agents-doc:pointer agents-doc:gemini manifest" "$(step_ids "$json")"
 json="$(plan "$a")"
 assert_eq "standard steps" "rules scripts git-hooks claude-hooks post-git-hook skills agents-doc agents-doc:pointer agents-doc:gemini manifest" "$(step_ids "$json")"
 assert_eq "standard has no ci step" "" "$(step_action "$json" ci)"
@@ -38,6 +38,7 @@ json="$(plan "$a" --profile minimal --with approval-gate,privacy,research-ref)"
 assert_contains "add-ons via --with" "$(step_ids "$json")" "approval-gate"
 assert_contains "privacy add-on" "$(step_ids "$json")" "privacy:check-privacy.sh"
 assert_eq "without removes a feature" "false" "$(jq -r '.features | index("agents-doc") != null' <<<"$(plan "$a" --without agents-doc)")"
+assert_contains "agents-doc opt-out is named" "$(jq -r '.notes | join(" ")' <<<"$(plan "$a" --without agents-doc)")" "without the AGENTS section"
 
 "$BOOTSTRAP" "$a" --profile bogus >/dev/null 2>&1; assert_rc "bad profile is usage" 2 $?
 "$BOOTSTRAP" "$a" --with nonsense >/dev/null 2>&1; assert_rc "unknown feature is usage" 2 $?
@@ -65,6 +66,7 @@ assert_contains "links stay local" "$(cat "$a/.git/info/exclude")" ".claude/skil
 assert_eq "settings registers the git check" "true" "$(jq -r '[.hooks.PostToolUse[] | select(.matcher == "Bash") | .hooks[].command] | any(endswith("post-git-check.sh"))' "$a/.claude/settings.json")"
 assert_eq "agents section once" "1" "$(grep -c 'ai-guardrails:begin' "$a/AGENTS.md")"
 assert_contains "no-ci line in the guardrails section" "$(cat "$a/AGENTS.md")" "No pipeline jobs installed: local and Claude hooks are the guardrails"
+assert_contains "while-editing line in the guardrails section" "$(cat "$a/AGENTS.md")" "While editing"
 assert_not_contains "section records no absolute home path" "$(cat "$a/AGENTS.md")" "$clone"
 assert_contains "section names the skills source variable" "$(cat "$a/AGENTS.md")" '$PUBLIC_AI_DIR'
 

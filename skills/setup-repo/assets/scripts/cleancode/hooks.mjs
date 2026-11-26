@@ -9,7 +9,7 @@ import { fileOptions, trackedTargets } from "./targets.mjs";
 
 const BLOCKING = 2;
 const HOOK_OPTIONS = fileOptions({ skipIgnored: true, requireRepo: true });
-const FIX_PROMPT = "Fix these before continuing (rules/clean-code.md and rules/ban-comments.md):";
+const FIX_PROMPT = "This edit fails the clean-code floor and will fail again until the touched lines meet it (rules/clean-code.md, rules/ban-comments.md):";
 
 export function readPayload() {
   let text = "";

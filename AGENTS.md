@@ -55,7 +55,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 
 ## Rules
 
-[rules/](rules/README.md) holds repo-independent rules. Apply to every change:
+[rules/](rules/README.md) holds repo-independent rules. Apply to every change. Write to these floors on every touched line, before a check runs. Analyzer, docs lint, language check, privacy check, and git hooks fail the edit, commit, or push on a miss. Fix the code; never skip the check.
 
 - No comments: [ban-comments](rules/ban-comments.md)
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
