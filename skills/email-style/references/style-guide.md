@@ -2,21 +2,21 @@
 
 ## Structure
 
-1. Header block: `**To:**`, `**Cc:**` (omit if none), `**Subject:**`
-2. Greeting with the recipient's first name
+1. Header: `**To:**`, `**Cc:**` (omit if none), `**Subject:**`
+2. Greeting with recipient's first name
 3. Purpose: one short sentence, or straight to `1.`
 4. Nested outline, 1-4 layers
-5. Scope: decisions still open or just resolved; undisputed items stay out
-6. Close: 1-2 lines, plain, offer a call if useful; closing and signature per user config
+5. Scope: decisions still open or just resolved. Undisputed items stay out.
+6. Close: 1-2 lines, plain, offer a call if useful. Closing and signature per user config.
 
-## "More outline"
+## "More Outline"
 
 | Means | Does not mean |
 |---|---|
 | Deeper nesting | Longer email or more flat bullets |
 | Hierarchy: decision, terms, caveats | Repeating settled scope for completeness |
 
-## Source tags
+## Source Tags
 
 | Source | Phrase |
 |---|---|
@@ -26,9 +26,9 @@
 | In person | "on the call you also mentioned" |
 | Text message | "your text" |
 
-One tag per claim; never stack citations on every line.
+One tag per claim. Never stack citations on every line.
 
-## Banned phrases
+## Banned Phrases
 
 | Phrase | Why |
 |---|---|
@@ -39,11 +39,11 @@ One tag per claim; never stack citations on every line.
 | "as discussed in our correspondence" | Rehash cue |
 | "pursuant", "aforementioned" | Legal memo |
 | "leverage", "ensure alignment" | Corporate filler |
-| "I went back and reviewed" | Narrates effort; label and nest instead |
+| "I went back and reviewed" | Narrates effort. Label and nest instead. |
 
 Also rejected: emoji, time-zone labels, walls of flat bullets, wiki-style lectures with no ask, numbered lists of pure facts with no ask.
 
-## Distinctions as sub-bullets
+## Distinctions as Sub-Bullets
 
 ```markdown
 1. **Coverage.** One lead sentence.

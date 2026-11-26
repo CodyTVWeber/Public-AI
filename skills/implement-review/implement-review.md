@@ -6,4 +6,4 @@ argument-hint: "<task> [ticket=X] [no-plan] [fix-comments=yes]"
 
 # implement-review
 
-Alias. Load `plan-implement-review-watch` with `phases=implement,review` plus the user's arguments; follow it unchanged.
+Alias. Load `plan-implement-review-watch` with `phases=implement,review` + user args. Follow unchanged.
