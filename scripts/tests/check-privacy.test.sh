@@ -86,6 +86,14 @@ reset
 stage a.txt "pin $semver here"
 out="$(run --content)"; assert_contains "semver label" "$out" "semver pin"
 reset
+mkdir -p "$repo/vendor"
+printf 'version ^vendor/\n' > "$repo/.privacyexempt"
+stage vendor/lock.txt "pin $semver here"
+out="$(run --content)"; assert_rc "exempt path skips version checks" 0 $?
+stage vendor/t.txt "see $ticket"
+out="$(run --content)"; assert_rc "version exempt still blocks tickets" 1 $?
+rm -f "$repo/.privacyexempt"
+reset
 
 stage a.txt "service uses $tagpin today"
 out="$(run --content)"; assert_contains "image-tag style pin outside docker" "$out" "image-tag style pin"

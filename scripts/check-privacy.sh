@@ -20,6 +20,8 @@ Local patterns: the untracked file <git-dir>/info/privacy-patterns, one extended
      every run, and blocks with --strict or PRIVACY_REQUIRE_PATTERNS=1.
 Binaries: files git reports as binary, and png jpg jpeg gif webp pdf zip gz ico mov mp4 docx xlsx,
      block unless the path is a line of .privacyallow-binaries. Review them by hand first.
+Exempt: .privacyexempt lines `version <path-regex>` or `ticket <path-regex>` skip only the version-pin or
+     ticket-id checks for matching paths (vendored tools that pin their own public deps)
 Env: PRIVACY_EMPLOYER_PATTERN  extended regex for the employer-name check (default: EMPLOYER_PATTERN
      in this file, empty = check off)
 Allow list: .privacyallow, one regex per line; a flagged line matching any entry is dropped.
@@ -53,6 +55,10 @@ ALLOW_FILE=".privacyallow"
 failed=0
 
 EMPLOYER_PATTERN="${PRIVACY_EMPLOYER_PATTERN:-}"
+EXEMPT_FILE=".privacyexempt"
+exempt_for() { [ -f "$EXEMPT_FILE" ] || return 0; awk -v k="$1" '$1 == k { sub(/^[^ ]+ +/, ""); r = r (r == "" ? "" : "|") $0 } END { print r }' "$EXEMPT_FILE"; }
+VERSION_EXEMPT="$(exempt_for version)"
+TICKET_EXEMPT="$(exempt_for ticket)"
 
 BINARY_ALLOW_FILE=".privacyallow-binaries"
 BINARY_EXT='png|jpg|jpeg|gif|webp|pdf|zip|gz|ico|mov|mp4|docx|xlsx'
@@ -180,7 +186,7 @@ mark_allowed() {
 }
 
 check() {
-  local label="$1" pattern="$2" flag="$3" strip="${CHECK_STRIP:-}" src="$CONTENT" hits opt="-nE"
+  local label="$1" pattern="$2" flag="$3" skip="${CHECK_SKIP:-}" strip="${CHECK_STRIP:-}" src="$CONTENT" hits opt="-nE"
   [ -z "$pattern" ] && return 0
   [ "$flag" = i ] && opt="-nEi"
   if [ -n "$strip" ]; then
@@ -192,10 +198,11 @@ check() {
     src="$tmp/notrailers"
   fi
   hits="$(grep $opt -e "$pattern" "$src" 2>/dev/null \
-    | awk -v m="$META" -v a="$ALLOWNUMS" '
-        BEGIN { while ((getline l < m) > 0) meta[++nm] = l; while ((getline l < a) > 0) allowed[l] = 1 }
+    | SKIP="$skip" awk -v m="$META" -v a="$ALLOWNUMS" '
+        BEGIN { while ((getline l < m) > 0) meta[++nm] = l; while ((getline l < a) > 0) allowed[l] = 1; skip = ENVIRON["SKIP"] }
         { i = index($0, ":"); n = substr($0, 1, i - 1); text = substr($0, i + 1)
           if (n in allowed) next
+          if (skip != "" && meta[n] ~ skip) next
           loc = (meta[n] == text) ? "path" : meta[n]
           print "    " loc ": " substr(text, 1, 160) }' \
     | head -8)"
@@ -209,7 +216,7 @@ identity_checks() {
   check "employer name" "$EMPLOYER_PATTERN" i
   check "local pattern" "$LOCAL_PATTERN" i
   check "generic internal hostname" '[a-z0-9.-]+\.(internal|corp)\b' i
-  CHECK_STRIP="$KNOWN_TOKENS" check "ticket id" '\b[A-Z]{2,}-[0-9]+\b' s
+  CHECK_SKIP="$TICKET_EXEMPT" CHECK_STRIP="$KNOWN_TOKENS" check "ticket id" '\b[A-Z]{2,}-[0-9]+\b' s
   check "aws account id" '\b[0-9]{12}\b' i
   check "home directory path" '/(Users|home)/[A-Za-z0-9._-]+/' i
   check "email address" '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}' i
@@ -223,12 +230,12 @@ identity_checks() {
 }
 
 version_checks() {
-  check "semver pin" '\b[0-9]+\.[0-9]+\.[0-9]+\b' i
-  check "docker image tag" '^[[:space:]]*(image|FROM)[[:space:]]*:?[[:space:]]*[a-z0-9./_-]+:[0-9]' i
-  check "image-tag style pin" '[A-Za-z][A-Za-z0-9_./-]*:[0-9]+\.[0-9]+' i
-  check "version element" '<version>|"version"[[:space:]]*:' i
-  check "action version pin" '@v[0-9]+' i
-  CHECK_STRIP="$STD_TOKENS" check "model version token" '\b[a-z]+-[0-9]+\.[0-9]+\b' i
+  CHECK_SKIP="$VERSION_EXEMPT" check "semver pin" '\b[0-9]+\.[0-9]+\.[0-9]+\b' i
+  CHECK_SKIP="$VERSION_EXEMPT" check "docker image tag" '^[[:space:]]*(image|FROM)[[:space:]]*:?[[:space:]]*[a-z0-9./_-]+:[0-9]' i
+  CHECK_SKIP="$VERSION_EXEMPT" check "image-tag style pin" '[A-Za-z][A-Za-z0-9_./-]*:[0-9]+\.[0-9]+' i
+  CHECK_SKIP="$VERSION_EXEMPT" check "version element" '<version>|"version"[[:space:]]*:' i
+  CHECK_SKIP="$VERSION_EXEMPT" check "action version pin" '@v[0-9]+' i
+  CHECK_SKIP="$VERSION_EXEMPT" CHECK_STRIP="$STD_TOKENS" check "model version token" '\b[a-z]+-[0-9]+\.[0-9]+\b' i
 }
 
 secret_checks() {
