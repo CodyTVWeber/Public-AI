@@ -9,9 +9,11 @@ One reviewable concern per MR. Small changes get faster, more careful reviews, m
 | ≤ 200 | Ideal |
 | 201-400 | Fine |
 | 401-800 | Warn: say why it can't split, or split |
-| > 800 | Blocked on push / MR creation until split (or override with stated reason). Low-risk repo: advisory |
+| > 800 | Blocked on push / MR creation when the hard-limit count exceeds 800, until split (or override with stated reason). Low-risk repo: advisory |
 
 Env-tunable: `MR_SIZE_SOFT` (warn), `MR_SIZE_HARD` (block).
+
+The warning counts every changed line in that budget. The hard block leaves out documentation and repo-support files: Markdown and other docs (`*.md`, `*.mdx`, `*.rst`, `*.adoc`, paths under `docs/`, `doc/`, or `documentation/`); AI setup (`.claude/`, `.cursor/`, `.cursorrules`); lint and guard scripts (`scripts/lint/`, `scripts/clean-code/`, `scripts/guard/`, `.githooks/`, `.husky/`, lint or format config, and a script whose name contains `lint`).
 
 ## Low-risk repos
 

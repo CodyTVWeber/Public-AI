@@ -15,10 +15,11 @@ Installed by `setup-repo` from a Public-AI clone. Rules: `.claude/rules/`. Enfor
 | Function length | 40 lines of logic | 80 lines |
 | Parameters | 3 | 4 |
 | Nesting depth | 3 | 4 |
-| Branch size | 400 changed lines | 800 changed lines |
+| Branch size | 400 changed lines | 800 changed lines; docs and repo-support files omitted |
 | Commit subject | | 72 characters |
 
 - Findings count only on lines the change touches
+- Hard branch size omits documentation and repo-support files (AI setup, lint and guard scripts). The warning still counts them
 - Tune: `CC_*`, `MR_SIZE_*`, `FILE_*` env vars. `scripts/clean-code/code-quality-check.sh -h` lists them
 - Blocked commit or push → fix or split. Never bypass
 
