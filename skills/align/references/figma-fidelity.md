@@ -1,32 +1,34 @@
 # Figma fidelity
 
-A design frame is evidence, not a contract. Check how far it is right before anyone codes against it. Used by [`align`](../align.md) and [`write-plan`](../../write-plan/write-plan.md).
+Frame = evidence, not contract. Check fit before coding against it. Used by [`align`](../align.md) and [`write-plan`](../../write-plan/write-plan.md).
 
 ## Ask
 
-UI task (`assess.sh` says `ui: true`, or the ticket is UI work): one question, "Which Figma link(s) or frame(s) should this be coded against? `none` is fine." Spec Design sources already lists frames: reuse, do not ask again.
+- UI task (`assess.sh` says `ui: true`, or ticket is UI work): ask one question: "Which Figma link(s) or frame(s) should this be coded against? `none` is fine."
+- Spec Design sources already lists frames: reuse, don't re-ask.
 
 ## Read each frame
 
-Figma MCP tools present (`get_design_context`, `get_screenshot`, `get_metadata`): read every frame. Absent: ask the human for each frame's key facts (layout, states, copy, components) and mark authority anyway.
+- Figma MCP tools present (`get_design_context`, `get_screenshot`, `get_metadata`): read every frame.
+- Absent: ask human for each frame's key facts (layout, states, copy, components); mark authority anyway.
 
 ## Fidelity check (before planning)
 
-List what the frame shows against the ticket text:
+List what frame shows vs ticket text:
 
 | Look for | Examples |
 |---|---|
 | Missing states | empty, error, loading, disabled, hover, focus, mobile, long text |
-| Copy | wording that differs from the ticket |
+| Copy | wording differs from ticket |
 | Behavior not drawn | validation, navigation, persistence, analytics |
-| Design system | tokens and components versus what the repo ships |
-| Staleness | a frame that looks like a different iteration |
+| Design system | tokens and components vs what repo ships |
+| Staleness | frame looks like a different iteration |
 
-Per frame, ask: **exactly right** · **right except `<items>`** · **reference only**. Unanswered means `partial`; never assume `exact`.
+Per frame, ask: **exactly right** · **right except `<items>`** · **reference only**. Unanswered → `partial`. Never assume `exact`.
 
 ## Record
 
-Table in the spec's Design sources, copied into the plan as **Design source of truth**:
+Table in spec's Design sources; copy into plan as **Design source of truth**:
 
 | Source | Authority | Agreed deviations | Open questions |
 |---|---|---|---|
@@ -35,7 +37,7 @@ Table in the spec's Design sources, copied into the plan as **Design source of t
 | Authority | Implementer and reviewer |
 |---|---|
 | `exact` | pixel-authority |
-| `partial` | follow the agreed parts; ask about the rest |
-| `reference` | context only; ticket text and the design system decide |
+| `partial` | follow agreed parts; ask about rest |
+| `reference` | context only; ticket text and design system decide |
 
 No design: write `None.` and drop the table.

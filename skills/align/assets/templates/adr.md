@@ -6,11 +6,11 @@ Supersedes: none
 
 ## Context
 
-{{the situation and the forces at play, as of the date above}}
+{{situation, forces; as of date above}}
 
 ## Decision
 
-{{the choice, in one or two sentences}}
+{{choice; 1–2 sentences}}
 
 ## Alternatives
 
@@ -18,4 +18,4 @@ Supersedes: none
 
 ## Consequences
 
-- {{what gets easier or harder}}
+- {{easier or harder}}

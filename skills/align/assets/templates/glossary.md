@@ -4,7 +4,7 @@
 
 | Term | Definition | Avoid | Source |
 | --- | --- | --- | --- |
-| {{term}} | {{one-sentence definition}} | {{synonyms to avoid, or none}} | {{link, or who said it}} |
+| {{term}} | {{one-sentence definition}} | {{synonyms, or none}} | {{link or who said it}} |
 
 ## Differs from code
 

@@ -2,15 +2,15 @@
 
 ## Task
 
-{{the task restated in at most 5 lines}}
+{{task restated, ≤5 lines}}
 
 ## Agreed
 
-- {{point the human confirmed}}
+- {{point human confirmed}}
 
 ## Assumptions
 
-- {{labeled assumption, not yet confirmed}}
+- {{labeled assumption, unconfirmed}}
 
 ## Open questions
 

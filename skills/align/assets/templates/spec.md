@@ -2,19 +2,19 @@
 
 ## Goal
 
-{{one sentence: the outcome and who gains}}
+{{one sentence: outcome, who gains}}
 
 ## Users
 
-- {{who uses it, and in what situation}}
+- {{who, in what situation}}
 
 ## Scope
 
-- {{what is included}}
+- {{included}}
 
 ## Non-goals
 
-- {{what is excluded on purpose}}
+- {{excluded on purpose}}
 
 ## Acceptance criteria
 
@@ -22,13 +22,13 @@
 
 ## Constraints
 
-- {{technical, legal, performance or compatibility limit}}
+- {{technical, legal, performance, or compatibility limit}}
 
 ## Design sources
 
 | Source | Authority | Agreed deviations | Open questions |
 | --- | --- | --- | --- |
-| {{frame link or document}} | {{exact, partial or reference}} | {{none or list}} | {{none or list}} |
+| {{frame link or document}} | {{exact, partial, or reference}} | {{none or list}} | {{none or list}} |
 
 ## Decisions
 
@@ -36,9 +36,9 @@
 
 ## Open questions
 
-- (blocking) {{question the plan cannot start without}}
-- (non-blocking) {{question the plan carries as a risk}}
+- (blocking) {{question plan cannot start without}}
+- (non-blocking) {{question plan carries as risk}}
 
 ## Related
 
-- {{prior specs, ADRs or glossaries, linked not copied}}
+- {{prior specs, ADRs, glossaries; linked, not copied}}

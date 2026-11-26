@@ -6,4 +6,4 @@ argument-hint: "<task> [ticket=X] [no-plan] [fix-comments=yes] [window=1h] [cade
 
 # apirwm
 
-Alias. Load `plan-implement-review-watch` with `phases=align,plan,implement,review,watch,monitor` plus the user's arguments; follow it unchanged.
+Alias. Load `plan-implement-review-watch` with `phases=align,plan,implement,review,watch,monitor` + user args. Follow unchanged.
