@@ -107,7 +107,7 @@ else
 fi
 
 failed=0
-for f in "${files[@]}"; do
+for f in ${files[@]+"${files[@]}"}; do
   [[ "$f" =~ $CODE_EXT ]] || continue
   is_generated_path "$f" && continue
   [ -f "$f" ] || continue
