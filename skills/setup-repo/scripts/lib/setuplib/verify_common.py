@@ -1,5 +1,6 @@
-import json
 import os
+
+from .record import load_record
 
 CORE_SCRIPTS = ("code-quality-check.sh", "check-clean-code.sh", "check-mr-size.sh", "pre-push-gate.sh",
                 "claude-pre-tool-guard.sh", "post-git-check.sh", "git-scan.sh", "lint-docs.sh")
@@ -22,9 +23,12 @@ def file_has(path, needle):
 
 
 def load_manifest(root):
-    path = os.path.join(root, ".claude", "ai-guardrails.json")
-    try:
-        with open(path) as handle:
-            return json.load(handle)
-    except (OSError, ValueError):
-        return None
+    return load_record(root)
+
+
+def is_local(manifest):
+    return bool(manifest) and manifest.get("mode") == "local"
+
+
+def settings_file(root, manifest):
+    return os.path.join(root, ".claude", "settings.local.json" if is_local(manifest) else "settings.json")

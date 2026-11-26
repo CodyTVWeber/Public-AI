@@ -1,10 +1,7 @@
-import json
-import os
-import subprocess
-
+from .drift import differs_reason
+from .installer import note_installed, overwrite_flags, run_install
 from .plan_model import Step
 
-INSTALL_TIMEOUT_SECONDS = 120
 GROUP_PREFIXES = (("rules", ".claude/rules/"), ("scripts", "scripts/clean-code/"), ("git-hooks", ".githooks/"))
 
 
@@ -24,16 +21,13 @@ def install_flags(ctx):
 
 
 def call_install(ctx, extra):
-    command = [os.path.join(ctx.skill_dir, "scripts", "install.sh"), ctx.root] + install_flags(ctx) + extra
-    result = subprocess.run(command, capture_output=True, text=True, timeout=INSTALL_TIMEOUT_SECONDS)
-    if result.returncode != 0:
-        raise RuntimeError("install.sh failed: " + result.stderr.strip()[-300:])
-    return json.loads(result.stdout)
+    return run_install(ctx, install_flags(ctx) + overwrite_flags(ctx) + extra)
 
 
 def core_preview(ctx):
     if "preview" not in ctx.cache:
         ctx.cache.update(preview=call_install(ctx, ["--dry-run"]))
+        note_installed(ctx, ctx.cache["preview"])
     return ctx.cache["preview"]
 
 
@@ -52,8 +46,8 @@ def group_steps(ctx, spec, files):
         return []
     differing = [item for item in files if item["status"] == "differs"]
     written = [item for item in files if item["status"] in ("create", "overwrite")]
-    steps = [Step(step_id + ":" + item["path"], "manual", item["path"],
-                  "exists and differs: diff it and keep the stricter value, or rerun with --force") for item in differing]
+    steps = [Step(step_id + ":" + item["path"], "manual", item["path"], differs_reason(ctx.drift_map, item["path"]))
+             for item in differing]
     path = files[0]["path"].rsplit("/", 1)[0] + "/"
     if written:
         steps.insert(0, Step(step_id, "create", path, reason + " (" + str(len(written)) + " files)", run=lambda: run_core(ctx)))

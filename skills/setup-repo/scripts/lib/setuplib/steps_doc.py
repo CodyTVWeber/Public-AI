@@ -4,11 +4,12 @@ import re
 
 from .doc_render import MARKER_BEGIN, MARKER_END, render_section
 from .plan_model import Step, write_bytes
+from .record import build_record, record_path
+from .steps_local import local_doc_step
 
 POINTER_MAX_LINES = 3
 POINTER_TEXT = "@AGENTS.md\n"
 SECTION_PATTERN = re.compile(re.escape(MARKER_BEGIN) + r".*?" + re.escape(MARKER_END) + "\n?", re.S)
-MANIFEST_PATH = ".claude/ai-guardrails.json"
 
 
 def read_text(path):
@@ -44,6 +45,8 @@ def merge_section(current, section):
 def doc_steps(ctx):
     if not ctx.on("agents-doc"):
         return []
+    if ctx.local:
+        return [local_doc_step(ctx, render_section(ctx))]
     name, current, needs_pointer = pick_doc(ctx)
     updated = merge_section(current, render_section(ctx))
     steps = []
@@ -59,17 +62,13 @@ def doc_steps(ctx):
     return steps
 
 
-def manifest_data(ctx):
-    options = ctx.options
-    return {"tool": "setup-repo", "profile": options.profile, "features": ctx.features, "hooks_via": ctx.hooks_via,
-            "skills": options.skills if ctx.on("skills") else "none"}
-
-
 def manifest_step(ctx):
-    text = json.dumps(manifest_data(ctx), indent=2) + "\n"
-    current = read_text(ctx.dest(MANIFEST_PATH))
+    text = json.dumps(build_record(ctx), indent=2) + "\n"
+    dest = record_path(ctx.root, ctx.local)
+    shown = os.path.relpath(dest, ctx.root) if dest.startswith(ctx.root) else dest
+    current = read_text(dest)
     if current == text:
-        return Step("manifest", "skip", MANIFEST_PATH, "install record is current")
+        return Step("manifest", "skip", shown, "install record is current")
     action = "create" if current is None else "merge"
-    return Step("manifest", action, MANIFEST_PATH, "records profile and features for verify-repo.sh",
-                run=lambda: write_bytes(ctx.dest(MANIFEST_PATH), text.encode(), False))
+    return Step("manifest", action, shown, "records profile, features, source commit and file hashes for verify-repo.sh",
+                run=lambda: write_bytes(dest, text.encode(), False))

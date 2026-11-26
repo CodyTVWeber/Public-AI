@@ -12,8 +12,20 @@ PRIVACY_HOOK = "commit-msg"
 NO_NOTE = {"text": "", "manual": False}
 
 
+def local_hooks_via(options, systems):
+    if options.hooks_via == "none":
+        return "none", NO_NOTE
+    path = systems.get("core.hooksPath")
+    if path:
+        return "none", {"text": "core.hooksPath is " + path + ": hooks in .git/hooks would not run and the local profile never sets it",
+                        "manual": True}
+    return "native", NO_NOTE
+
+
 def resolve_hooks_via(options, detected):
     systems = {item["name"]: item["detail"] for item in detected["hook_systems"]}
+    if options.profile == "local":
+        return local_hooks_via(options, systems)
     via, note = options.hooks_via, NO_NOTE
     if via == "auto":
         via, note = detected["recommend"]["hooks_via"], recommended_note(detected, systems)

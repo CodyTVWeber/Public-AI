@@ -4,8 +4,10 @@ import subprocess
 import tempfile
 
 from .hookspec import GROUPS, PROJECT_DIR
+from .record import LOCAL_NOTE_RELATIVE, git_path
 from .repo import Repo
-from .verify_common import CORE_SCRIPTS, file_has, is_executable, load_manifest, result
+from .verify_common import CORE_SCRIPTS, file_has, is_executable, is_local, load_manifest, result, settings_file
+from .verify_drift import check_drift, check_local_clean, drift_of
 from .verify_git import check_git_hooks
 
 CHECK_TIMEOUT_SECONDS = 60
@@ -38,10 +40,10 @@ def registered_commands(settings):
 
 
 def check_settings(root, manifest):
-    path = os.path.join(root, ".claude", "settings.json")
+    path = settings_file(root, manifest)
     if not os.path.isfile(path):
         wanted = manifest and any(feature in HOOK_GROUPS_BY_FEATURE for feature in manifest["features"])
-        return result("settings", "fail" if wanted else "skip", "no .claude/settings.json")
+        return result("settings", "fail" if wanted else "skip", "no " + os.path.relpath(path, root))
     try:
         with open(path) as handle:
             settings = json.load(handle)
@@ -54,8 +56,8 @@ def check_settings(root, manifest):
     return result("settings", "pass", str(len(registered)) + " hook commands registered")
 
 
-def check_hook_scripts(root):
-    path = os.path.join(root, ".claude", "settings.json")
+def check_hook_scripts(root, manifest):
+    path = settings_file(root, manifest)
     try:
         with open(path) as handle:
             commands = registered_commands(json.load(handle))
@@ -139,7 +141,8 @@ def check_ci(root, manifest):
 def check_doc(root, manifest):
     if not manifest or "agents-doc" not in manifest["features"]:
         return result("agents-doc", "skip", "agents-doc not in the install record")
-    for name in ("AGENTS.md", "CLAUDE.md"):
+    local = [os.path.relpath(git_path(root, LOCAL_NOTE_RELATIVE), root)]
+    for name in local if is_local(manifest) else ("AGENTS.md", "CLAUDE.md"):
         if file_has(os.path.join(root, name), "<!-- ai-guardrails:begin -->"):
             return result("agents-doc", "pass", name + " holds the AI guardrails section")
     return result("agents-doc", "fail", "no AI guardrails section in AGENTS.md or CLAUDE.md")
@@ -148,6 +151,8 @@ def check_doc(root, manifest):
 def run_checks(root):
     repo = Repo(root)
     manifest = load_manifest(root)
+    drift = drift_of(root, manifest)
     return [check_scripts(root), check_git_hooks(root, repo, manifest), check_settings(root, manifest),
-            check_hook_scripts(root), check_analyzer(root), check_post_git(root), check_skills(root, manifest),
-            check_ci(root, manifest), check_doc(root, manifest)], manifest
+            check_hook_scripts(root, manifest), check_analyzer(root), check_post_git(root), check_skills(root, manifest),
+            check_ci(root, manifest), check_doc(root, manifest), check_drift(drift, manifest),
+            check_local_clean(root, manifest)], (manifest, drift)
