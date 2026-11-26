@@ -36,5 +36,5 @@ Default: **Current**. History, decisions, plans, postmortems, meeting notes, rev
 
 ## Enforcement
 
-- `lint-docs.sh [BASE]` (shipped by `setup-repo`) fails on time-relative words in changed Current docs, and on any edit to an existing Dated doc beyond whitespace
+- Write to this rule while editing. `lint-docs.sh [BASE]` (shipped by `setup-repo`) fails the edit and the check on time-relative words in changed Current docs, and on any edit to an existing Dated doc beyond whitespace
 - Review check: Current doc reading like changelog = Dated doc in wrong place

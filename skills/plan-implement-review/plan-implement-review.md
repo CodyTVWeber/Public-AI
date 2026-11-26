@@ -232,7 +232,7 @@ Run on **implement branch** tip. Never substitute unit tests alone when full reg
 
 ### Implementer prompt addition
 
-"Unit/lint green required each commit. **Orchestrator** runs project regression gate after review approve. You may run it if its local dependencies are up and it speeds feedback."
+"Write to the repo clean-code floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, and hooks fail the change on a miss. Unit/lint green required each commit. **Orchestrator** runs project regression gate after review approve. You may run it if its local dependencies are up and it speeds feedback."
 
 ## Round budget
 

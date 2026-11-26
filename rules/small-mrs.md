@@ -18,6 +18,8 @@ A file matches the first row that fits: docs, then support, then app. A rename c
 
 Env, per check: `MR_SIZE_SOFT` / `MR_SIZE_HARD` (app), `MR_SIZE_SUPPORT_SOFT` / `MR_SIZE_SUPPORT_HARD`, `MR_SIZE_DOCS_SOFT` / `MR_SIZE_DOCS_HARD`.
 
+Write inside these budgets while editing. pre-push and MR creation fail when any check is over its hard cap, until the change is split.
+
 ## Low-risk repos
 
 - Qualifies: ships nothing that runs for users (no deployed app, service, job, or data). E.g. docs, AI config/skills/rules, personal tooling

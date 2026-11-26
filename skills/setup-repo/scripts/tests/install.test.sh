@@ -22,6 +22,7 @@ assert_eq "hooksPath set" ".githooks" "$(git -C "$a" config --local core.hooksPa
 assert_contains "claude hooks wired" "$(cat "$a/.claude/settings.json")" "lint-docs.sh --hook"
 assert_contains "pre-tool guard wired" "$(cat "$a/.claude/settings.json")" "claude-pre-tool-guard.sh"
 assert_contains "snippet in CLAUDE.md" "$(cat "$a/CLAUDE.md")" "## Clean code and small MRs"
+assert_contains "snippet says a miss fails the change" "$(cat "$a/CLAUDE.md")" "fail the change on a miss"
 for f in scripts/clean-code/code-quality-check.sh scripts/clean-code/cleancode/cli.mjs scripts/clean-code/cleancode/lexer.mjs; do
   [ -e "$a/$f" ] && ok || bad "installed $f"
 done

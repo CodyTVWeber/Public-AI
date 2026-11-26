@@ -36,5 +36,5 @@ Repo publishing a library whose reference docs are generated from doc comments s
 
 ## Enforcement
 
-- `code-quality-check.sh` blocks added comments: every edit (`PostToolUse`), at `Stop`, at pre-commit. `check-clean-code.sh` and `lint-clean-code.sh BASE` block them too
+- Write with no comments. `code-quality-check.sh` blocks an added comment on every edit (`PostToolUse`), at `Stop`, and at pre-commit. `check-clean-code.sh` and `lint-clean-code.sh BASE` block them too. The edit fails until the comment is gone
 - `CLEAN_CODE_SKIP=1` denied by git guard. Fix the code instead

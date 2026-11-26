@@ -22,6 +22,7 @@ assert_eq "violation leaves stdout empty" "" "$out"
 assert_contains "stderr names the file and line" "$(cat "$TMPROOT/err")" "dirty.ts:2"
 assert_contains "stderr names the rule" "$(cat "$TMPROOT/err")" "added-comment"
 assert_contains "stderr carries the remedy" "$(cat "$TMPROOT/err")" "fix:"
+assert_contains "stderr says the edit fails the floor" "$(cat "$TMPROOT/err")" "fails the clean-code floor"
 
 out="$(post "$repo/clean.ts" 2>&1)"; rc=$?
 assert_rc "clean file exits 0" 0 $rc

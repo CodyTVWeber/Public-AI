@@ -20,6 +20,9 @@ import { print, printErr, runMain } from "./util.mjs";
 const PRECONDITION_ERROR = 3;
 const ACTION_COLUMN = 6;
 const LOCAL_NOTE = "local profile: tracked files stay unchanged; installed paths are excluded in .git/info/exclude and the install record is in .git/info";
+const LOCAL_PROMPT_NOTE = "local profile: Claude Code loads .claude/rules/ while editing. Other agents do not load .git/info/local-guardrails.md; put its While editing section in their instructions, or a hook fails the change with no prior warning.";
+const AGENTS_DOC_NOTE = "checks installed without the AGENTS section: agents do not see the floors while editing, and the hooks still fail a miss. Drop --without agents-doc so the section is written.";
+const ENFORCED = ["git-hooks", "claude-hooks", "post-git-hook", "ci"];
 const ACTIONS = ["create", "merge", "skip", "manual"];
 
 function buildContext(options) {
@@ -63,10 +66,11 @@ function planNotes(ctx) {
   notes.push(ctx.on("ci") ? CONTROL_NOTE : NO_PIPELINE);
   const kept = ctx.drift.filter((item) => item.status === MODIFIED_LOCALLY).map((item) => item.path);
   if (kept.length) notes.push("modified locally, never overwritten without --force: " + kept.join(", "));
-  if (ctx.local) notes.push(LOCAL_NOTE);
+  if (ctx.local) notes.push(LOCAL_NOTE, LOCAL_PROMPT_NOTE);
   if (ctx.on("approval-gate")) {
     notes.push("approval-gate is for human-gated repos: every commit and push waits for approval; unattended factories leave it off");
   }
+  if (!ctx.on("agents-doc") && ENFORCED.some((name) => ctx.on(name))) notes.push(AGENTS_DOC_NOTE);
   return notes;
 }
 

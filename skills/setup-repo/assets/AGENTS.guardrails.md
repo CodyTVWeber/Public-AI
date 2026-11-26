@@ -7,6 +7,10 @@ Installed by `setup-repo` from a Public-AI clone. Rules: `.claude/rules/`. Enfor
 
 {{INSTALLED}}
 
+### While editing
+
+Write to `.claude/rules/` on every touched line. The checks above fail the edit, commit, push, or pipeline when a line misses. Also: no added comments, TODO, or empty catch; no parameter mutation; docs are current state or a dated snapshot. Thresholds below. Fix the finding. Never skip the check.
+
 ### Thresholds
 
 | Check | Warn | Error |
