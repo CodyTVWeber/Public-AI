@@ -5,8 +5,12 @@ import { checkComments } from "./rules_comments.mjs";
 import { duplicateFindings, layerFindings, sizeFindings } from "./rules_file.mjs";
 import { checkFunctions } from "./rules_functions.mjs";
 import { emptyCatchFindings, magicFindings } from "./rules_lines.mjs";
+import { orderFindings } from "./rules_order.mjs";
 
-const CHECKS = [checkComments, emptyCatchFindings, checkFunctions, magicFindings, sizeFindings, layerFindings, duplicateFindings];
+const CHECKS = [
+  checkComments, emptyCatchFindings, checkFunctions, magicFindings, sizeFindings,
+  layerFindings, duplicateFindings, orderFindings,
+];
 
 function analyzeTarget(target, config) {
   if (isGeneratedPath(target.path)) return [];

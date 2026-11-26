@@ -171,6 +171,8 @@ only hook protocol output: exit 2 plus stderr feeds errors back to the agent; wa
 | `duplicate-string` | warn | same string of 6+ characters three or more times in a file |
 | `inline-try-catch` | warn | try/catch of 5+ lines inside a function longer than 10 lines |
 | `layer-folder` | warn | added file under a `controller`, `service` or `model` folder |
+| `function-order` | warn | caller below its callee, or a private helper above a public function in the same block. Cycles skipped. JS public means `export` on the header; Go an initial capital; Rust `pub`; Python and Ruby a leading `_` that is not a dunder; other brace languages `private` or `protected`. Shell has no public marker |
+| `guard-clause` | warn | one `if` with no `else` holds the whole body of a function of 8 or more logic lines (Python and brace languages) |
 
 Test paths (`test/`, `tests/`, `spec/`, `fixtures/`, `*.test.*`, `*_test.*`, `test_*`, `*Test.*`) skip
 `file-size`, `function-length`, `magic-number` and `duplicate-string`. Generated paths (`generated/`, `vendor/`,
@@ -194,7 +196,8 @@ Known limits (heuristics, not parsers):
 - Nesting counts control flow only (`if`, `else`, `for`, `while`, `switch`, `when`, `try`, `catch`); lambdas and object
   literals do not count. `with` and `case` arms do not count.
 - `param-mutation` cannot tell a local alias from a parameter and skips plain reassignment.
-- Judgment items (callers above callees, one definition per rule, names match docs) stay with review.
+- `function-order` compares functions at the same indent with no lesser-indent line between them, so a method does not order against a function in another class. Shell calls are command words.
+- Judgment left for review: one definition per business rule, names that match docs.
 
 ## Layout
 

@@ -22,15 +22,9 @@ All output, rules, and memory files carry full information in the fewest words.
 - No comments: [rules/ban-comments.md](../rules/ban-comments.md). Extract a named function or rename instead
 - Docs are current state or a dated snapshot: [rules/docs-current-or-dated.md](../rules/docs-current-or-dated.md)
 
-## File size
+## Thinking
 
-Target ≤ ~200 lines per source file, any language.
-
-- New code: one responsibility per file; extract before a file grows past ~200
-- An edit that would push a file well past 200 goes into a new module named by role
-- A soft standard for design and review; a linter gate only where the project adds one
-- Exempt: generated files, type-only barrels, long data tables, migration SQL
-- Refactor an existing large file only when the task touches that area
+[rules/ai-thinking-dense.md](../rules/ai-thinking-dense.md): telegraphic reasoning, fewest tokens that still pick the action. Replies still follow Density.
 
 ## External systems (red line)
 
@@ -52,9 +46,9 @@ Local-only work (repo files, local database) is out of scope; local git commits 
 
 Detailed rules live in dedicated files (`docs/`, `rules/`) loaded on demand. Entry points stay under ~50 lines.
 
-## Clean code
+## Checks
 
-Load [rules/clean-code.md](../rules/clean-code.md) when writing or reviewing code. Project style files (framework patterns, domain models) stay in the project.
+[rules/deterministic-checks.md](../rules/deterministic-checks.md): a script decides every check it implements. Run it. AI judges only what no script covers. Clean-code floor: [rules/clean-code.md](../rules/clean-code.md).
 
 ## Shell hygiene
 

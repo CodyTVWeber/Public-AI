@@ -44,6 +44,9 @@ Modes: FILE... | --staged | --changed [BASE] | --range BASE..HEAD | --hook | --s
 Env thresholds (defaults from rules/clean-code.md):
   CC_FUNC_WARN=40 CC_FUNC_ERROR=80 CC_PARAMS_ERROR=4 CC_NEST_WARN=3 CC_NEST_ERROR=4
   CC_FILE_WARN=200 CC_FILE_ERROR=400 (only when the change grows the file)
+  function-order (warn): a caller sits below its callee, or a private helper sits above a public function
+  in the same block (cycles skipped). guard-clause (warn): one if with no else holds the whole body once
+  the function reaches 8 logic lines (Python and brace languages).
   Python docstrings on a module, class or function are warnings (docstring); a free-floating string used
   as a comment is an error. Parameter mutation through res, req, ctx, event, self, this or
   ref.current is a warning; any other parameter mutation is an error.

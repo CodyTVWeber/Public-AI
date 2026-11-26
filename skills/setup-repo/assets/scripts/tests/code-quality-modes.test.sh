@@ -101,7 +101,7 @@ assert_contains "BASE diff names the file" "$out" "t.ts"
 (cd "$TMPROOT" && "$CQ" --staged >/dev/null 2>&1); assert_rc "outside a repo is a precondition error" 3 $?
 (cd "$repo" && "$CQ" --changed no-such-ref >/dev/null 2>&1); assert_rc "bad BASE is a precondition error" 3 $?
 
-assert_eq "list-rules is JSON with every rule" "15" "$("$CQ" --list-rules | jq 'length')"
+assert_eq "list-rules is JSON with every rule" "17" "$("$CQ" --list-rules | jq 'length')"
 assert_contains "help documents modes" "$("$CQ" -h)" "--stop-hook"
 assert_contains "help documents range mode" "$("$CQ" -h)" "--range BASE..HEAD"
 assert_contains "help documents thresholds" "$("$CQ" -h)" "CC_NEST_ERROR"
