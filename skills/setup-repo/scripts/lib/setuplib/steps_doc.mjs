@@ -15,12 +15,27 @@ function isPointer(text) {
   return lines.some((line) => line.trim() === "@AGENTS.md") && lines.length <= POINTER_MAX_LINES;
 }
 
+const VENDOR_POINTERS = [
+  ["CLAUDE.md", "agents-doc:pointer"],
+  ["GEMINI.md", "agents-doc:gemini"],
+];
+
 function pickDoc(ctx) {
   const agents = readText(ctx.dest("AGENTS.md"));
   const claude = readText(ctx.dest("CLAUDE.md"));
-  if (agents !== null) return ["AGENTS.md", agents, false];
-  if (claude !== null && !isPointer(claude)) return ["CLAUDE.md", claude, false];
-  return ["AGENTS.md", null, claude === null];
+  if (agents !== null) return ["AGENTS.md", agents];
+  if (claude !== null && !isPointer(claude)) return ["CLAUDE.md", claude];
+  return ["AGENTS.md", null];
+}
+
+function pointerSteps(ctx) {
+  const steps = [];
+  for (const [name, id] of VENDOR_POINTERS) {
+    if (readText(ctx.dest(name)) !== null) continue;
+    steps.push(new Step(id, "create", name, "pointer to AGENTS.md; rules live in AGENTS.md",
+      { run: () => writeBytes(ctx.dest(name), Buffer.from(POINTER_TEXT), false) }));
+  }
+  return steps;
 }
 
 function mergeSection(current, section) {
@@ -32,7 +47,7 @@ function mergeSection(current, section) {
 export function docSteps(ctx) {
   if (!ctx.on("agents-doc")) return [];
   if (ctx.local) return [localDocStep(ctx, renderSection(ctx))];
-  const [name, current, needsPointer] = pickDoc(ctx);
+  const [name, current] = pickDoc(ctx);
   const updated = mergeSection(current, renderSection(ctx));
   const steps = [];
   if (updated === current) steps.push(new Step("agents-doc", "skip", name, "AI guardrails section is current"));
@@ -42,10 +57,7 @@ export function docSteps(ctx) {
       fresh ? "adds the AI guardrails section" : "refreshes the AI guardrails section",
       { run: () => writeBytes(ctx.dest(name), Buffer.from(updated), false) }));
   }
-  if (needsPointer) {
-    steps.push(new Step("agents-doc:pointer", "create", "CLAUDE.md", "pointer to AGENTS.md; rules live in AGENTS.md",
-      { run: () => writeBytes(ctx.dest("CLAUDE.md"), Buffer.from(POINTER_TEXT), false) }));
-  }
+  if (name === "AGENTS.md") steps.push(...pointerSteps(ctx));
   return steps;
 }
 

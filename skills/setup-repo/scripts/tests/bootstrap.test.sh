@@ -25,7 +25,7 @@ assert_eq "actions come from the contract" "true" "$(jq -r '[.steps[].action] | 
 json="$(plan "$a" --profile minimal)"
 assert_eq "minimal steps" "rules scripts git-hooks manifest" "$(step_ids "$json")"
 json="$(plan "$a")"
-assert_eq "standard steps" "rules scripts git-hooks claude-hooks post-git-hook skills agents-doc agents-doc:pointer manifest" "$(step_ids "$json")"
+assert_eq "standard steps" "rules scripts git-hooks claude-hooks post-git-hook skills agents-doc agents-doc:pointer agents-doc:gemini manifest" "$(step_ids "$json")"
 assert_eq "standard has no ci step" "" "$(step_action "$json" ci)"
 assert_contains "no-pipeline note" "$(jq -r '.notes | join(" ")' <<<"$json")" "No pipeline jobs installed: local and Claude hooks are the guardrails"
 json="$(plan "$a" --profile factory)"
@@ -52,10 +52,11 @@ out="$(apply "$a")"; assert_rc "apply ok" 0 $?
 assert_eq "apply reports applied" "true" "$(jq -r .applied <<<"$out")"
 assert_eq "no step failed" "0" "$(summary "$out" failed)"
 assert_eq "hooksPath set" ".githooks" "$(git -C "$a" config --local core.hooksPath)"
-for f in .claude/rules/clean-code.md scripts/clean-code/post-git-check.sh scripts/clean-code/gitscan/cli.mjs .githooks/pre-push .claude/settings.json .claude/ai-guardrails.json AGENTS.md CLAUDE.md; do
+for f in .claude/rules/clean-code.md scripts/clean-code/post-git-check.sh scripts/clean-code/gitscan/cli.mjs .githooks/pre-push .claude/settings.json .claude/ai-guardrails.json AGENTS.md CLAUDE.md GEMINI.md; do
   [ -e "$a/$f" ] && ok || bad "applied $f"
 done
 assert_eq "pointer CLAUDE.md" "@AGENTS.md" "$(cat "$a/CLAUDE.md")"
+assert_eq "pointer GEMINI.md" "@AGENTS.md" "$(cat "$a/GEMINI.md")"
 assert_eq "skills linked with absolute paths" "$clone/skills/review" "$(readlink "$a/.claude/skills/review")"
 assert_contains "each link has its own exclude entry" "$(cat "$a/.git/info/exclude")" ".claude/skills/review"
 assert_not_contains "no directory-wide exclude hides team skills" "$(cat "$a/.git/info/exclude")" ".claude/skills/"$'\n'
@@ -114,6 +115,7 @@ p="$TMPROOT/pointer"; new_fixture "$p"
 printf '# Team rules\n\nBe kind.\n' > "$p/AGENTS.md"; printf '@AGENTS.md\n' > "$p/CLAUDE.md"; commit_all "$p"
 apply "$p" >/dev/null
 assert_eq "existing pointer untouched" "@AGENTS.md" "$(cat "$p/CLAUDE.md")"
+assert_eq "missing GEMINI.md redirect added" "@AGENTS.md" "$(cat "$p/GEMINI.md")"
 assert_contains "existing rules kept" "$(cat "$p/AGENTS.md")" "Be kind."
 assert_contains "section appended" "$(cat "$p/AGENTS.md")" "## AI guardrails"
 assert_eq "section is current after re-apply" "skip" "$(step_action "$(plan "$p")" agents-doc)"
@@ -123,6 +125,7 @@ printf '# Project notes\n\nReal content.\n' > "$c/CLAUDE.md"; commit_all "$c"
 apply "$c" >/dev/null
 assert_contains "real CLAUDE.md gets the section when no AGENTS.md exists" "$(cat "$c/CLAUDE.md")" "ai-guardrails:begin"
 [ -e "$c/AGENTS.md" ] && bad "no AGENTS.md created beside a real CLAUDE.md" || ok
+[ -e "$c/GEMINI.md" ] && bad "no GEMINI.md redirect beside a real CLAUDE.md" || ok
 
 j="$TMPROOT/husky"; js_husky_gitlab "$j"
 json="$(plan "$j" --without skills)"

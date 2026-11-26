@@ -1,6 +1,6 @@
 # Global Rules
 
-Portable agent rules. This file is the source. `CLAUDE.md` only points here. Symlink both into the agent user dir (`~/.claude/AGENTS.md` and `~/.claude/CLAUDE.md`); other agents load this file from their user memory.
+Portable agent rules. This file is the source. `CLAUDE.md` and `GEMINI.md` only point here ([rules/agent-source.md](../rules/agent-source.md)). Symlink this file and each redirect into that product's user dir.
 
 ## Density
 
@@ -38,13 +38,7 @@ Local-only work (repo files, local database) is out of scope; local git commits 
 
 ## Entry-point files
 
-`CLAUDE.md`, `AGENTS.md` hold only:
-
-1. Startup and shutdown sequence
-2. Priority hierarchy and red lines
-3. References to detailed rule files
-
-Detailed rules live in dedicated files (`docs/`, `rules/`) loaded on demand. Entry points stay under ~50 lines.
+[rules/agent-source.md](../rules/agent-source.md): edit this file. `CLAUDE.md`, `GEMINI.md`, and any other vendor file only redirect here. Detailed rules live in `rules/` and load on demand.
 
 ## Checks
 

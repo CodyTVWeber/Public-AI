@@ -2,7 +2,7 @@
 
 ## Pointers
 
-- Agent files (`CLAUDE.md`, `GEMINI.md`, ...) only point here. Never edit them
+- Agent files (`CLAUDE.md`, `GEMINI.md`, ...) only point here. Never edit them ([agent-source](rules/agent-source.md))
 - Add or change rules here only
 
 ## Personal public repo, external to any employer
