@@ -55,6 +55,7 @@ Run from this skill's directory. `<t>` = target (argument, else current repo; mu
   - An existing different `core.hooksPath` is never overridden
 - AGENTS.md section replaced between its markers. `CLAUDE.md` pointer files never edited
 - Skills: absolute symlinks into a Public-AI clone (`--skills-from`, else `$PUBLIC_AI_DIR`; no other default). One `.git/info/exclude` entry per link keeps them local; the team's own skills stay visible. `scripts/link-skills.sh` relinks
+- `--upgrade` also replaces record-less `stale-copy` files (target blob matches a past upstream version); without it the plan says rerun with `--upgrade`
 - Install record (`.claude/ai-guardrails.json`; local: `.git/info/local-guardrails.json`): source commit + hash per file. `--upgrade` re-applies upstream-changed files only
 
 ## Bare install

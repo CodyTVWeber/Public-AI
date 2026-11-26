@@ -71,6 +71,7 @@ auto-merge off, tier scripts), `pr-template` (the verify-change body as the forg
 The install record holds the source repo's commit (`git rev-parse HEAD`, else `unknown`), the profile and features, and a SHA-256 per installed file.
 `verify-repo.sh` reports `drift: [{path, status}]` with `changed-upstream` (source differs, installed file untouched), `modified-locally` (installed file differs from the record), `removed-upstream` (source file deleted, installed file untouched) and `missing`.
 `bootstrap.sh --apply --upgrade` re-applies only `changed-upstream` files; `modified-locally` files stay untouched and appear as `manual` steps and notes until `--force`.
+Record-less upgrade: a differing file whose blob matches a past upstream version (`stale-copy`) is replaced by `--upgrade`.
 A plain re-run keeps every differing file and names `--upgrade` in the step reason.
 
 ## Adapter matrix

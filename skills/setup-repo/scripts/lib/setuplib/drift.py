@@ -1,6 +1,8 @@
 import hashlib
 import os
 
+from .stale import STALE_COPY
+
 CHANGED_UPSTREAM = "changed-upstream"
 MODIFIED_LOCALLY = "modified-locally"
 MISSING = "missing"
@@ -41,8 +43,10 @@ def compute_drift(root, record, source_base):
     return found
 
 
-def differs_reason(drift_map, path):
-    status = drift_map.get(path)
+def differs_reason(drift_map, path, stale=None):
+    status = drift_map.get(path) or stale
+    if status == STALE_COPY:
+        return "unchanged copy of an earlier upstream version: rerun with --upgrade to replace it"
     if status == CHANGED_UPSTREAM:
         return "changed upstream since install: rerun with --upgrade (or --force) to take the new version"
     if status == MODIFIED_LOCALLY:

@@ -1,4 +1,5 @@
 from .drift import differs_reason
+from .stale import take_stale
 from .installer import note_installed, overwrite_flags, run_install
 from .plan_model import Step
 
@@ -44,10 +45,12 @@ def group_steps(ctx, spec, files):
     step_id, reason = spec
     if not files:
         return []
-    differing = [item for item in files if item["status"] == "differs"]
-    written = [item for item in files if item["status"] in ("create", "overwrite")]
-    steps = [Step(step_id + ":" + item["path"], "manual", item["path"], differs_reason(ctx.drift_map, item["path"]))
-             for item in differing]
+    stale = {item["path"]: take_stale(ctx, item) for item in files if item["status"] == "differs"}
+    replaced = [item for item in files if stale.get(item["path"]) and ctx.options.upgrade]
+    differing = [item for item in files if item["path"] in stale and item not in replaced]
+    written = [item for item in files if item["status"] in ("create", "overwrite")] + replaced
+    steps = [Step(step_id + ":" + item["path"], "manual", item["path"],
+                  differs_reason(ctx.drift_map, item["path"], stale[item["path"]])) for item in differing]
     path = files[0]["path"].rsplit("/", 1)[0] + "/"
     if written:
         steps.insert(0, Step(step_id, "create", path, reason + " (" + str(len(written)) + " files)", run=lambda: run_core(ctx)))

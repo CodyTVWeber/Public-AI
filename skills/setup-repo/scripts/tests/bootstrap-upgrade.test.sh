@@ -105,4 +105,17 @@ assert_eq "removed-upstream warns, never fails" "warn" "$(status_of "$json" drif
 rm "$r/.claude/rules/research-latest-main.md"
 apply "$r" >/dev/null
 assert_eq "re-apply prunes entries whose file is gone" "false" "$(jq -r '.files | has(".claude/rules/research-latest-main.md")' "$r/.claude/ai-guardrails.json")"
+git -C "$tool" add -- . && git -C "$tool" commit -qm baseline
+s="$TMPROOT/no-record"; go_bare "$s"
+"$tool/setup-repo/scripts/install.sh" "$s" --no-githooks >/dev/null 2>&1
+printf 'stale upstream change\n' >> "$rules/clean-code.md"
+printf 'stale upstream change\n' >> "$rules/ban-comments.md"
+git -C "$tool" add -- . && git -C "$tool" commit -qm upstream
+printf 'my local edit\n' >> "$s/.claude/rules/ban-comments.md"
+plan="$("$BS" "$s" --plan --skills none 2>/dev/null)"
+assert_contains "no record: pristine old copy is named" "$(jq -r '.steps[] | select(.path == ".claude/rules/clean-code.md") | .reason' <<<"$plan")" "earlier upstream version"
+assert_contains "no record: local edit stays a plain differs" "$(jq -r '.steps[] | select(.path == ".claude/rules/ban-comments.md") | .reason' <<<"$plan")" "exists and differs"
+apply "$s" --upgrade >/dev/null
+assert_eq "upgrade replaces the pristine old copy" "$(tail -1 "$rules/clean-code.md")" "$(tail -1 "$s/.claude/rules/clean-code.md")"
+assert_eq "upgrade keeps the local edit" "my local edit" "$(tail -1 "$s/.claude/rules/ban-comments.md")"
 finish
