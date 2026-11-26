@@ -16,3 +16,4 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 
 `skills/setup-repo/assets/rules/` mirrors this directory for installation. `scripts/lint/check-copies.sh` fails on drift (pairs listed in `scripts/lint/copies.list`); `--fix` copies here → there.
 - [ai-files-telegraphic](ai-files-telegraphic.md) — AI-facing files: telegraphic, dense, human-scannable
+- [commit-and-ship](commit-and-ship.md) — commit, push, MR by default; merge in low-risk repos

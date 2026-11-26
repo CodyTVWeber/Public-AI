@@ -4,6 +4,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$here/lib.sh"
 
 guard="${GUARD:-$here/../guard/git-approval-guard.sh}"
+cd "$(mktemp -d)"
 fixtures="$here/fixtures"
 NL=$'\n'
 

@@ -18,6 +18,9 @@ Claude Code PreToolUse(Bash) hook. Reads hook JSON on stdin (.tool_input.command
   rebase; -n on commit or am; any core.hooksPath write (git -c, git config, GIT_CONFIG_KEY_n,
   GIT_CONFIG_PARAMETERS, --config-env); CLEAN_CODE_SKIP=<non-0>, SKIP=..., HUSKY=0 on a gated command
       -> permissionDecision "deny"
+  low-risk repo (top-level .mr-size has `risk: low`, cwd from hook JSON) and the command stays in it
+  (no -C, --git-dir, --work-tree, cd) and parses cleanly -> commit, push, merge, forge writes
+      -> permissionDecision "allow"; force/delete push there -> "deny"
   anything else -> exit 0, no output
 --command STRING  analyse STRING instead of stdin (testing).
 Known limit: a script, Makefile target, or package script that runs git inside (./push.sh, make push,
@@ -97,6 +100,16 @@ ask_reasons() {
   printf '%s' "${out# }"
 }
 
+low_risk_repo() {
+  local dir top
+  dir="$(jq -r '.cwd // empty' <<<"$input" 2>/dev/null || true)"
+  [ -n "$dir" ] || dir="$PWD"
+  top="$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)" || return 1
+  grep -Eq '^[[:space:]]*risk:[[:space:]]*low[[:space:]]*$' "$top/.mr-size" 2>/dev/null
+}
+targets_elsewhere() { [[ "$input" =~ (-C[[:space:]]|--git-dir|--work-tree|(^|[^a-z])cd[[:space:]]) ]]; }
+opaque() { has_any ask-unknown-git ask-dynamic ask-interpreter unparsed; }
+
 gates="$(gate_names)"
 reasons="$(ask_reasons "$gates")"
 
@@ -106,6 +119,10 @@ elif has deny:hookspath; then
   emit deny "Blocked: writing core.hooksPath (git -c, git config, GIT_CONFIG_*, --config-env) bypasses the hooks. Ask the user to run it themselves."
 elif has deny:skip || { [ -n "$gates" ] && has skip-soft; }; then
   emit deny "Blocked: CLEAN_CODE_SKIP / SKIP / HUSKY=0 bypasses the hooks. Ask the user to run it themselves."
+elif has push-force && low_risk_repo; then
+  emit deny "Blocked: force/delete push in a low-risk repo. Ask the user to run it themselves."
+elif [ -n "$reasons" ] && low_risk_repo && ! targets_elsewhere && ! opaque; then
+  emit allow "Low-risk repo (.mr-size risk: low): commit, push and merge allowed per rules/commit-and-ship.md."
 elif [ -n "$reasons" ]; then
   emit ask "Approval gate: $reasons $ASK_TAIL"
 fi

@@ -7,32 +7,28 @@
 
 ## Personal public repo, external to any employer
 
-**Never auto-commit. Never auto-push.** Each needs explicit approval, separately. Approving a commit ≠ approving a push. Overrides any global "commit frequently" or commit-checkpoint rule.
+Low-risk repo (`.mr-size` `risk: low`): commit, push, and merge finished work without asking, per [commit-and-ship](rules/commit-and-ship.md). Never bypass hooks or force-push.
 
-1. Show `git status` and `git diff --staged`, then wait for approval before `git commit`.
-2. Ask again before `git push`.
+- Public repo: git history is permanent; deleted files stay recoverable; pushed commits may stay cached or indexed after removal. Privacy checks below run on every commit and push
 
-- Git history is permanent: deleted files stay recoverable; pushed commits may stay cached or indexed after removal
-- Gate applies to **this repo only**. Work repos keep normal frequent-commit cadence
-
-### Backstop, not a substitute for the gate
+### Privacy backstop
 
 - Run once per clone: `scripts/install-hooks.sh`
 - `scripts/check-privacy.sh` fails commit on: internal hostnames/repo slugs, ticket ids, work email, account ids, version pins, secrets, binaries
 - Employer names and hostnames: untracked `<git-dir>/info/privacy-patterns` (one extended regex per line)
   - Missing file → warns; blocks under `--strict` or `PRIVACY_REQUIRE_PATTERNS=1`
 - Catches *named* patterns only. Misses employer-specific behaviour and domain rules paraphrased in prose
-- Lowers odds of bad commit. Does not remove approval requirement
+- Lowers odds of a bad commit; review content before shipping
 
 ## Automation
 
-- Scripts enforce rules above mechanically. Backstops, not substitutes: gate stands; passing hook ≠ approval
+- Scripts enforce rules above mechanically. Backstops for judgment, not substitutes
 - Claude Code hooks: `.claude/settings.json` (`$CLAUDE_PROJECT_DIR`-relative)
 - All tests: `scripts/tests/run-all.sh` (`--fast` skips files in `scripts/tests/slow.list`)
 
 | Script | Enforces | Runs on |
 |---|---|---|
-| `scripts/guard/git-approval-guard.sh` | Asks before commit-like (`commit`, `merge`, `cherry-pick`, `revert`, `am`, `rebase -x`, `commit-tree`, `update-ref`) and push-like (`push`, `send-pack`) commands in any spelling (`-C`, `env`, `sh -c`, chained, aliases defined in same command), naming the gate. Asks on forge writes (`gh`/`glab` pr or mr create and merge, api writes), runtime-built command words, unknown git subcommands. Denies `--no-verify`, `-n` on commit, `core.hooksPath` writes, `CLEAN_CODE_SKIP`/`SKIP`/`HUSKY=0`. Parses via `git-scan.sh`. Not caught: scripts, Makefiles, package scripts running git inside; encoded text like `base64 -d \| sh`; plain `rebase` and `pull` | Claude Code `PreToolUse` (Bash) |
+| `scripts/guard/git-approval-guard.sh` | Low-risk repo (`.mr-size` `risk: low`, command stays in repo): allows commit, push, merge, forge writes; denies force/delete push. Elsewhere asks before commit-like (`commit`, `merge`, `cherry-pick`, `revert`, `am`, `rebase -x`, `commit-tree`, `update-ref`) and push-like (`push`, `send-pack`) commands in any spelling (`-C`, `env`, `sh -c`, chained, aliases defined in same command), naming the gate. Asks on forge writes (`gh`/`glab` pr or mr create and merge, api writes), runtime-built command words, unknown git subcommands. Denies `--no-verify`, `-n` on commit, `core.hooksPath` writes, `CLEAN_CODE_SKIP`/`SKIP`/`HUSKY=0`. Parses via `git-scan.sh`. Not caught: scripts, Makefiles, package scripts running git inside; encoded text like `base64 -d \| sh`; plain `rebase` and `pull` | Claude Code `PreToolUse` (Bash) |
 | `scripts/guard/research-ref.sh` | Fetches default branch; reports `{ref, sha, behind, ahead, fetched}`. Hook speaks up only when local is behind | Claude Code `SessionStart` |
 | `scripts/lint/lint-explainer.sh` | Explainer HTML: leftover `{{TOKEN}}`, `getElementById` with no matching `id=`, unbalanced `<script>` | Claude Code `PostToolUse` (Write, Edit) |
 | `scripts/lint/lint-docs.sh [BASE]` | Docs rule: time-relative wording in added lines of Current docs; edits, deletes, or missing `Date:` header on dated `YYYY-MM-DD-*.md` docs ([rules/docs-current-or-dated.md](rules/docs-current-or-dated.md)) | Claude Code `PostToolUse` (Write, Edit), `.md` only |
@@ -65,11 +61,8 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
+- Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)
 - Root `.mr-size` = `risk: low`: size hard block → advisory. Low-risk repos only ([small-mrs](rules/small-mrs.md#low-risk-repos))
-
-## AI auto-merge is off
-
-Agents do not merge PRs here. Green check, low-risk diff, or chat message does not change that. Enabling requires explicit edit of this section.
 
 ## No business-specific content
 

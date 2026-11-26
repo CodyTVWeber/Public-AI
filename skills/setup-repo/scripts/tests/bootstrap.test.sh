@@ -180,7 +180,7 @@ m="$TMPROOT/gate"; go_bare "$m"
 apply "$m" --with approval-gate,privacy,research-ref --without skills >/dev/null
 assert_eq "approval gate registered" "true" "$(jq -r '[.hooks.PreToolUse[].hooks[].command] | any(endswith("git-approval-guard.sh"))' "$m/.claude/settings.json")"
 assert_eq "research ref registered" "true" "$(jq -r '[.hooks.SessionStart[].hooks[].command] | any(contains("research-ref.sh"))' "$m/.claude/settings.json")"
-assert_contains "approval wording in the section" "$(cat "$m/AGENTS.md")" "Never auto-commit. Never auto-push."
+assert_contains "approval wording in the section" "$(cat "$m/AGENTS.md")" "Commit and ship"
 [ -x "$m/scripts/check-privacy.sh" ] && ok || bad "privacy gate installed"
 assert_contains "privacy script reads the local patterns file" "$(cat "$m/scripts/check-privacy.sh")" "info/privacy-patterns"
 [ -x "$m/scripts/lint/check-languages.sh" ] && ok || bad "language check installed"

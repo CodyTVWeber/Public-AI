@@ -7,13 +7,9 @@ Nothing business-specific goes in here. Generic technology knowledge is the poin
 anything that could fingerprint an employer's stack, process, or data — or identify you or anyone
 else personally — is not.
 
-## Agent rules — commit and push are both gated
+## Agent rules — ship clean content
 
-**Never auto-commit and never auto-push to this repo.** They are two separate exposure points, so
-approval for one is not approval for the other.
-
-1. Show `git status` and `git diff` (or `git diff --staged`) and wait for explicit approval before `git commit`.
-2. Ask **again** before `git push`.
+Agents commit, push, and merge per commit-and-ship (low-risk repo). Every commit and push is an exposure point, so the privacy checks below run on both; review staged content for anything they can't catch before shipping.
 
 Git history is permanent: deleted files stay recoverable, and pushed commits may be cached or
 indexed even if force-removed later. This overrides any global "commit frequently" or

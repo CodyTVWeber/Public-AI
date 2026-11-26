@@ -3,6 +3,7 @@ set -uo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$here/lib.sh"
 new_tmp
+cd "$TMPROOT"
 
 guard="$here/../guard/git-approval-guard.sh"
 
@@ -96,4 +97,19 @@ out="$("$guard" --bogus 2>&1)"; assert_rc "bad flag" 2 $?
 out="$("$guard" --help)"; assert_rc "help" 0 $?
 assert_contains "help documents the script limit" "$out" "Makefile"
 
+low="$TMPROOT/lowrisk"; mkdir -p "$low"; git -C "$low" init -q
+printf 'risk: low\n' > "$low/.mr-size"
+hi="$TMPROOT/highrisk"; mkdir -p "$hi"; git -C "$hi" init -q
+in_repo() { printf '{"tool_name":"Bash","cwd":"%s","tool_input":{"command":"%s"}}' "$1" "$2" | "$guard" | jq -r '.hookSpecificOutput.permissionDecision // "none"'; }
+assert_eq "low-risk commit allowed" "allow" "$(in_repo "$low" "git commit -m x")"
+assert_eq "low-risk push allowed" "allow" "$(in_repo "$low" "git push origin main")"
+assert_eq "low-risk merge allowed" "allow" "$(in_repo "$low" "gh pr merge 3")"
+assert_eq "low-risk force push denied" "deny" "$(in_repo "$low" "git push --force origin main")"
+assert_eq "low-risk no-verify denied" "deny" "$(in_repo "$low" "git commit --no-verify -m x")"
+assert_eq "low-risk skip env denied" "deny" "$(in_repo "$low" "CLEAN_CODE_SKIP=1 git push")"
+assert_eq "low-risk -C elsewhere asks" "ask" "$(in_repo "$low" "git -C /tmp/x push")"
+assert_eq "low-risk cd elsewhere asks" "ask" "$(in_repo "$low" "cd /tmp/x && git push")"
+assert_eq "high-risk commit asks" "ask" "$(in_repo "$hi" "git commit -m x")"
+printf 'risk: high\n' > "$hi/.mr-size"
+assert_eq "risk high still asks" "ask" "$(in_repo "$hi" "git push")"
 finish
