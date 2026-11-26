@@ -210,7 +210,8 @@ scripts/link-skills.sh      symlink skills from a Public-AI clone
 scripts/install.sh          the one file writer (rules, scripts, hooks, add-on copies)
 scripts/lib/                Node modules behind the wrappers (setuplib/*.mjs)
 assets/rules                clean-code.md, ban-comments.md, docs-current-or-dated.md, small-mrs.md, research-latest-main.md
-assets/scripts              check-mr-size.sh, check-clean-code.sh, claude-pre-tool-guard.sh, post-git-check.sh,
+assets/scripts              check-mr-size.sh, check-mr-size-app.sh, check-mr-size-support.sh, check-mr-size-docs.sh,
+                            check-clean-code.sh, claude-pre-tool-guard.sh, post-git-check.sh,
                             pre-push-gate.sh, git-scan.sh, lint-docs.sh, code-quality-check.sh
 assets/scripts/cleancode    the analyzer package (lexer, language structure, rules, git diff, hooks, CLI)
 assets/scripts/gitscan      shared git-command scanner used by the guards and the post-git check

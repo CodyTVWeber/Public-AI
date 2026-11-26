@@ -2,7 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadRecord } from "./record.mjs";
 
-export const CORE_SCRIPTS = ["code-quality-check.sh", "check-clean-code.sh", "check-mr-size.sh", "pre-push-gate.sh",
+export const CORE_SCRIPTS = ["code-quality-check.sh", "check-clean-code.sh", "check-mr-size.sh",
+  "check-mr-size-app.sh", "check-mr-size-support.sh", "check-mr-size-docs.sh", "pre-push-gate.sh",
   "claude-pre-tool-guard.sh", "post-git-check.sh", "git-scan.sh", "lint-docs.sh"];
 
 export function result(id, status, detail) {

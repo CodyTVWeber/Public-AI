@@ -2,25 +2,28 @@
 
 One reviewable concern per MR. Small changes get faster, more careful reviews, merge with fewer conflicts, and revert cheaply. Industry guidance: ~100-200 changed lines is easy to review well; quality drops past ~400; ~1000 is too large to review.
 
-## Budget (changed lines, excluding lockfiles, generated code, snapshots)
+## Budgets (changed lines, excluding lockfiles, generated code, snapshots)
 
-| Size | Action |
-|---|---|
-| ≤ 200 | Ideal |
-| 201-400 | Fine |
-| 401-800 | Warn: say why it can't split, or split |
-| > 800 | Blocked on push / MR creation when the hard-limit count exceeds 800, until split (or override with stated reason). Low-risk repo: advisory |
+Three checks on the same MR. Each total is its own files only. A large doc diff does not spend the app budget, and app code does not spend the doc budget. Any one check over its hard limit blocks the MR.
 
-Env-tunable: `MR_SIZE_SOFT` (warn), `MR_SIZE_HARD` (block).
+| Check | Files | Warn | Block |
+|---|---|---|---|
+| App | Product source and everything else counted | > 400 | > 800 |
+| Support | Shell scripts anywhere; `scripts/` anywhere; repo-root `tools/`, `bin/`, `hooks/`, `skills/`, `rules/`, `ci/`; CI (`.github/`, `.gitlab/`, `.circleci/`); AI setup (`.claude/`, `.cursor/`, `.cursorrules`); git hooks (`.githooks/`, `.husky/`); lint and format config; Makefile and Dockerfile | > 800 | > 1600 |
+| Docs | `*.md`, `*.mdx`, `*.rst`, `*.adoc`, `*.asciidoc`, and anything under `docs/`, `doc/`, or `documentation/` | > 2000 | > 4000 |
 
-The warning counts every changed line in that budget. The hard block leaves out documentation and repo-support files: Markdown and other docs (`*.md`, `*.mdx`, `*.rst`, `*.adoc`, paths under `docs/`, `doc/`, or `documentation/`); AI setup (`.claude/`, `.cursor/`, `.cursorrules`); lint and guard scripts (`scripts/lint/`, `scripts/clean-code/`, `scripts/guard/`, `.githooks/`, `.husky/`, lint or format config, and a script whose name contains `lint`).
+App bands: ≤ 200 ideal, 201-400 fine, 401-800 warn, > 800 block. Support is that scale doubled. Docs are the wide band: prose reviews differently from code, and a doc MR can be long without hiding a behavior change.
+
+A file matches the first row that fits: docs, then support, then app. A rename counts as the destination. Tests that sit with the app count as app.
+
+Env, per check: `MR_SIZE_SOFT` / `MR_SIZE_HARD` (app), `MR_SIZE_SUPPORT_SOFT` / `MR_SIZE_SUPPORT_HARD`, `MR_SIZE_DOCS_SOFT` / `MR_SIZE_DOCS_HARD`.
 
 ## Low-risk repos
 
 - Qualifies: ships nothing that runs for users (no deployed app, service, job, or data). E.g. docs, AI config/skills/rules, personal tooling
 - Never qualifies: deployed code, shared libraries, infra
 - Declare: tracked `.mr-size` at repo root, line `risk: low`
-- Effect: > 800 block → advisory line `low-risk repo (.mr-size): size is advisory`, exit 0
+- Effect: any check over its hard limit → advisory line `low-risk repo (.mr-size): size is advisory`, exit 0
 - Split advice unchanged. One concern per commit still applies
 
 ## How to keep it small
@@ -55,7 +58,7 @@ A stack merges bottom to top. Put the most failure-prone work at the end. If som
 
 ## Before opening an MR
 
-1. Run `scripts/clean-code/check-mr-size.sh`
+1. Run `scripts/clean-code/check-mr-size-app.sh`, `check-mr-size-support.sh`, and `check-mr-size-docs.sh` (or `check-mr-size.sh`, which runs all three)
 2. Over budget: list concerns in diff, cut along those lines, open first slice
 3. Description states what changed, scope or risk, and anything reviewer must run or check
 
