@@ -61,6 +61,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 - Thinking stays telegraphic: [ai-thinking-dense](rules/ai-thinking-dense.md)
+- Frustration or vague "work harder": the agent's setup is the likely fault; suggest rules, skills, hooks, model, effort, strategy, guidance, and cleanup: [frustration-fix-agent](rules/frustration-fix-agent.md)
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
 - Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)
 - Root `.mr-size` = `risk: low`: each size hard block (app, support, docs) → advisory. Low-risk repos only ([small-mrs](rules/small-mrs.md#low-risk-repos))
