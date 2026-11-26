@@ -6,7 +6,9 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | --- | --- | --- |
 | [ban-comments.md](ban-comments.md) | No comments; rename or extract. Machine-read lines only. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), `check-clean-code.sh`, `scripts/lint/lint-clean-code.sh` |
 | [docs-current-or-dated.md](docs-current-or-dated.md) | Docs are current state, or a dated immutable snapshot. | `scripts/lint/lint-docs.sh` |
-| [clean-code.md](clean-code.md) | Portable floor: size, nesting, params, naming. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), linters in `skills/setup-repo/assets/lint/` |
+| [clean-code.md](clean-code.md) | Portable floor: size, order, nesting, params, naming. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), linters in `skills/setup-repo/assets/lint/` |
+| [deterministic-checks.md](deterministic-checks.md) | Scripts decide mechanical checks. AI judges only the gaps. | the scripts that file names |
+| [ai-thinking-dense.md](ai-thinking-dense.md) | Reasoning is telegraphic; fewest tokens that still decide. | review |
 | [agent-neutral-names.md](agent-neutral-names.md) | Name generic assets for the job, not a vendor. | review |
 | [small-mrs.md](small-mrs.md) | One concern per MR; stack safest first. | `check-mr-size.sh`, `post-git-check.sh` (size note after a commit) |
 | [research-latest-main.md](research-latest-main.md) | Research from the fetched default branch. | `scripts/guard/research-ref.sh` |

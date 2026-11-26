@@ -22,7 +22,7 @@ Low-risk repo (`.mr-size` `risk: low`): commit, push, and merge finished work wi
 
 ## Automation
 
-- Scripts enforce rules above mechanically. Backstops for judgment, not substitutes
+- Scripts decide every check they implement. Run the script; do not re-judge its result. AI judges only what no script covers ([deterministic-checks](rules/deterministic-checks.md))
 - Claude Code hooks: `.claude/settings.json` (`$CLAUDE_PROJECT_DIR`-relative)
 - All tests: `scripts/tests/run-all.sh` (`--fast` skips files in `scripts/tests/slow.list`)
 
@@ -43,7 +43,7 @@ Low-risk repo (`.mr-size` `risk: low`): commit, push, and merge finished work wi
 | `skills/ai-risk/scripts/classify-tier.sh` | Risk tier per path, highest wins, who approves | `ai-risk` skill step |
 | `skills/verify-change/scripts/check-pr-body.sh` | PR body matches `assets/pr-body.md` | `verify-change` skill step |
 | `skills/setup-repo/assets/scripts/claude-pre-tool-guard.sh` | Blocks push and MR create over size limit, or with clean-code errors on `merge-base..HEAD` (read via analyzer `--range`, never working tree). Installed into target repos | Claude Code `PreToolUse` (Bash) there |
-| `skills/setup-repo/assets/scripts/code-quality-check.sh` | Clean-code floor on changed lines only: added comments, TODO, empty catch, function length, params, nesting, file size, magic numbers, parameter mutation, boolean flags ([rules/clean-code.md](rules/clean-code.md)). Docstrings and mutation of `res`, `req`, `ctx`, `event`, `self`, `this` are warnings. Modes: `FILE...`, `--staged`, `--changed [BASE]`, `--range BASE..HEAD` (committed text only), `--hook`, `--stop-hook`. `-h` lists thresholds | Claude Code hooks below; git `pre-commit` (`--staged`, via `check-clean-code.sh`) |
+| `skills/setup-repo/assets/scripts/code-quality-check.sh` | Clean-code floor on changed lines only: added comments, TODO, empty catch, function length, params, nesting, function order, guard clauses, file size, magic numbers, parameter mutation, boolean flags ([rules/clean-code.md](rules/clean-code.md)). Docstrings and mutation of `res`, `req`, `ctx`, `event`, `self`, `this` are warnings. Modes: `FILE...`, `--staged`, `--changed [BASE]`, `--range BASE..HEAD` (committed text only), `--hook`, `--stop-hook`. `-h` lists thresholds | Claude Code hooks below; git `pre-commit` (`--staged`, via `check-clean-code.sh`) |
 | `skills/setup-repo/assets/scripts/post-git-check.sh` | After git command ran; never blocks, always exits 0. Analyzer errors on commit's changed lines (`--range PARENT..HEAD`; merge commit: conflict-resolved files), commit subject over 72 chars, branch size, one-PR and watch reminder after `git push`, conflicts from `git merge` or `git pull`. All arrive as `additionalContext` | Claude Code `PostToolUse` (Bash) |
 | `skills/setup-repo/assets/scripts/git-scan.sh` | Tags `commit-like`, `push-like`, `forge-write`, `ask-dynamic`, `ask-unknown-git`, `ask-interpreter`, plus `merge`, `pull`, `mr-create`, hook-bypass, in any shell spelling. One scanner shared by guards above | Called by `git-approval-guard.sh`, `claude-pre-tool-guard.sh`, `post-git-check.sh` |
 | `skills/setup-repo/scripts/detect-repo.sh` | Read-only repo profile (forge, stacks, linters, commands, hook systems, CI, conflicts, legacy debt); recommended profile with questions | `setup-repo` skill step 1 |
@@ -60,6 +60,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - No comments: [ban-comments](rules/ban-comments.md)
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
+- Thinking stays telegraphic: [ai-thinking-dense](rules/ai-thinking-dense.md)
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
 - Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)
 - Root `.mr-size` = `risk: low`: size hard block → advisory. Low-risk repos only ([small-mrs](rules/small-mrs.md#low-risk-repos))

@@ -2,6 +2,7 @@ import { makeFinding } from "./catalog.mjs";
 import { ERROR, WARN } from "./model.mjs";
 import { isBoolFlag } from "./params.mjs";
 import { mutationFindings } from "./rules_mutation.mjs";
+import { guardFindings } from "./rules_guard.mjs";
 import { tryFindings } from "./rules_try.mjs";
 
 function grade(value, errorAt, warnAt) {
@@ -39,7 +40,9 @@ function flagFindings(ctx, func) {
   return [makeFinding([ctx.src.path, func.start], ["bool-flag-param", WARN], message)];
 }
 
-const CHECKS = [lengthFindings, paramFindings, nestingFindings, flagFindings, mutationFindings, tryFindings];
+const CHECKS = [
+  lengthFindings, paramFindings, nestingFindings, flagFindings, mutationFindings, tryFindings, guardFindings,
+];
 
 export function checkFunctions(ctx) {
   const findings = [];

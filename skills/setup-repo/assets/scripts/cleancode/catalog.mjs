@@ -33,6 +33,10 @@ const RULES = [
     "Extract a named constant and reuse it."],
   ["inline-try-catch", WARN, "Non-trivial try/catch inline in a function longer than 10 lines",
     "Move the try/catch into a named function that states the attempt, such as readCachedProfile()."],
+  ["function-order", WARN, "Caller below its callee, or a private helper above a public function in the same block",
+    "Put the caller above the callee, and the public API above helpers."],
+  ["guard-clause", WARN, "One if, with no else, holds the whole body of a function of 8 or more logic lines",
+    "Return early on the failing condition instead of wrapping the body in if."],
 ];
 const HINTS = new Map(RULES.map(([rule, , , hint]) => [rule, hint]));
 

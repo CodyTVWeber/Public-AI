@@ -40,7 +40,9 @@ Links in `CLAUDE.md` to `../rules/` resolve inside this repo. When the file is c
 | Density | Bullets and tables first; bold the load-bearing phrase; no filler |
 | Comments | None; extract or rename |
 | Docs | Current state, or a dated immutable snapshot |
-| File size | ≤ ~200 lines, soft |
+| Clean code | `code-quality-check.sh`: file size, function order, length, params, nesting, guard wraps |
+| Thinking | Telegraphic reasoning, fewest tokens that still decide |
+| Checks | Scripts decide mechanical checks; AI judges only the gaps |
 | External writes | Ask first; disclose agency |
 | Entry points | Thin `CLAUDE.md` / `AGENTS.md`; detail loads on demand |
 | Teaching mode | Off by default |

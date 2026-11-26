@@ -64,7 +64,19 @@ reset
 seq 1 250 | sed 's/^/export const v/; s/$/ = 1;/' > "$repo/src/big.ts"
 out="$(run)"; rc=$?
 assert_rc "oversized file only warns" 0 $rc
-assert_contains "size warning" "$out" '"rule":"file_over_200"'
+assert_contains "size warning" "$out" '"rule":"file-size"'
+reset
+
+seq 1 400 | sed 's/^/export const v/; s/$/ = 1;/' > "$repo/src/huge.ts"
+out="$(run)"; rc=$?
+assert_rc "file at the hard stop fails" 1 $rc
+assert_contains "hard file size" "$out" '"rule":"file-size"'
+reset
+
+printf 'function helper() {\n  return 1;\n}\nexport function api() {\n  return helper();\n}\n' > "$repo/src/order.ts"
+out="$(run)"; rc=$?
+assert_rc "function order only warns" 0 $rc
+assert_contains "function order" "$out" '"rule":"function-order"'
 reset
 
 mkdir -p "$repo/src/controllers"
