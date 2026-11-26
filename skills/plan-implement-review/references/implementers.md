@@ -21,7 +21,16 @@ grok models 2>/dev/null | head -20
 
 ## Profiles
 
-### `grok-4.5-low` — default Grok implementer (cheap/fast)
+### `grok-medium` — default Grok implementer
+
+| Field | Value |
+|-------|--------|
+| CLI | `grok` |
+| Model | `<grok model>` |
+| Effort | **`medium`** (`--reasoning-effort medium`); same launch and resume shapes as `grok-low` with `medium` substituted |
+| Notes | Default for plans touching more than one file or any logic. Same model family as a Grok 4.5 orchestrator, lower cost |
+
+### `grok-low` — Grok implementer for mechanical plans
 
 | Field | Value |
 |-------|--------|
@@ -76,17 +85,25 @@ grok models 2>/dev/null | head -20
 
 1. If user set `implementer=<id>`, use it (error if CLI/model missing).
 2. Else detect **orchestrator stack** and pick the **cheap pair**:
-   - Grok 4.5 (high/default) → **`grok-4.5-low`**
+   - Grok 4.5 (high/default) → **`grok-medium`**; **`grok-low`** when the plan is mechanical (see Effort and context)
    - Claude Sonnet/Opus → **`claude-haiku`**
-   - Unknown: first available in order: `grok-4.5-low` → `claude-haiku` → `composer-2.5` → `claude-sonnet` → `grok-4.5`
+   - Unknown: first available in order: `grok-medium` → `grok-low` → `claude-haiku` → the Composer profile → `claude-sonnet` → the full-effort Grok profile
 3. Prefer **background agent** launch; CLI script only as fallback.
 4. Always a **separate** agent/process from the orchestrator (isolation + resume).
 
+## Effort and context
+
+| Rule | Value |
+|---|---|
+| Default effort | `medium` where the host sets effort |
+| `low` | Mechanical plan: renames, docs, config, one file, no new logic |
+| `high` | Never auto-selected. Two failed rounds at `medium` mean the plan is unclear or the task needs the orchestrator; hand back instead of raising effort |
+| Context cap | 200k tokens per implementer agent; `implement` §Budget defines the checkpoint |
+| Effort changes | Never mid-session; a fresh agent after a handoff may pick again |
+
 ## Worktrees
 
-If the **project allows** git worktrees and the CLI supports them, optional isolation is fine.
-
-If the project **forbids** worktrees (e.g. stated in the repo's `AGENTS.md`), **do not** pass `--worktree`. Implement on the plan/feat branch in the main checkout; orchestrator must not hard-reset that branch mid-run.
+Do not pass `--worktree` for the single implementer: it works on the plan/feat branch in the main checkout, and the orchestrator does not hard-reset that branch mid-run. Worktrees are allowed only for parallel implement slices (implement §Parallel slices) and are merged and removed before the phase ends; a repo that forbids worktrees uses `--mode clone`.
 
 ## Permissions
 

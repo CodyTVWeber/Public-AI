@@ -34,7 +34,7 @@ Always keep **`subagent_id` and/or `session_id`** in `/tmp/pir-<topic>/state.jso
 
 | Orchestrator | Implementer |
 |--------------|-------------|
-| Grok 4.5 high | **Grok 4.5 low** (`grok-4.5-low`) |
+| Grok 4.5 high | **Grok 4.5 medium** (`grok-medium`; `grok-low` for mechanical plans) |
 | Claude Sonnet/Opus | **Claude Haiku** |
 
 ## Built-in implementer profiles
@@ -43,7 +43,8 @@ See [references/implementers.md](references/implementers.md).
 
 | ID | Typical use |
 |----|-------------|
-| `grok-4.5-low` | **Default Grok implementer** (same model, low effort) |
+| `grok-medium` | **Default Grok implementer** (same model, medium effort) |
+| `grok-low` | Mechanical plans (same model, low effort) |
 | `claude-haiku` | **Default Claude implementer** |
 | `composer-2.5` | Grok Composer if model id available |
 | `claude-sonnet` | Stronger Claude when forced |
@@ -75,11 +76,11 @@ cp -R <path-to-this-repo>/skills/plan-implement-review/references \
 
 - `/plan-implement-review`
 - “Write a plan, implement with a background low agent, review up to 3 times”
-- “Plan loop with implementer grok-4.5-low”
+- “Plan loop with implementer grok-low”
 
 Optional args:
 
-- `implementer=grok-4.5-low|haiku|sonnet|composer-2.5|grok-4.5|<custom>`
+- `implementer=grok-medium|grok-low|haiku|sonnet|<other profile id>`
 - `plan-builder=self|…`
 - `max-rounds=3`
 - `plan-only` / `implement-only` / `review-only`

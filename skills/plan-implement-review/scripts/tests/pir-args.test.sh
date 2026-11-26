@@ -33,6 +33,61 @@ for pair in "pi:plan,implement" "plan-implement:plan,implement" "implement-revie
   eq "alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
 done
 
+for pair in "a:align" "ap:align,plan" "align-plan:align,plan" "apirw:align,plan,implement,review,watch" \
+  "align-plan-implement-review-watch:align,plan,implement,review,watch" "align,plan,implement:align,plan,implement"; do
+  run "x phases=${pair%%:*}"
+  eq "align alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
+done
+run "tidy the template gallery phases=a"
+eq "align-only task" "$(field .task)" '"tidy the template gallery"'
+run "x phases=align,implement"
+eq "align skip plan rc" "$rc" 2
+run "x phases=plan,align"
+eq "align after plan rc" "$rc" 2
+run "x phases=watch,align"
+eq "align after watch rc" "$rc" 2
+run ""
+eq "default stays without align" "$(field .phases)" '["plan","implement","review","watch"]'
+
+run "x phases=m"
+eq "monitor alone rc" "$rc" 0
+eq "monitor alone" "$(field .phases)" '["monitor"]'
+run "x phases=monitor"
+eq "monitor long" "$(field .phases)" '["monitor"]'
+for pair in "apirwm:align,plan,implement,review,watch,monitor" \
+  "align-plan-implement-review-watch-monitor:align,plan,implement,review,watch,monitor" \
+  "watch,monitor:watch,monitor" "review,watch,monitor:review,watch,monitor"; do
+  run "x phases=${pair%%:*}"
+  eq "monitor alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
+done
+run "x phases=plan,monitor"
+eq "monitor skips phases rc" "$rc" 2
+run "x phases=review,monitor"
+eq "monitor skips watch rc" "$rc" 2
+run "x phases=monitor,watch"
+eq "monitor first order rc" "$rc" 2
+run "x"
+eq "default excludes monitor" "$(field .phases)" '["plan","implement","review","watch"]'
+run "ship it phases=apirwm window=2h cadence=5m"
+eq "window" "$(field .window)" '"2h"'
+eq "cadence" "$(field .cadence)" '"5m"'
+eq "monitor task" "$(field .task)" '"ship it"'
+run "x phases=monitor window=90s"
+eq "window seconds" "$(field .window)" '"90s"'
+run "x phases=monitor window=1d cadence=30m"
+eq "window days" "$(field .window)" '"1d"'
+run "x"
+eq "window default null" "$(field .window)" null
+eq "cadence default null" "$(field .cadence)" null
+run "x window=2h"
+eq "window without monitor rc" "$rc" 2
+run "x cadence=5m"
+eq "cadence without monitor rc" "$rc" 2
+for bad in "window=1w" "window=h" "window=0m" "window=1.5h" "window=" "cadence=ten" "cadence=-5m"; do
+  run "x phases=monitor $bad"
+  eq "bad $bad rc" "$rc" 2
+done
+
 run "x phases=plan,implement"
 eq "list" "$(field .phases)" '["plan","implement"]'
 run "x phases=review"

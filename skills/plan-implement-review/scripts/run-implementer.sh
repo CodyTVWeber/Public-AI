@@ -7,7 +7,7 @@ Usage:
   run-implementer.sh launch <state-dir> <prompt-file> <profile-id> [worktree-name] [worktree-ref]
   run-implementer.sh resume <state-dir> <prompt-file> <profile-id> <session-id> [cwd]
 CLI fallback implementer; prefer a connected background agent (see plan-implement-review.md).
-Profiles: see references/implementers.md (default Grok at low effort, Grok, Composer, claude-haiku, claude-sonnet)
+Profiles: see references/implementers.md (default Grok at medium effort, low effort for mechanical plans, Grok, Composer, claude-haiku, claude-sonnet)
 Order: validate args and profile, check the CLI exists, then count the round via pir-state.sh.
 A bad profile or a missing CLI never burns a round. Each launch/resume is one implement attempt;
 exit 3 when max_rounds is spent (no extra attempt, CLI not started).
@@ -45,7 +45,13 @@ EFFORT=""
 GROK_EXTRA_ARGS="${GROK_EXTRA_ARGS:-}"
 
 case "$profile" in
-  grok-4.5-low|grok-4.5-low-effort|grok45-low)
+  grok-medium)
+    CLI=grok
+    MODEL=grok-4.5
+    EFFORT=medium
+    GROK_EXTRA_ARGS="${GROK_EXTRA_ARGS:---reasoning-effort medium}"
+    ;;
+  grok-low|grok-4.5-low|grok-4.5-low-effort|grok45-low)
     CLI=grok
     MODEL=grok-4.5
     EFFORT=low

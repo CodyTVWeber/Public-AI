@@ -5,14 +5,17 @@ usage() {
   cat >&2 <<'USAGE'
 Usage: pir-args.sh [--default PHASES] "<argstring>"
   Parses a plan-implement-review argument string into JSON on stdout:
-  {phases[],ticket,plan_builder,no_plan,implementer,fix_comments,max_rounds,task}
+  {phases[],ticket,plan_builder,no_plan,implementer,fix_comments,max_rounds,window,cadence,task}
 Tokens:
-  phases=<list|alias>   comma list of plan,implement,review,watch (contiguous, in order) or an alias
+  phases=<list|alias>   comma list of align,plan,implement,review,watch,monitor (contiguous, in order) or an alias
   ticket=X implementer=X plan-builder=X fix-comments=yes|no max-rounds=N
+  window=<n>s|m|h|d cadence=<n>s|m|h|d   monitor phase window and tick spacing (null when absent)
   no-plan               skip the plan phase (checklist in the implementer prompt)
   plan-only | implement-only | review-only   same as phases=plan | implement | review
   anything else         joins the task text
-Aliases: pi plan-implement | ir implement-review | rw review-watch | pir plan-implement-review
+Aliases: a align | ap align-plan | apirw align-plan-implement-review-watch | m monitor
+         apirwm align-plan-implement-review-watch-monitor
+         pi plan-implement | ir implement-review | rw review-watch | pir plan-implement-review
          irw implement-review-watch | pirw plan-implement-review-watch
 --default PHASES  phases when none given (default: plan,implement,review,watch)
 Exit: 0 ok, 2 usage / unknown phase / bad value
@@ -25,6 +28,11 @@ ALL="plan,implement,review,watch"
 
 alias_phases() {
   case "$1" in
+    a) echo "align" ;;
+    ap|align-plan) echo "align,plan" ;;
+    apirw|align-plan-implement-review-watch) echo "align,$ALL" ;;
+    m) echo "monitor" ;;
+    apirwm|align-plan-implement-review-watch-monitor) echo "align,$ALL,monitor" ;;
     pi|plan-implement) echo "plan,implement" ;;
     ir|implement-review) echo "implement,review" ;;
     rw|review-watch) echo "review,watch" ;;
@@ -37,10 +45,12 @@ alias_phases() {
 
 phase_index() {
   case "$1" in
-    plan) echo 0 ;;
-    implement) echo 1 ;;
-    review) echo 2 ;;
-    watch) echo 3 ;;
+    align) echo 0 ;;
+    plan) echo 1 ;;
+    implement) echo 2 ;;
+    review) echo 3 ;;
+    watch) echo 4 ;;
+    monitor) echo 5 ;;
     *) return 1 ;;
   esac
 }
@@ -57,6 +67,8 @@ validate_phases() {
     prev=$idx
   done
 }
+
+valid_duration() { [[ "$2" =~ ^[1-9][0-9]*[smhd]$ ]] || die "bad $1: $2"; }
 
 default_phases="$ALL"
 while [[ $# -gt 0 ]]; do
@@ -77,6 +89,8 @@ no_plan=false
 implementer=""
 fix_comments=false
 max_rounds=3
+window=""
+cadence=""
 task=""
 
 read -r -a toks <<<"$argstring" || true
@@ -95,6 +109,8 @@ for tok in ${toks[@]+"${toks[@]}"}; do
     max-rounds=*)
       max_rounds="${tok#max-rounds=}"
       [[ "$max_rounds" =~ ^[1-9][0-9]*$ ]] || die "bad max-rounds: $max_rounds" ;;
+    window=*) window="${tok#window=}"; valid_duration window "$window" ;;
+    cadence=*) cadence="${tok#cadence=}"; valid_duration cadence "$cadence" ;;
     no-plan) no_plan=true ;;
     plan-only) phases="plan" ;;
     implement-only) phases="implement" ;;
@@ -105,6 +121,9 @@ done
 
 [[ -n "$phases" ]] || phases="$(alias_phases "$default_phases")"
 validate_phases "$phases"
+if [[ ( -n "$window" || -n "$cadence" ) && ",$phases," != *,monitor,* ]]; then
+  die "window= and cadence= need the monitor phase"
+fi
 
 jq -n \
   --arg phases "$phases" \
@@ -114,6 +133,8 @@ jq -n \
   --arg implementer "$implementer" \
   --argjson fix_comments "$fix_comments" \
   --argjson max_rounds "$max_rounds" \
+  --arg window "$window" \
+  --arg cadence "$cadence" \
   --arg task "$task" \
   '{
     phases: ($phases | split(",")),
@@ -123,5 +144,7 @@ jq -n \
     implementer: (if $implementer == "" then null else $implementer end),
     fix_comments: $fix_comments,
     max_rounds: $max_rounds,
+    window: (if $window == "" then null else $window end),
+    cadence: (if $cadence == "" then null else $cadence end),
     task: $task
   }'

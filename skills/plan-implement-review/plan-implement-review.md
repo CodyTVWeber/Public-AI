@@ -45,12 +45,12 @@ If the user does **not** specify `plan-builder`, the **current agent is the plan
 
 If the user does **not** specify `implementer`, pick the **cheap/fast implementer for the current stack** — see selection algorithm in `references/implementers.md`.
 
-### Default pairing (same product, lower effort)
+### Default pairing (same product, medium effort)
 
 | Orchestrator (plan + review) | Default implementer |
 |------------------------------|---------------------|
-| Grok 4.5 **high** (or default high effort) | Background agent: **Grok 4.5 low** (`--reasoning-effort low` / profile `grok-4.5-low`) |
-| Grok Composer / unknown Grok | Prefer low effort on available Grok model; else cheapest installed profile |
+| Grok 4.5 **high** (or default high effort) | Background agent: **Grok 4.5 medium** (`--reasoning-effort medium` / profile `grok-medium`); `grok-low` for mechanical plans |
+| Grok Composer / unknown Grok | Prefer medium effort on available Grok model; else cheapest installed profile |
 | Claude Sonnet / Opus orchestrator | Background agent: **Claude Haiku** |
 | Explicit `implementer=...` | That profile only |
 
@@ -58,14 +58,14 @@ If the user does **not** specify `implementer`, pick the **cheap/fast implemente
 
 ## Configuration (parse from user message)
 
-`skills/plan-implement-review/scripts/pir-args.sh --default plan,implement,review "<args>"` → JSON `{phases, ticket, plan_builder, no_plan, implementer, fix_comments, max_rounds, task}`. Exit 2 (unknown phase, gap in phases, bad value) → ask once.
+`skills/plan-implement-review/scripts/pir-args.sh --default plan,implement,review "<args>"` → JSON `{phases, ticket, plan_builder, no_plan, implementer, fix_comments, max_rounds, window, cadence, task}`. Exit 2 (unknown phase, gap in phases, bad value) → ask once.
 
 | Key | Default | Notes |
 |-----|---------|-------|
-| `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-4.5-low`) |
+| `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-medium`) |
 | `plan-builder` | `self` | `self` = orchestrator; or a profile id |
 | `max-rounds` | `3` | Implement attempts (not review count alone) |
-| `phases=` · `plan-only` / `implement-only` / `review-only` | `plan,implement,review` | Contiguous run; aliases (`pi`, `ir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
+| `phases=` · `plan-only` / `implement-only` / `review-only` | `plan,implement,review` | Contiguous run of `align`, `plan`, `implement`, `review`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor); aliases (`apirw`, `apirwm`, `pi`, `ir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
 
 State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` creates `/tmp/pir-<topic>/state.json` (exit 3 = exists → `get`). Read and write only through `pir-state.sh get [KEY]` · `set KEY=VALUE…` · `status`; never hand-edit. Keys:
 
@@ -77,10 +77,11 @@ State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> -
   "plan_pr": "https://...",
   "feat_branch": "feat/...",
   "implement_pr": "https://...",
-  "implementer_id": "grok-4.5-low",
+  "implementer_id": "grok-medium",
   "session_id": "...",
   "subagent_id": "...",
-  "reasoning_effort": "low",
+  "reasoning_effort": "medium",
+  "context_cap_tokens": 200000,
   "round": 1,
   "max_rounds": 3,
   "regression_command": "make regression",
@@ -90,6 +91,11 @@ State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> -
 
 - **`subagent_id`**: host background-agent id (use with `resume_from`). **`session_id`**: CLI/host session id.
 - Write the id right after launch (`pir-state.sh set subagent_id=<id>`); prefer one durable id.
+
+## Effort and context budget
+
+- Implementer effort defaults to `medium`; `low` only for mechanical plans; never auto-raised to `high` ([implementers](references/implementers.md))
+- Context cap 200k tokens per implementer agent (`context_cap_tokens` in state). The implementer checkpoints at about 150k per `implement` §Budget; the orchestrator then launches a fresh agent (same profile) with the plan and `handoff.md` instead of resuming
 
 ## Session continuity (keep implementer context)
 
@@ -144,10 +150,10 @@ Before every attempt (launch or resume): `skills/plan-implement-review/scripts/p
 
 ### Preferred: background agent (connected)
 
-1. Resolve cheap/fast profile (`grok-4.5-low` when orchestrator is Grok 4.5 high).
+1. Resolve cheap/fast profile (`grok-medium` when orchestrator is Grok 4.5 high; `grok-low` for a mechanical plan).
 2. **Round 1:** `spawn_subagent` (or host equivalent) with:
    - `background: true` (orchestrator stays connected; do not block the chat forever without a wait handle)
-   - `model` / effort matching the profile (Grok: `grok-4.5` + low reasoning effort when the host supports it; if effort cannot be set on spawn, pass `reasoning_effort: low` in the prompt and use CLI flags when falling back)
+   - `model` / effort matching the profile (Grok: `<grok model>` + medium reasoning effort when the host supports it; if effort cannot be set on spawn, pass `reasoning_effort: medium` in the prompt and use CLI flags when falling back)
    - `description`: `[implementer] <topic> r1`
    - Prompt includes: absolute plan path, branch, implement skill path, one-PR rules, project red lines
    - `capability_mode` that allows code edit + git (not read-only)
@@ -161,7 +167,7 @@ Before every attempt (launch or resume): `skills/plan-implement-review/scripts/p
 
 Use `skills/plan-implement-review/scripts/run-implementer.sh` only if background agents are unavailable. It validates the profile and CLI first, counts the round and stores `session_id` via `pir-state.sh`, and prints JSON `{round, profile, model, session_id, exit_code, out, err}`. Exit 3 = rounds spent; exit 1 = implementer CLI failed (see `err`).
 
-Respect project rules: e.g. **never `git worktree`** if the repo forbids it — run on the plan/feat branch in-repo instead.
+Respect project rules: if the repo forbids worktrees, parallel slices use `--mode clone`. Otherwise isolated work = a fresh clone; worktrees are allowed only for parallel implement slices (implement §Parallel slices) and are merged and removed before the phase ends.
 
 ### Implementer prompt (minimum)
 

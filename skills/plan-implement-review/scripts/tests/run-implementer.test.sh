@@ -90,11 +90,17 @@ eq "CLI exit code reported" "$(jq -r .exit_code "$tmp/out.json")" 7
 eq "failed attempt still counted" "$("$ST" get round --state-root "$sd2")" 1
 
 sd3="$tmp/pir-grok"
-out="$(withcli launch "$sd3" "$tmp/prompt.md" grok-4.5-low 2>/dev/null)"
+out="$(withcli launch "$sd3" "$tmp/prompt.md" grok-low 2>/dev/null)"
 eq "grok launch rc" "$?" 0
 eq "grok effort in state" "$("$ST" get reasoning_effort --state-root "$sd3")" low
 eq "grok model" "$(jq -r .model <<<"$out")" grok-4.5
 eq "grok effort flag passed" "$(grep -c -- '--reasoning-effort low' "$FAKE_LOG")" 1
+
+sd3m="$tmp/pir-grok-medium"
+out="$(withcli launch "$sd3m" "$tmp/prompt.md" grok-medium 2>/dev/null)"
+eq "medium launch rc" "$?" 0
+eq "medium effort in state" "$("$ST" get reasoning_effort --state-root "$sd3m")" medium
+eq "medium effort flag passed" "$(grep -c -- '--reasoning-effort medium' "$FAKE_LOG")" 1
 
 sd4="$tmp/pir-custom"
 PIR_MAX_ROUNDS=1 withcli launch "$sd4" "$tmp/prompt.md" claude-haiku >/dev/null 2>&1
