@@ -125,7 +125,7 @@ Symlink or copy this directory to your agent's skills folder, then ask: "set up 
 | `pre-commit` | each commit | A large file that grows past the hard cap; empty catch blocks; an added comment (tests included); every analyzer error on staged lines |
 | Analyzer hook | agent edits a file (`PostToolUse`) | Analyzer errors on that file's changed lines come back as feedback (exit 2); warnings arrive as `additionalContext`; the file joins the session edit log |
 | Analyzer stop hook | agent finishes a turn (`Stop`) | Analyzer errors on the files edited this session (tracked files with changes when no log exists), exit 2 once; `stop_hook_active` true exits 0, so the agent never loops |
-| `pre-push` | each push | Branch over the hard MR size (default 800 changed lines) |
+| `pre-push` | each push | Branch over the hard MR size (default 800 changed lines; documentation and repo-support files omitted) |
 | Git post-check hook | agent ran `git commit`, `push`, `merge` or `pull` (`PostToolUse` on Bash) | Never blocks the finished command and always exits 0; analyzer errors on the commit's lines (`--range PARENT..HEAD`) or conflict-resolved files, subject over 72 chars, branch size, one-PR and watch reminder after push, conflicts left by a merge all go out as `additionalContext` |
 | Claude Code guard | agent runs push or MR/PR create (`PreToolUse` on Bash) | Same size check, plus analyzer errors on `merge-base..HEAD` read through `--range` (never the working tree); exit 2 to the agent |
 | Docs lint hook | agent edits a `.md` file | Time-relative wording in current docs; edits to dated docs, exit 2 to the agent |
