@@ -13,8 +13,10 @@ Installs git hooks (once per clone):
                scripts/lint/check-languages.sh --staged when present (Bash or JavaScript only)
   commit-msg   scripts/check-privacy.sh --message  (the commit message)
   pre-push     scripts/check-privacy.sh --range auto (added lines, names, messages and binaries of the
-               commits being pushed; blocks on findings), then scripts/clean-code/check-mr-size.sh when
-               present, else skills/setup-repo/assets/scripts/check-mr-size.sh (blocks on exit 1)
+               commits being pushed; blocks on findings), then the app, support, and docs MR size checks
+               (check-mr-size-app.sh, check-mr-size-support.sh, check-mr-size-docs.sh beside
+               scripts/clean-code/check-mr-size.sh when that tree exists, else under
+               skills/setup-repo/assets/scripts/; each blocks on exit 1)
 When <git-dir>/info/privacy-patterns exists, each hook sets PRIVACY_REQUIRE_PATTERNS=1 so deleting it blocks.
 Warns when core.hooksPath is set: hooks install into that directory instead of .git/hooks, and every
 repo sharing the path runs them.
@@ -74,10 +76,18 @@ languages="$root/scripts/lint/check-languages.sh"
 [ -x "$languages" ] && { "$languages" --staged || exit $?; }'
 COMMIT_MSG_BODY='"$root/scripts/check-privacy.sh" --message "$1" || exit $?'
 PRE_PUSH_BODY='"$root/scripts/check-privacy.sh" --range auto || exit $?
-size_check="$root/scripts/clean-code/check-mr-size.sh"
-[ -x "$size_check" ] || size_check="$root/skills/setup-repo/assets/scripts/check-mr-size.sh"
-if [ -x "$size_check" ]; then
-  "$size_check"
+size_dir="$root/scripts/clean-code"
+[ -x "$size_dir/check-mr-size.sh" ] || size_dir="$root/skills/setup-repo/assets/scripts"
+ran=0
+for name in app support docs; do
+  one="$size_dir/check-mr-size-$name.sh"
+  [ -x "$one" ] || continue
+  ran=1
+  "$one"
+  [ $? -eq 1 ] && exit 1
+done
+if [ "$ran" -eq 0 ] && [ -x "$size_dir/check-mr-size.sh" ]; then
+  "$size_dir/check-mr-size.sh"
   [ $? -eq 1 ] && exit 1
 fi'
 

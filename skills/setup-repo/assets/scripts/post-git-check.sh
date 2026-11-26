@@ -93,8 +93,13 @@ check_size() {
   [ -x "$here/check-mr-size.sh" ] || return 0
   out="$("$here/check-mr-size.sh" 2>&1)"
   rc=$?
-  [ "$rc" -eq 1 ] && add_note "MR is over the hard size budget: $(printf '%s' "$out" | head -1). Split it before pushing."
-  [ "$rc" -eq 0 ] && case "$out" in *WARN*) add_note "MR is over the soft size budget: $(printf '%s' "$out" | head -1). Say why it cannot be split, or split it." ;; esac
+  if [ "$rc" -eq 1 ]; then
+    line="$(printf '%s\n' "$out" | grep -m1 '^BLOCKED ' || printf '%s\n' "$out" | head -1)"
+    add_note "MR is over the hard size budget: $line. Split it before pushing."
+  elif [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q '^WARN '; then
+    line="$(printf '%s\n' "$out" | grep -m1 '^WARN ')"
+    add_note "MR is over the soft size budget: $line. Say why it cannot be split, or split it."
+  fi
   return 0
 }
 
