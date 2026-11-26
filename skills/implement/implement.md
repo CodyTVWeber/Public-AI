@@ -50,8 +50,8 @@ Not for: investigation with no code change; plan-only docs (`/write-plan`).
 1. Follow plan **Concrete steps** in order. Stay inside **Out of scope**.
    - UI frame = pixel authority only if plan's Design source of truth marks it `exact`.
    - `partial` → follow agreed parts, ask on rest. `reference` → inspiration only ([figma-fidelity](../align/references/figma-fidelity.md)).
+   - A screen follows [ui](../ui/ui.md): interaction, then craft, on top of that fidelity.
 2. Grep/read before editing. Match project `AGENTS.md` / red lines (migrations immutable, no remote DB without approval, etc.).
-   - Write to the repo's clean-code and other floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, docs lint, and git hooks fail the change on a miss. Fix the code; never disable the check.
    - Write to the repo's clean-code and other floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, docs lint, and git hooks fail the change on a miss. Fix the code; never disable the check.
 3. Run project checks until green, e.g. `npm run lint && npm run test` (or equivalent). Never disable tests/lint.
 4. **Commits: approval + format**
