@@ -43,6 +43,12 @@ out="$(run --content)"; rc=$?
 assert_rc "ticket 2 digits blocked" 1 $rc
 assert_contains "ticket reported with file and line" "$out" "a.txt:1"
 reset
+stage ac.txt "AC-1 holds, but $ticket still blocks"
+out="$(run --content)"; assert_rc "AC id does not hide a ticket on the same line" 1 $?
+reset
+stage ac.txt "AC-1 the user sees the total"
+out="$(run --content)"; assert_rc "acceptance-criteria id alone passes" 0 $?
+reset
 
 stage a.txt "see AB""C-7 for details"
 out="$(run --content)"; assert_rc "ticket single digit blocked" 1 $?

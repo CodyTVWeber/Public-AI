@@ -19,5 +19,8 @@ touch -t [0-9]{12}
 actions/checkout@v4
 
 # run-implementer test names its profile id and model id.
-prompt\.md" grok-4\.5-low
 "grok model".*grok-4\.5
+
+# run-implementer profile table: model id and low-effort profile aliases.
+^[[:space:]]*MODEL=grok-4\.5$
+^[[:space:]]*grok-low\|grok-4\.5-low\|grok-4\.5-low-effort\|grok45-low\)$

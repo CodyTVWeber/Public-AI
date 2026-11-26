@@ -8,3 +8,6 @@ detect-repo.test.sh
 git-approval-guard.test.sh
 check-privacy.test.sh
 check-clean-code.test.sh
+bootstrap-local.test.sh
+bootstrap-skills.test.sh
+bootstrap-upgrade.test.sh
