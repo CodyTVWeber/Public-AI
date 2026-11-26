@@ -6,16 +6,16 @@ argument-hint: "[PR/MR number | branch] [plan path]"
 
 # review-concurrency
 
-One stage of [review](../review/review.md). Findings use the format in [review](../review/review.md): severity (bug · suggestion · nit), stage id, `file:line`, description, fix. Read-only: never edit code.
+One stage of [review](../review/review.md). Findings: format per [review](../review/review.md) (severity bug · suggestion · nit, stage id, `file:line`, description, fix). Read-only. Never edit code.
 
 ## Check
 
-- Shared mutable state is guarded or removed; lock order is consistent; no blocking inside async paths
-- Retries have limits, backoff, and idempotent targets; timeouts exist on every wait
-- Queries and loops are bounded: no N+1, `select *` on wide tables, full scans, or unbounded lists
-- Caches have an invalidation rule, a size bound, and a stale-read answer
-- Background work and queues cope with duplicates, reordering, and shutdown
+- Shared mutable state guarded or removed. Lock order consistent. No blocking inside async paths
+- Retries: limits, backoff, idempotent targets. Timeouts on every wait
+- Queries and loops bounded: no N+1, `select *` on wide tables, full scans, unbounded lists
+- Caches: invalidation rule, size bound, stale-read answer
+- Background work and queues handle duplicates, reordering, shutdown
 
 ## Not here
 
-Single-threaded correctness (review-logic), failure handling (review-non-happy-logic).
+Single-threaded correctness → review-logic. Failure handling → review-non-happy-logic.

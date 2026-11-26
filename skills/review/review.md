@@ -1,16 +1,20 @@
 ---
 name: review
-description: Read-only multi-stage review of an implement branch or PR/MR against its plan. Runs only the review-* stage skills the diff needs (plan, logic, non-happy-logic, tests, security, data, ui, dependencies, infra, concurrency, code-quality, proof), then the final regression gate. Use for "review this", /review, or the review phase of plan-implement-review-watch.
+description: Read-only multi-stage review of an implement branch or PR/MR against its plan. Runs only the review-* stage skills the diff needs (plan, logic, non-happy-logic, tests, security, data, ui, dependencies, infra, concurrency, code-quality, proof), then the regression gate. Use for "review this", /review, or the review phase of plan-implement-review-watch.
 argument-hint: "[PR/MR number | branch] [plan path]"
 ---
 
 # Review
 
-Read-only. Never edit code here; findings go back to the implementer. Host CLI: `gh` or `glab`, whichever the repo uses.
+Read-only. Never edit code; findings go back to the implementer. Host CLI: `gh` or `glab`, whichever the repo uses.
 
 ## 1. Pick stages
 
-`skills/review/scripts/stages.sh <base>` → `{stages:[{id, skill, active, reason, files[]}]}`. `plan` and `proof` always run; every other stage runs only when its `reason` shows a signal in the diff (thresholds: `stages.sh -h`). Name the stages in one line (`stages: plan, logic, security, proof`); skipped ones need no mention. Turn on a skipped stage only when the diff plainly needs it, and say why.
+- `skills/review/scripts/stages.sh <base>` → `{stages:[{id, skill, active, reason, files[]}]}`. Thresholds: `stages.sh -h`
+- `plan`, `proof`: always run
+- Other stages: run only when `reason` shows a diff signal
+- Name active stages in one line: `stages: plan, logic, security, proof`. Skipped stages need no mention
+- Enable a skipped stage only when the diff plainly needs it; say why
 
 | Skill | Looks at | Active when |
 |---|---|---|
@@ -29,11 +33,11 @@ Read-only. Never edit code here; findings go back to the implementer. Host CLI: 
 
 - Findings: severity (bug · suggestion · nit), stage id, `file:line`, description, fix
 - Prefer a project review skill for a stage when one exists
-- Diff over ~400 lines with 3+ active stages → one read-only subagent per stage skill, results merged here; smaller diffs run inline
+- Diff over ~400 lines with 3+ active stages → one read-only subagent per stage skill; merge results here. Smaller diffs: inline
 
 ## 2. Run
 
-Run each active stage skill in table order; `proof` last. A `bug` from any stage makes the verdict `fix required`.
+Run each active stage skill in table order; `proof` last. Any `bug` from any stage → verdict `fix required`.
 
 ## 3. Verdict
 
@@ -41,15 +45,15 @@ Run each active stage skill in table order; `proof` last. A `bug` from any stage
 |---|---|
 | approve | Regression gate (§4) |
 | fix required, rounds left | Write `/tmp/pir-<topic>/review-roundN.md`; orchestrator resumes the same implementer agent |
-| fix required, rounds spent | Stop; hand findings + implementer id to the user; skip §4 |
+| fix required, rounds spent | Stop; hand findings + implementer id to user; skip §4 |
 
 ## 4. Regression gate (after approve; required)
 
-1. Command: the repo's documented system-regression / end gate. None exists → `regression: skipped (no script)`; run lint + typecheck + unit tests on the branch tip instead
-2. Run on the branch tip, clean tree. Fail → `regression: failed`; treat as `fix required` with the log tail
-3. Never call a run merge-ready without a pass or an explicit user skip
-4. Failures identical on the base branch are pre-existing: report, don't block
+1. Command: repo's documented system-regression / end gate. None → `regression: skipped (no script)`; run lint + typecheck + unit tests on branch tip instead
+2. Run on branch tip, clean tree. Fail → `regression: failed`; treat as `fix required` with log tail
+3. Never call a run merge-ready without a pass or explicit user skip
+4. Failures identical on base branch = pre-existing: report, don't block
 
 ## Output
 
-Verdict · stages run · findings table (stage column) · evidence check result · regression status. ≤ 15 lines unless findings need more.
+Verdict · stages run · findings table (stage column) · evidence check result · regression status. ≤15 lines unless findings need more.

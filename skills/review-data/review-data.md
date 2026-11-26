@@ -6,17 +6,17 @@ argument-hint: "[PR/MR number | branch] [plan path]"
 
 # review-data
 
-One stage of [review](../review/review.md). Findings use the format in [review](../review/review.md): severity (bug · suggestion · nit), stage id, `file:line`, description, fix. Read-only: never edit code.
+One stage of [review](../review/review.md). Findings: format per [review](../review/review.md) (severity bug · suggestion · nit, stage id, `file:line`, description, fix). Read-only. Never edit code.
 
 ## Check
 
-- Migration is reversible, or expand then contract; the destructive step is its own change
-- Locks and runtime on large tables; backfill batched; safe to re-run
-- Nullability, defaults, constraints, and indexes match how the data is read and written
-- Transactions cover the writes that must succeed together; queries are parameterized
-- Rollback of the code leaves the data readable; no data loss on revert
-- Personal or sensitive columns are named, protected, and have retention covered
+- Migration reversible, or expand then contract. Destructive step = its own change
+- Locks and runtime on large tables. Backfill batched and safe to re-run
+- Nullability, defaults, constraints, indexes match read and write patterns
+- Transactions cover writes that must succeed together. Queries parameterized
+- Code rollback leaves data readable. No data loss on revert
+- Personal or sensitive columns named, protected, retention covered
 
 ## Not here
 
-Query speed at scale (review-concurrency for N+1 and unbounded reads).
+Query speed at scale → review-concurrency (N+1, unbounded reads).

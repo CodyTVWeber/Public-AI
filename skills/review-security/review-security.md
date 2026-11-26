@@ -6,17 +6,16 @@ argument-hint: "[PR/MR number | branch] [plan path]"
 
 # review-security
 
-One stage of [review](../review/review.md). Findings use the format in [review](../review/review.md): severity (bug · suggestion · nit), stage id, `file:line`, description, fix. Read-only: never edit code.
+One stage of [review](../review/review.md). Findings: format per [review](../review/review.md) (severity bug · suggestion · nit, stage id, `file:line`, description, fix). Read-only. Never edit code.
 
 ## Check
 
-- Every new route, handler, or job checks authentication and authorization for the acting user and the object
-- Input is validated and encoded for its sink: SQL, shell, HTML, paths, URLs, templates
+- Every route, handler, or job checks authentication and authorization for the acting user and the object
+- Input validated and encoded for its sink: SQL, shell, HTML, paths, URLs, templates
 - No secrets, tokens, or personal data in code, logs, errors, or test fixtures
-- Crypto uses vetted libraries and current algorithms; randomness for security is not `Math.random`; TLS verification stays on
-- Deserialization, `eval`, `exec`, and process spawning take no untrusted input
-- New dependencies are covered by review-dependencies; config exposure by review-infra
+- Crypto: vetted libraries, current algorithms. Security randomness not `Math.random`. TLS verification on
+- Deserialization, `eval`, `exec`, process spawning take no untrusted input
 
 ## Not here
 
-Dependency choice (review-dependencies), runtime config (review-infra).
+Dependency choice → review-dependencies. Runtime config → review-infra.

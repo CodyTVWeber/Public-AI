@@ -6,16 +6,16 @@ argument-hint: "[PR/MR number | branch] [plan path]"
 
 # review-logic
 
-One stage of [review](../review/review.md). Findings use the format in [review](../review/review.md): severity (bug · suggestion · nit), stage id, `file:line`, description, fix. Read-only: never edit code.
+One stage of [review](../review/review.md). Findings: format per [review](../review/review.md) (severity bug · suggestion · nit, stage id, `file:line`, description, fix). Read-only. Never edit code.
 
 ## Check
 
-- Each acceptance criterion maps to code that satisfies it
-- Control flow, conditions, off-by-one, ordering, state transitions, and return values are right
-- Names match behavior; one definition per business rule; no duplicated predicates
-- Changed signatures, defaults, and shared helpers: every caller still holds
-- Dead code, unreachable branches, and leftovers from earlier approaches are removed
+- Each acceptance criterion → code that satisfies it
+- Control flow, conditions, off-by-one, ordering, state transitions, return values correct
+- Names match behavior. One definition per business rule; no duplicated predicates
+- Changed signatures, defaults, shared helpers: every caller still holds
+- Remove dead code, unreachable branches, leftovers from earlier approaches
 
 ## Not here
 
-Error paths and boundaries (review-non-happy-logic), tests (review-tests).
+Error paths and boundaries → review-non-happy-logic. Tests → review-tests.

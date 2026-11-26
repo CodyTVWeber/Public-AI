@@ -6,36 +6,28 @@ argument-hint: "[target repo path, default: current repo]"
 
 # Setup repo
 
-Repo-aware bootstrap. Everything reusable ships in this skill; the scripts read the repo, plan, write,
-and verify. Pipeline (CI) pieces are opt-in per repo; hooks on git commands are the default backbone.
+Repo-aware bootstrap. Reusable pieces ship in this skill; scripts read the repo, plan, write, verify. CI pieces are opt-in per repo; git-command hooks are the default backbone.
 
 ## Playbook
 
-Run from this skill's directory. `<t>` is the target (argument, else the current repo; it must be a git repo).
+Run from this skill's directory. `<t>` = target (argument, else current repo; must be a git repo).
 
-1. **Detect.** `scripts/detect-repo.sh <t>` prints the profile as JSON: forge, stacks, linters, commands,
-   hook systems, CI, existing Claude files, conflicts, legacy debt, and a `recommend` block. Add
-   `--probe-visibility` only when public vs private matters and `gh` or `glab` is available
-2. **Summarize** in 8 lines or fewer: forge and CI, stacks, hook system found, conflicts, legacy debt,
-   the recommended profile and flags with their reasons
-3. **Ask** only what `recommend.questions[]` lists (profile, ci, approval-gate), through AskUserQuestion
-   when available. No questions listed means take the recommended flags. Ask once more when the team has not
-   agreed to the guardrails: `--profile local` installs them without touching a tracked file
-   (hooks in `.claude/settings.local.json` and `.git/hooks`, a note in `.git/info/local-guardrails.md`,
-   every installed path in `.git/info/exclude`). Skills: default `--skills core` (6 plus 15 support skills); `core+aliases`, `all`, `none`
-   or a comma list are opt-in, and the source is `--skills-from PATH` or `$PUBLIC_AI_DIR` (neither set: a `manual` step)
-4. **Plan.** `scripts/bootstrap.sh <t> --plan [--profile P|--local] [--with a,b] [--without a,b] [--hooks-via V] [--skills SET] [--skills-from PATH]`.
-   Show a digest of 10 lines or fewer: counts per action, every `manual` step with its reason, the notes
+1. **Detect.** `scripts/detect-repo.sh <t>` → profile JSON: forge, stacks, linters, commands, hook systems, CI, existing Claude files, conflicts, legacy debt, `recommend` block. Add `--probe-visibility` only when public vs private matters and `gh` or `glab` is available
+2. **Summarize** ≤8 lines: forge + CI, stacks, hook system, conflicts, legacy debt, recommended profile + flags with reasons
+3. **Ask** only what `recommend.questions[]` lists (profile, ci, approval-gate), via AskUserQuestion when available. None listed → take recommended flags
+   - Ask again when the team has not agreed to guardrails: `--profile local` installs without touching tracked files (hooks in `.claude/settings.local.json` and `.git/hooks`, note in `.git/info/local-guardrails.md`, paths in `.git/info/exclude`)
+   - Skills: default `--skills core` (6 plus 15 support skills). `core+aliases`, `all`, `none`, or a comma list are opt-in. Source: `--skills-from PATH` or `$PUBLIC_AI_DIR`; neither set → `manual` step
+4. **Plan.** `scripts/bootstrap.sh <t> --plan [--profile P|--local] [--with a,b] [--without a,b] [--hooks-via V] [--skills SET] [--skills-from PATH]`. Digest ≤10 lines: counts per action, every `manual` step with reason, notes
 5. **Apply.** `scripts/bootstrap.sh <t> --apply --yes` with the same flags. Never commit for the user
-6. **Verify.** `scripts/verify-repo.sh <t>`. A failed check means fix the cause, re-run apply, verify again.
-   `drift` lists installed files `changed-upstream`, `modified-locally`, `removed-upstream` or `missing`; to take new upstream versions
-   run `bootstrap.sh <t> --apply --yes --upgrade` (modified files stay untouched unless `--force`, and are reported)
-7. **Wire the linter** for the detected stack, merging the snippet into existing config rather than replacing it:
-   - JS/TS: import `cleanCodeRules` from `assets/lint/eslint.clean-code.js` and spread it into a flat-config entry for `src/**`; relax for tests, generated code, data tables
-   - Kotlin/Java: `assets/lint/detekt-clean-code.yml` into the detekt config
+6. **Verify.** `scripts/verify-repo.sh <t>`. Failed check → fix cause, re-apply, verify again
+   - `drift` lists installed files `changed-upstream`, `modified-locally`, `removed-upstream`, `missing`
+   - Take new upstream versions: `bootstrap.sh <t> --apply --yes --upgrade` (modified files untouched unless `--force`; reported)
+7. **Wire the linter** for the detected stack. Merge snippet into existing config; never replace it
+   - JS/TS: import `cleanCodeRules` from `assets/lint/eslint.clean-code.js`, spread into a flat-config entry for `src/**`; relax for tests, generated code, data tables
+   - Kotlin/Java: `assets/lint/detekt-clean-code.yml` into detekt config
    - Python: `assets/lint/ruff-clean-code.toml` into `pyproject.toml`
-   - Other: pick a linter that can cap nesting depth, parameter count and function length
-   Existing violations surface: set the new rules to `warn` first, or baseline them, so the gate blocks only new debt
+   - Other: pick a linter that can cap nesting depth, parameter count, function length
+   - Existing violations: set new rules to `warn` first, or baseline them, so the gate blocks only new debt
 8. **Report** in a few lines: profile, steps by action, `manual` steps left, verify result, linter wiring
 
 ## Profiles
@@ -45,39 +37,33 @@ Run from this skill's directory. `<t>` is the target (argument, else the current
 | `minimal` | rules, clean-code scripts, git pre-commit and pre-push hooks |
 | `standard` (default) | minimal + Claude Code hooks (PreToolUse guard on push and MR create, PostToolUse git check, PostToolUse analyzer and docs lint, Stop analyzer) + AGENTS.md section + core skill symlinks |
 | `factory` | standard + ci + ai-risk + pr-template; no approval gate (factories run unattended) |
-| `local` | standard guardrails with tracked files unchanged: `settings.local.json`, `.git/hooks`, `.git/info/exclude`, note in `.git/info/local-guardrails.md`; no `ci` |
+| `local` | standard guardrails, tracked files unchanged: `settings.local.json`, `.git/hooks`, `.git/info/exclude`, note in `.git/info/local-guardrails.md`; no `ci` |
 
-Add-ons through `--with`: `ci`, `ai-risk`, `pr-template`, `approval-gate`, `privacy`, `research-ref`.
-`approval-gate` is for human-gated repos. CI is the control a PR cannot silently delete: local hooks and
-`.claude` settings ship in the same diff and can be edited out.
+- Add-ons via `--with`: `ci`, `ai-risk`, `pr-template`, `approval-gate`, `privacy`, `research-ref`
+- `approval-gate`: human-gated repos only
+- CI is the control a PR cannot silently delete. Local hooks and `.claude` settings ship in the same diff and can be edited out
 
 ## Reading the plan
 
-- Step actions: `create`, `merge` (an existing file is extended), `skip` (already in place), `manual`
-  (a human acts; the step says what). A `manual` step carries a `snippet` when exact text is needed
-- Existing files that differ are kept unless `--force`; JSON and AGENTS.md are merged, never replaced
-- Hook systems: githooks (`core.hooksPath=.githooks`), husky (call lines appended), native (foreign
-  `.git/hooks` chained, kept as `.bak`), lefthook and the pre-commit framework (snippet only). An existing
-  different `core.hooksPath` is never overridden
-- The AGENTS.md section is replaced between its markers; `CLAUDE.md` pointer files are never edited
-- Skills are absolute symlinks into a Public-AI clone (`--skills-from`, else `$PUBLIC_AI_DIR`; no other default),
-  one `.git/info/exclude` entry per link so they stay local and the team's own skills stay visible.
-  `scripts/link-skills.sh` relinks
-- The install record (`.claude/ai-guardrails.json`, local: `.git/info/local-guardrails.json`) holds the source commit and a hash per
-  installed file; `--upgrade` re-applies files changed upstream only
+- Actions: `create`, `merge` (existing file extended), `skip` (already in place), `manual` (human acts; step says what). `manual` carries a `snippet` when exact text is needed
+- Differing existing files kept unless `--force`. JSON and AGENTS.md merged, never replaced
+- Hook systems:
+  - githooks (`core.hooksPath=.githooks`)
+  - husky (call lines appended)
+  - native (foreign `.git/hooks` chained, kept as `.bak`)
+  - lefthook, pre-commit framework (snippet only)
+  - An existing different `core.hooksPath` is never overridden
+- AGENTS.md section replaced between its markers. `CLAUDE.md` pointer files never edited
+- Skills: absolute symlinks into a Public-AI clone (`--skills-from`, else `$PUBLIC_AI_DIR`; no other default). One `.git/info/exclude` entry per link keeps them local; the team's own skills stay visible. `scripts/link-skills.sh` relinks
+- Install record (`.claude/ai-guardrails.json`; local: `.git/info/local-guardrails.json`): source commit + hash per file. `--upgrade` re-applies upstream-changed files only
 
 ## Bare install
 
-`scripts/install.sh <t>` copies rules, scripts and hooks without detection, plan or profile. Flags:
-`--force`, `--no-claude-hook`, `--claude-hooks LIST`, `--no-post-git`, `--no-githooks`, `--no-rules`,
-`--no-doc`, `--dry-run`, `--copy SRC DEST`, `--overwrite DEST`. It is the only code that copies files into a target;
-`bootstrap.sh` decides and calls it.
+`scripts/install.sh <t>` copies rules, scripts, hooks. No detection, plan, or profile. Flags: `--force`, `--no-claude-hook`, `--claude-hooks LIST`, `--no-post-git`, `--no-githooks`, `--no-rules`, `--no-doc`, `--dry-run`, `--copy SRC DEST`, `--overwrite DEST`. Only code that copies files into a target; `bootstrap.sh` decides and calls it.
 
 ## Rules for this skill
 
-- Reuse the shipped assets; do not rewrite them per repo. Tune thresholds with env vars
-  (`MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `CC_FUNC_WARN`, `CC_FUNC_ERROR`,
-  `CC_PARAMS_ERROR`, `CC_NEST_WARN`, `CC_NEST_ERROR`, `CC_FILE_WARN`, `CC_FILE_ERROR`, `CC_DISABLE`), not by editing scripts
+- Reuse shipped assets; do not rewrite per repo. Tune with env vars (`MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `CC_FUNC_WARN`, `CC_FUNC_ERROR`, `CC_PARAMS_ERROR`, `CC_NEST_WARN`, `CC_NEST_ERROR`, `CC_FILE_WARN`, `CC_FILE_ERROR`, `CC_DISABLE`), not script edits
 - Never weaken an existing stricter rule in the target
-- `CLEAN_CODE_SKIP=1` and `CC_SKIP=1` are one-command overrides; tell the user whenever either is used
-- Good start, not a framework: no extra checks beyond what ships unless the user asks
+- `CLEAN_CODE_SKIP=1` and `CC_SKIP=1` are one-command overrides. Tell the user whenever either is used
+- Good start, not a framework: no checks beyond what ships unless the user asks
