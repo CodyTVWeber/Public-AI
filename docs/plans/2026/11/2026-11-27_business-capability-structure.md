@@ -18,9 +18,15 @@ Read from: `origin/main` `875a354`.
 
 ## Why this approach
 
-Same install path as `rules/muscles-and-skeleton.md`: canonical `rules/`, byte-identical copy under setup-repo assets, pointers in `AGENTS.md` / `rules/README.md` / `AI-setup`.
+Technical buckets (`controllers/`, `utils/`) hide which job a file belongs to. Folders named for spoken domains are navigable without a legend, in a small pack and in a large host repo.
 
-Settled content (do not add lint, folder moves, or sink automation):
+One generic rule, not four copies. Skills, front-end, BFF, and docs inherit it. Thin files name domains, nodes, and edges only.
+
+Agents lift on repeat and do not sink or invent a domain from one task. The rule matches that behavior: 2 consumers = guideline, 3 = near-hard, lift to the nearest parent `shared/`.
+
+Same install path as other portable rules so `setup-repo` ships it with no special case. `skills-manifest.json` stays a skill-name list.
+
+Settled content (no lint, folder moves, or sink automation in this change):
 
 | Piece | Decision |
 |---|---|
