@@ -46,7 +46,7 @@ Local-only work (repo files, local database) is out of scope; local git commits 
 
 ## Checks
 
-[rules/deterministic-checks.md](../rules/deterministic-checks.md): a script decides every check it implements. Run it. AI judges only what no script covers. Clean-code floor: [rules/clean-code.md](../rules/clean-code.md).
+[rules/muscles-and-skeleton.md](../rules/muscles-and-skeleton.md): scripts, CI, and hooks take compute; AI is glue and judgment. Write skills, rules, and hooks that wrap those scripts. [rules/deterministic-checks.md](../rules/deterministic-checks.md): a script decides every check it implements. Run it. AI judges only what no script covers. Clean-code floor: [rules/clean-code.md](../rules/clean-code.md).
 
 ## Shell hygiene
 

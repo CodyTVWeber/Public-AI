@@ -14,4 +14,4 @@ AI files = rules, skills, hooks, agent docs (`AGENTS.md`, `CLAUDE.md`), prompts,
 - Budget: skill body ≤ ~60 lines; rule ≤ ~40; one screen preferred
 - Cut test: delete a line; if no agent decision changes, keep it deleted
 - Not minified: keep headings, line breaks, real words. Readable cold by a human in one pass
-- Scripts own the detail (`--help`); AI file names the script and when
+- Scripts own the detail (`--help`); AI file names the script and when ([muscles-and-skeleton.md](muscles-and-skeleton.md))

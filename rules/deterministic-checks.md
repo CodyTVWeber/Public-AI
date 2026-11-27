@@ -1,6 +1,6 @@
 # Deterministic checks
 
-A script's result is the decision. Run the script. Do not re-judge a finding it emitted, and do not eyeball a check it implements.
+Split: [muscles-and-skeleton.md](muscles-and-skeleton.md). A script's result is the decision. Run the script. Do not re-judge a finding it emitted, and do not eyeball a check it implements.
 
 | Check | Script |
 |---|---|
