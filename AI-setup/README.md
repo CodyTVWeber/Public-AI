@@ -56,5 +56,5 @@ Links in `AGENTS.md` to `../rules/` resolve inside this repo. When the file is c
 | Checks | Scripts decide mechanical checks; AI judges only the gaps |
 | External writes | Ask first; disclose agency |
 | Entry points | Edit `AGENTS.md` only; vendor files redirect there |
-| Frustration | Vague harder or frustration → suggest rules, skills, hooks, model, effort, strategy, guidance, cleanup |
+| Frustration | Vague harder or frustration → setup tweak, then cleanup rounds (extract copies, domain grouping, reference screen) |
 | Teaching mode | Off by default |
