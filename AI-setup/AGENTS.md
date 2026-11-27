@@ -57,10 +57,11 @@ Local-only work (repo files, local database) is out of scope; local git commits 
 
 ## Frustration: fix the agent
 
-Frustration, or "work harder" with no specific defect, means the agent's setup is the likely fault. Do not repeat the same approach harder.
+Frustration, or "work harder" with no specific defect, means the agent's setup is the likely fault. Do not repeat the same approach harder. Put the tweak in place, then run cleanup rounds on the tree.
 
-- **Suggest the tweak:** rules, skills, hooks, model, effort, strategy, guidance, and cleanup of bad practices. Name the levers that fit and a concrete avenue for each
-- **Also** fix any defect the message names
+- **Suggest the tweak:** rules, skills, hooks, model, effort, strategy, guidance, or `setup-repo` when the floors were never applied. Name the levers that fit and a concrete avenue for each
+- **Read the words:** vague "better UI" → clarify, a reference screen, and the terms for it. The same miss in only some places → extract shared components, values, and functions. Huge unreadable files → smaller objects, grouped by business surface then role
+- **Then clean up** those copies and that grouping, across the app. One patch on one copy is not the fix. Past a tiny app, leftover bad structure multiplies the next miss
 - Rule: [rules/frustration-fix-agent.md](../rules/frustration-fix-agent.md)
 
 ## Teaching mode (off by default)

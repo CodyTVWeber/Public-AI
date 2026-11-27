@@ -16,7 +16,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [glossary-overloaded-terms.md](glossary-overloaded-terms.md) | One glossary entry per term with two meanings; list misleading code names. | review, plan check |
 | [scripting-languages.md](scripting-languages.md) | Scripts are Bash or JavaScript; deps pinned and locked. | `scripts/lint/check-languages.sh` (git `pre-commit`) |
 | [delegate-work.md](delegate-work.md) | Lead decides and does tiny writes; a reused cheaper worker does volume. | review |
-| [frustration-fix-agent.md](frustration-fix-agent.md) | Frustration or vague "work harder" → suggest fixes to the agent's setup. | agent judgment |
+| [frustration-fix-agent.md](frustration-fix-agent.md) | Frustration or vague "work harder" → setup tweak, then cleanup rounds (extract copies, domain grouping). | agent judgment |
 
 `skills/setup-repo/assets/rules/` mirrors this directory for installation. `scripts/lint/check-copies.sh` fails on drift (pairs listed in `scripts/lint/copies.list`); `--fix` copies here → there.
 - [ai-files-telegraphic](ai-files-telegraphic.md) — AI-facing files: telegraphic, dense, human-scannable
