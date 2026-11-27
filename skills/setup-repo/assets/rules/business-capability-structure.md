@@ -4,7 +4,7 @@ Top folders name spoken business domains. Nested folders inherit that domain. Te
 
 | Place | Name |
 |---|---|
-| Top folder | A domain a person already says out loud |
+| Top folder | A domain a person already says out loud, or a generic kit extracted from `shared/` |
 | Nested folder | Same domain, narrower |
 | Forbidden at top | `controllers/`, `services/`, `models/`, `utils/`, `helpers/`, `common/`, `components/` |
 
@@ -22,7 +22,14 @@ Occurrence = distinct consumers of the same part (load sites). Similar-looking f
 
 Lift to the nearest common parent of those consumers.
 
-`shared/` uses business-centric names and may nest (`shared/auth/` can hold its own `shared/`).
+`shared/` uses business-centric names and may nest (`shared/auth/` can hold its own `shared/`). No depth cap. Deep is fine when the domain is large; fewer levels is better.
+
+| Signal | Action |
+|---|---|
+| Folder is crowded (hard to scan) | Group into narrower child folders. File count, not depth |
+| `shared/` keeps growing | Smell: grouping is off, or a generic kit is hiding in it |
+
+Extremely generic kits (a design system, or any other intricate generic system) grow inside `shared/` first. Once they have a shape, extract to their own top folder so `shared/` does not bloat.
 
 ## Agents
 

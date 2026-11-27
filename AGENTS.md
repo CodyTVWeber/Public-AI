@@ -65,7 +65,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - Scripts, CI, hooks = skeleton; AI = muscles (glue and judgment): [muscles-and-skeleton](rules/muscles-and-skeleton.md)
 - Context cap 175000 tokens (175k); autocompact at the cap unless a user message, skill, or repo rule names another: [context-window](rules/context-window.md)
 - Frustration or vague "work harder": the agent's setup is the likely fault. Suggest rules, skills, hooks, model, effort, strategy, guidance, or `setup-repo`. Then cleanup rounds: extract shared copies, group by domain. Vague "better UI" also needs a reference screen and the terms for it: [frustration-fix-agent](rules/frustration-fix-agent.md)
-- Business-capability tree: top folders are spoken domains; nested folders inherit that context. Same part, 2 consumers → lift guideline into `shared/`; 3 → near-hard. Agents lift, never sink: [business-capability-structure](rules/business-capability-structure.md)
+- Business-capability tree: top folders are spoken domains; nested folders inherit that context. Same part, 2 consumers → lift guideline into `shared/`; 3 → near-hard. No depth cap; a crowded folder → group deeper. Growing `shared/` is a smell; extract a generic kit (design system or other) once it has a shape. Agents lift, never sink: [business-capability-structure](rules/business-capability-structure.md)
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
 - Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)
 - Root `.mr-size` = `risk: low`: each size hard block (app, support, docs) → advisory. Low-risk repos only ([small-mrs](rules/small-mrs.md#low-risk-repos))

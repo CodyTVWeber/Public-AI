@@ -22,7 +22,7 @@ Technical buckets (`controllers/`, `utils/`) hide which job a file belongs to. F
 
 One generic rule, not four copies. Skills, front-end, BFF, and docs inherit it. Thin files name domains, nodes, and edges only.
 
-Agents lift on repeat and do not sink or invent a domain from one task. The rule matches that behavior: 2 consumers = guideline, 3 = near-hard, lift to the nearest parent `shared/`.
+Agents lift on repeat and do not sink or invent a domain from one task. The rule matches that behavior: 2 consumers = guideline, 3 = near-hard, lift to the nearest parent `shared/`. No depth cap; a crowded folder → group deeper (file count, not a fixed number). Growing `shared/` is a smell. Generic kits (a design system, or any other intricate generic system) grow in `shared/` then extract to their own top folder.
 
 Same install path as other portable rules so `setup-repo` ships it with no special case. `skills-manifest.json` stays a skill-name list.
 
@@ -32,7 +32,9 @@ Settled content (no lint, folder moves, or sink automation in this change):
 |---|---|
 | Tree | Top folders = spoken business domains; nested folders inherit that context; not technical layers |
 | DRY | Same part: 2 consumers = lift guideline; 3 = near-hard lift into that scope's `shared/` |
-| Shared | Business-centric names; `shared/` may nest (`shared/auth/shared/…`) |
+| Shared | Business-centric names; `shared/` may nest (`shared/auth/shared/…`). No depth cap |
+| Nesting | Crowded folder → group deeper (file count, not a fixed number). Growing `shared/` is a smell |
+| Generic kits | Grow in `shared/`; extract (design system or any intricate generic system) to own top folder |
 | Agents | Lift; never sink. Do not invent a domain from one task |
 | Occurrence | Count distinct consumers of the same part (load sites), not similar-looking files |
 
