@@ -26,6 +26,10 @@ All output, rules, and memory files carry full information in the fewest words.
 
 [rules/ai-thinking-dense.md](../rules/ai-thinking-dense.md): telegraphic reasoning, fewest tokens that still pick the action. Replies still follow Density.
 
+## Context window
+
+[rules/context-window.md](../rules/context-window.md): working context cap is 175000 tokens (175k) unless a user message, skill, or repo rule names another cap. At the cap, autocompact, then continue. The cap holds when the model window is larger.
+
 ## External systems (red line)
 
 Writes to external systems (task trackers, issue and PR comments, chat, email, any third-party API that creates or updates content other people see):
