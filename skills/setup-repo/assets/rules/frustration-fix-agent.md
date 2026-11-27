@@ -31,7 +31,7 @@ A named defect still gets fixed. Frustration beside it still fires this rule.
 |---|---|
 | Better UI, no defect | They can see a target. Clarify the miss. Get a reference screen (a known multi-choice, Duolingo-shaped). In the reply, name the terms for that target so the next ask is precise. Naming terms is not teaching mode |
 | Same miss, only some sites change | DRY failed. One-off copies of pages, components, or values, so a search misses call sites. A tighter search-and-replace can finish this pass. The lasting fix is many extractions: shared components, values, and functions, so one edit hits every call site |
-| Human stops reading the code | Files are huge and grouped so links stay hidden. Extract small objects. Domain first: by the business surface (intake, results, help), then by role inside it (components, constants, functions, hooks). A technical bucket (every component in one folder) hides the links |
+| Human stops reading the code | Files are huge and grouped so links stay hidden. Extract small objects. Domain first: by the business surface ([business-capability-structure.md](business-capability-structure.md); intake, results, help), then by role inside it (components, constants, functions, hooks). A technical bucket (every component in one folder) hides the links |
 
 ## Cleanup rounds
 
