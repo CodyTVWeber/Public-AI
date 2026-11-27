@@ -1,6 +1,6 @@
 # Session summaries
 
-Dated docs ([docs-current-or-dated](../../rules/docs-current-or-dated.md)): `YYYY-MM-DD-short-title.md`.
+Dated docs ([docs-current-or-dated](../../../../rules/docs-current-or-dated.md)): `YYYY-MM-DD-short-title.md`.
 
 First 10 lines include `Date: YYYY-MM-DD`. Optional: `Supersedes: <path>`.
 

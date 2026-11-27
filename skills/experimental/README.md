@@ -4,6 +4,14 @@ Skills in this folder are in development. They are not in the core or support se
 
 Install each skill by hand. A skill moves to `skills/<name>/` when it joins the default set.
 
+## Context reuse
+
+| Skill | Does |
+|---|---|
+| [context-reuse](context-reuse/context-reuse.md) | Opt-in session memory: living `STATE.md`, dated summaries. Not a floor |
+
+Install: [context-reuse/README.md](context-reuse/README.md).
+
 ## UI
 
 | Skill | Does |

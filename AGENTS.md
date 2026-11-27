@@ -4,7 +4,7 @@
 
 - Agent files (`CLAUDE.md`, `GEMINI.md`, ...) only point here. Never edit them ([agent-source](rules/agent-source.md))
 - Add or change rules here only
-- Session start: read `.ai-context/STATE.md` ([context-reuse](rules/context-reuse.md))
+- Experimental, opt-in, not a floor: [context-reuse](skills/experimental/context-reuse/)
 
 ## Personal public repo, external to any employer
 
@@ -60,7 +60,6 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 
 - No comments: [ban-comments](rules/ban-comments.md)
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
-- Session memory in `.ai-context/`: [context-reuse](rules/context-reuse.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 - Thinking stays telegraphic: [ai-thinking-dense](rules/ai-thinking-dense.md)
 - Frustration or vague "work harder": the agent's setup is the likely fault. Suggest rules, skills, hooks, model, effort, strategy, guidance, or `setup-repo`. Then cleanup rounds: extract shared copies, group by domain. Vague "better UI" also needs a reference screen and the terms for it: [frustration-fix-agent](rules/frustration-fix-agent.md)
