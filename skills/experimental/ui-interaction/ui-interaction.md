@@ -1,6 +1,6 @@
 ---
 name: ui-interaction
-description: Shape how a person moves through a screen - one job, one primary action, feedback, undo, empty loading error and success, forms, hit targets, keyboard. Use from ui, or when a flow feels hard, confusing, or easy to mis-tap.
+description: Experimental. Shape how a person moves through a screen - one job, one primary action, feedback, undo, empty loading error and success, forms, hit targets, keyboard. Use from ui, or when a flow feels hard, confusing, or easy to mis-tap. Lives in skills/experimental.
 argument-hint: "[screen or flow]"
 ---
 

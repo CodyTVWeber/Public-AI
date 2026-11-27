@@ -1,6 +1,6 @@
 ---
 name: ui
-description: Build or change a screen so a person can finish one job and the screen looks considered. Use when adding or changing UI, polishing a page, or when the user says /ui, beautiful, lovable, or design this screen. Hands the path to ui-interaction and ui-craft.
+description: Experimental. Build or change a screen so a person can finish one job and the screen looks considered. Use when adding or changing UI, polishing a page, or when the user says /ui, beautiful, lovable, or design this screen. Hands the path to ui-interaction and ui-craft. Lives in skills/experimental.
 argument-hint: "[screen or component]"
 ---
 
@@ -12,15 +12,15 @@ A person can finish one job. The screen looks considered.
 
 - A screen, component, or flow is added or changed
 - Polish, "beautiful", "lovable", `/ui`
-- A read-only pass is [review-ui](../review-ui/review-ui.md)
+- A read-only pass is [review-ui](../../review-ui/review-ui.md)
 
 ## Order
 
 1. **Read the project.** Primitives, tokens, theme. Name two or three similar pieces and compose from them. The second copy of a block becomes a shared primitive
 2. **[Interaction](../ui-interaction/ui-interaction.md).** Job, primary action, feedback, errors, states, access
 3. **[Craft](../ui-craft/ui-craft.md).** Hierarchy, space, color, motion
-4. **Fidelity.** A frame is pixel authority only when the plan marks it `exact` ([figma-fidelity](../align/references/figma-fidelity.md)). `partial` and `reference` do not override the project system
-5. **Proof.** Motion that travels gets a short recording ([review-proof](../review-proof/review-proof.md))
+4. **Fidelity.** A frame is pixel authority only when the plan marks it `exact` ([figma-fidelity](../../align/references/figma-fidelity.md)). `partial` and `reference` do not override the project system
+5. **Proof.** Motion that travels gets a short recording ([review-proof](../../review-proof/review-proof.md))
 
 ## Screen note
 

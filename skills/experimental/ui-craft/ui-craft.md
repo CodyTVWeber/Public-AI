@@ -1,6 +1,6 @@
 ---
 name: ui-craft
-description: Shape how a screen looks and moves - hierarchy, space, type, color, elevation, and a short motion budget. Use from ui, or when polishing look, motion, or visual consistency. Prefer the project's tokens.
+description: Experimental. Shape how a screen looks and moves - hierarchy, space, type, color, elevation, and a short motion budget. Use from ui, or when polishing look, motion, or visual consistency. Prefer the project's tokens. Lives in skills/experimental.
 argument-hint: "[screen or component]"
 ---
 
