@@ -4,6 +4,7 @@
 
 - Agent files (`CLAUDE.md`, `GEMINI.md`, ...) only point here. Never edit them ([agent-source](rules/agent-source.md))
 - Add or change rules here only
+- Experimental, opt-in, not a floor: [context-reuse](skills/experimental/context-reuse/)
 
 ## Personal public repo, external to any employer
 
