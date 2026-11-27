@@ -61,6 +61,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 - Thinking stays telegraphic: [ai-thinking-dense](rules/ai-thinking-dense.md)
+- Context cap 175000 tokens (175k); autocompact at the cap unless a user message, skill, or repo rule names another: [context-window](rules/context-window.md)
 - Frustration or vague "work harder": the agent's setup is the likely fault. Suggest rules, skills, hooks, model, effort, strategy, guidance, or `setup-repo`. Then cleanup rounds: extract shared copies, group by domain. Vague "better UI" also needs a reference screen and the terms for it: [frustration-fix-agent](rules/frustration-fix-agent.md)
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
 - Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)

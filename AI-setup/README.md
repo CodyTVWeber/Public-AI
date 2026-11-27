@@ -6,7 +6,7 @@ Portable global agent rules: density-first, clean-code floor, safe external writ
 
 | File | Destination | Purpose |
 |---|---|---|
-| `AGENTS.md` | `<product-home>/AGENTS.md` | Generic rules: density, comments, docs, thinking, checks, frustration, external systems |
+| `AGENTS.md` | `<product-home>/AGENTS.md` | Generic rules: density, comments, docs, thinking, context, checks, frustration, external systems |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Redirect to `AGENTS.md` |
 | `GEMINI.md` | `~/.gemini/GEMINI.md` | Redirect to `AGENTS.md` |
 | `statusline-command.sh` | `~/.claude/statusline-command.sh` | Claude status bar: model, context %, tokens, git branch and dirty flags |
@@ -53,6 +53,7 @@ Links in `AGENTS.md` to `../rules/` resolve inside this repo. When the file is c
 | Docs | Current state, or a dated immutable snapshot |
 | Clean code | `code-quality-check.sh`: file size, function order, length, params, nesting, guard wraps |
 | Thinking | Telegraphic reasoning, fewest tokens that still decide |
+| Context window | Cap 175000 tokens (175k) unless a closer instruction names another; autocompact at the cap |
 | Checks | Scripts decide mechanical checks; AI judges only the gaps |
 | External writes | Ask first; disclose agency |
 | Entry points | Edit `AGENTS.md` only; vendor files redirect there |
