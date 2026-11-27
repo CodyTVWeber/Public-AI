@@ -7,6 +7,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [ban-comments.md](ban-comments.md) | No comments; rename or extract. Machine-read lines only. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), `check-clean-code.sh`, `scripts/lint/lint-clean-code.sh` |
 | [docs-current-or-dated.md](docs-current-or-dated.md) | Docs are current state, or a dated immutable snapshot. | `scripts/lint/lint-docs.sh` |
 | [clean-code.md](clean-code.md) | Portable floor: size, order, nesting, params, naming. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), linters in `skills/setup-repo/assets/lint/` |
+| [muscles-and-skeleton.md](muscles-and-skeleton.md) | Scripts, CI, hooks take compute; AI is glue and judgment. | review, when writing skills / rules / hooks |
 | [deterministic-checks.md](deterministic-checks.md) | Scripts decide mechanical checks. AI judges only the gaps. | the scripts that file names |
 | [ai-thinking-dense.md](ai-thinking-dense.md) | Reasoning is telegraphic; fewest tokens that still decide. | review |
 | [context-window.md](context-window.md) | Working context cap 175k tokens; autocompact at the cap unless a closer instruction names another. | agent judgment |
