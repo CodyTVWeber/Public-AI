@@ -59,4 +59,5 @@ Links in `AGENTS.md` to `../rules/` resolve inside this repo. When the file is c
 | External writes | Ask first; disclose agency |
 | Entry points | Edit `AGENTS.md` only; vendor files redirect there |
 | Frustration | Vague harder or frustration → setup tweak, then cleanup rounds (extract copies, domain grouping, reference screen) |
+| Business capability | Top folders are spoken domains; 2 consumers → lift guideline, 3 → near-hard; agents lift, never sink |
 | Teaching mode | Off by default |

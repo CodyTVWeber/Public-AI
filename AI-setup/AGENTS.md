@@ -67,6 +67,7 @@ Frustration, or "work harder" with no specific defect, means the agent's setup i
 - **Read the words:** vague "better UI" → clarify, a reference screen, and the terms for it. The same miss in only some places → extract shared components, values, and functions. Huge unreadable files → smaller objects, grouped by business surface then role
 - **Then clean up** those copies and that grouping, across the app. One patch on one copy is not the fix. Past a tiny app, leftover bad structure multiplies the next miss
 - Rule: [rules/frustration-fix-agent.md](../rules/frustration-fix-agent.md)
+- Group folders by spoken business domain; lift a shared part, never sink it: [rules/business-capability-structure.md](../rules/business-capability-structure.md)
 
 ## Teaching mode (off by default)
 
