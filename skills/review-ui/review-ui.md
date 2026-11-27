@@ -14,6 +14,7 @@ One stage of [review](../review/review.md). Findings: format per [review](../rev
 - Keyboard reachability, focus order and visibility, labels, roles, alt text, contrast
 - Empty, loading, error, long-text, narrow-screen states exist
 - Copy and tokens from the design system, not literals
+- Making bar for the same diff: [ui-interaction](../experimental/ui-interaction/ui-interaction.md) and [ui-craft](../experimental/ui-craft/ui-craft.md). A miss is a suggestion unless it blocks the job or fails a check above
 - Interactions that move or animate have a video in the description (review-proof checks it)
 
 ## Not here

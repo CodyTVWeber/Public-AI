@@ -30,7 +30,7 @@ Work from a **tracker task** (e.g. Asana): follow [`../plan-implement-review/ref
 1. `skills/align/scripts/assess.sh "<task>"` (absent → skip). `suggest_align` true → say why in one line (`reasons`), offer [`align`](../align/align.md). Never block. Declined → write "align skipped by user" in Context
    - Plan spans repos or ≥3 slices → Context: `Lead: project AI per repo` ([implement §Project AI](../implement/implement.md))
 2. Align dir exists (`docs/align/<topic>/`, or `align=<path>`): `spec.md` is the scope source. Fold spec, ADRs, glossary into the plan once (Terms, Decisions, Acceptance criteria sections). Never commit or link the align dir. `(non-blocking)` open questions → Risks. `Aligned: no` or a `(blocking)` question → stop and ask
-3. `ui` true: before planning, ask once for Figma link(s) (none → plan from the repo's design system, say so) and run [figma-fidelity](../align/references/figma-fidelity.md). Plan carries its **Design source of truth** table; implementer and reviewer treat only `exact` frames as pixel-authority
+3. `ui` true: before planning, ask once for Figma link(s) (none → plan from the repo's design system, say so) and run [figma-fidelity](../align/references/figma-fidelity.md). Plan carries its **Design source of truth** table; implementer and reviewer treat only `exact` frames as pixel-authority. Also name the job, the primary action, and empty, loading, error, and success ([ui](../experimental/ui/ui.md))
 
 ## Discover first (Discovery and Technical Planning tasks)
 
