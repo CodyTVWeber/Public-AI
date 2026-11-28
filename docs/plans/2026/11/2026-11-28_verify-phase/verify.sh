@@ -10,7 +10,7 @@ args="$root/skills/plan-implement-review/scripts/pir-args.sh"
 "$args" "x phases=apir" > "$out/apir.json"
 "$root/skills/verify-change/scripts/plan-dir.sh" \
   "$root/docs/plans/2026/11/2026-11-28_verify-phase.md" > "$out/plan-dir.json"
-"$root/skills/verify-change/scripts/check-evidence-dir.sh" --allow-pending "$here" \
+"$root/skills/verify-change/scripts/check-evidence-dir.sh" "$here" \
   > "$out/evidence-dir.json"
 
 jq -e '.phases == ["plan","implement","verify","review"]' "$out/pir.json" >/dev/null
