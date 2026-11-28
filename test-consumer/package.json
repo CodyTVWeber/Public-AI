@@ -7,7 +7,6 @@
   },
   "publicAiSync": {
     "source": "./ai-source",
-    "target": ".public-ai",
-    "paths": ["rules", "skills", "AGENTS.md"]
+    "target": ".public-ai"
   }
 }

@@ -11,9 +11,11 @@ export const DEFAULT_PATHS = [
   "AGENTS.md",
   "CLAUDE.md",
   "GEMINI.md",
+  "PRIVACY.md",
   ".claude",
   ".func-size",
   ".mr-size",
+  "scripts",
 ];
 export const FIELD = "publicAiSync";
 export const PKG_NAME = "public-ai-sync";

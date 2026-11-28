@@ -10,6 +10,8 @@ on:
       - "AGENTS.md"
       - "CLAUDE.md"
       - "GEMINI.md"
+      - "PRIVACY.md"
+      - "scripts/**"
       - ".claude/**"
       - ".func-size"
       - ".mr-size"

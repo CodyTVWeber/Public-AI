@@ -1,7 +1,7 @@
 {
   "name": "public-ai-sync",
   "version": "0.0.1",
-  "description": "Dev dependency that syncs a public AI folder into a consuming repo on install",
+  "description": "Dev dependency that installs the public AI environment into a consuming repo on install",
   "type": "module",
   "license": "MIT",
   "bin": {

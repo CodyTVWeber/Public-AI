@@ -77,7 +77,7 @@ Station manuals and every other name: [skills/CATALOG.md](skills/CATALOG.md).
 | --- | --- |
 | Rules on your own machine | [AI-setup](AI-setup/README.md) |
 | This line in another repo | `skills/setup-repo/scripts/detect-repo.sh <repo>`, then `bootstrap.sh <repo>` |
-| Gitignored AI folder in another repo | [`packages/public-ai-sync`](packages/public-ai-sync/README.md) |
+| Gitignored AI folder, root links, and npm scripts in another repo | [`packages/public-ai-sync`](packages/public-ai-sync/README.md) |
 
 Operator manual: [AGENTS.md](AGENTS.md). Rules: [rules/](rules/README.md).
 

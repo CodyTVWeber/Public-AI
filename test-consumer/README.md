@@ -1,10 +1,10 @@
 # Dummy validator
 
-Scratch consumer for `public-ai-sync`. The AI folder `.public-ai/` is gitignored and filled on install.
+Scratch consumer for `public-ai-sync`. The AI folder `.public-ai/` is gitignored and filled on install. Boot paths are linked at this folder's root.
 
 ## Steps
 
-1. Install and confirm files land:
+1. Install and confirm files land and boot paths link:
 
 ```sh
 cd test-consumer
@@ -13,6 +13,10 @@ npm install
 test -f .public-ai/AGENTS.md
 test -f .public-ai/rules/sample.md
 test -f .public-ai/skills/demo/SKILL.md
+test -f .public-ai/scripts/lint/hello.sh
+test -L AGENTS.md
+test -L scripts/lint
+test -L .claude
 grep -qxF '.public-ai/' .gitignore
 ```
 
