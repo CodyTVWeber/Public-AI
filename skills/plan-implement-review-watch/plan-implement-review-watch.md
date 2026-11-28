@@ -12,7 +12,7 @@ Orchestrator drives. Each phase = own skill, run in order. Extends [plan-impleme
 |---|---|---|
 | A0 Align | `align` | Orchestrator, interactive |
 | A Plan | `write-plan` (alias `plan`) | Orchestrator |
-| B Implement | `implement` | Background implementer agent (cheap model) |
+| B Implement | `implement` | Background agents: feature, plus test and script when the plan names those rows |
 | C Review | `review` | Orchestrator (read-only) |
 | D Fix | `implement` again | Same implementer, resumed with `review-roundN.md` |
 | E Gate | `skills/plan-implement-review/scripts/regression-gate.sh` (`review` §4) | Orchestrator |
@@ -78,10 +78,10 @@ Mismatch, or anything under Needs your OK → stop, ask, even for local-only run
 
 ## B. Implement
 
-- Spawn **background sub-agent** if host supports it (cheap model, same effort every resume). Otherwise run implement skill yourself in separate pass.
-- Prompt minimum: repo path, branch, plan path or checklist, "run `implement`", commit often, **do not push**, do not capture proof (`verify` phase owns it), repo rules.
-- Before each attempt: `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`.
-- Wait on it. Don't poll its transcript.
+- Spawn **background sub-agents** if host supports it (cheap model, same effort every resume). Plan **Verification** rows → three roles in one wave: **atdd** (Writer=`atdd` top-of-pyramid tests), **script** (plan-folder recipes, parallel with feature), **feature** (product + unit tests). Skip a role when the plan has no rows for it. Otherwise one feature agent.
+- Prompt minimum: repo path, branch, plan path or checklist, `role=feature|atdd|script`, "run `implement`", commit often, **do not push**, do not capture proof (`verify` phase owns it), repo rules. ATDD/script prompts name owned paths from the plan.
+- Feature attempt: `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`. ATDD/script: `set atdd_subagent_id=…` / `script_subagent_id=…` only; do not `inc-round`.
+- Wait on them. Don't poll transcripts.
 
 Parallel slices follow implement §Parallel slices. Orchestrator owns merging and cleanup. Evidence and regression gate run once on integrated branch.
 
@@ -99,9 +99,9 @@ Parallel slices follow implement §Parallel slices. Orchestrator owns merging an
 
 Own stage, after the review loop reaches `done`. Not part of review.
 
-When phases include `verify`: run [`verify-change`](../verify-change/verify-change.md). Docs, comments, renames, formatting, or any diff with no runtime behavior: light path (`kinds: []`, **no behavior change** line, no screenshots or scripts). Otherwise plan sibling folder + a lean PR description (evidence first, then one or two Try it lines). Blocking: `check-pr-body.sh`, `proof-check.sh` (with `kinds.json` when present), `check-evidence-dir.sh` when the folder exists, `evidence-check.sh` for media.
+When phases include `verify`: run [`verify-change`](../verify-change/verify-change.md). It runs pyramid tests and plan-folder scripts already written; it does not write them. Docs, comments, renames, formatting, or any diff with no runtime behavior: light path (`kinds: []`, **no behavior change** line, no screenshots or scripts). Otherwise plan sibling folder + a lean PR description (evidence first, then one or two Try it lines). Blocking: `check-pyramid.sh`, `check-pr-body.sh`, `proof-check.sh` (with `kinds.json` when present), `check-evidence-dir.sh` when the folder exists, `evidence-check.sh` for media.
 
-Completion: kinds picked, evidence on the PR, Try it a pointer not a walkthrough. The reviewer's job is looking at that and saying yes.
+Completion: pyramid rows pass, scripts ran, evidence on the PR, Try it a pointer not a walkthrough. The reviewer's job is looking at that and saying yes.
 
 If only the description is thin: stay in V and fill it. Do not burn a round.
 
@@ -110,7 +110,7 @@ If the product is wrong (proof shows a failure, or a runtime change with no evid
 | next | Do |
 |---|---|
 | `done` | push (feature branch only) → PR/MR body from this phase → F |
-| `fix` | `inc-verify-round` (exit 3 → `hand_off`). Write `verify-roundN.md`. Resume the same implementer (`PIR_VERIFY_ROUND=1` if using `run-implementer.sh`). Then C–E using `verify_round` / `max_verify_rounds` for `verdict.sh`, then V again. Up to 3 extra implement → review → verify cycles. Independent of the original `max_rounds` pool |
+| `fix` | `inc-verify-round` (exit 3 → `hand_off`). Write `verify-roundN.md`. Resume the matching role: product failure → feature; missing/red top-of-pyramid tests → atdd; missing recipe → script (`PIR_VERIFY_ROUND=1` if using `run-implementer.sh` for feature). Then C–E using `verify_round` / `max_verify_rounds` for `verdict.sh`, then V again. Up to 3 extra implement → review → verify cycles. Independent of the original `max_rounds` pool |
 | `hand_off` | stop. Hand findings + `implementer_id` to the user |
 
 `pi` / `implement-only`: implement §2.6 still proves. Review-only does not insert verify.

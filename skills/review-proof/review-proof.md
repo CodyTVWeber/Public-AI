@@ -12,10 +12,11 @@ Check for the [verify](../verify-change/verify-change.md) phase. Not a stage of 
 
 Follow [`verify-change`](../verify-change/verify-change.md). Description = the proof. Goal: a reviewer can look at it and say yes.
 
-1. `skills/plan-implement-review/scripts/diff-scope.sh <base> > scope.json`. Plan path given and sibling dir exists: merge `kinds.json` into scope (`jq --slurpfile k kinds.json '. + {kinds: $k[0].kinds}'`)
-2. `skills/implement/scripts/proof-check.sh <body-file> scope.json`. Exit 1 → each `missing[]` item = bug-severity finding
-3. Sibling dir exists → `skills/verify-change/scripts/check-evidence-dir.sh <dir>`. Exit 1 → each `missing[]` = bug. Docs-only or empty kinds with no dir is a pass
-4. Evidence files on disk → `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>`. Exit 1 → failed capture
+1. Plan path given → `skills/verify-change/scripts/check-pyramid.sh <plan>`. Exit 1 → each violation = bug-severity finding
+2. `skills/plan-implement-review/scripts/diff-scope.sh <base> > scope.json`. Plan path given and sibling dir exists: merge `kinds.json` into scope (`jq --slurpfile k kinds.json '. + {kinds: $k[0].kinds}'`)
+3. `skills/implement/scripts/proof-check.sh <body-file> scope.json`. Exit 1 → each `missing[]` item = bug-severity finding
+4. Sibling dir exists → `skills/verify-change/scripts/check-evidence-dir.sh <dir>`. Exit 1 → each `missing[]` = bug. Docs-only or empty kinds with no dir is a pass
+5. Evidence files on disk → `skills/implement/scripts/evidence-check.sh <files> --before <b> --after <a>`. Exit 1 → failed capture
 
 Judge by eye what scripts can't:
 

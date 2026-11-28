@@ -22,6 +22,8 @@ eq "round starts 0" "$(st get round)" 0
 eq "max default" "$(st get max_rounds)" 3
 eq "verify_round starts 0" "$(st get verify_round)" 0
 eq "max_verify_rounds default" "$(st get max_verify_rounds)" 3
+eq "atdd id empty" "$(st get atdd_subagent_id)" ""
+eq "script id empty" "$(st get script_subagent_id)" ""
 eq "regression pending" "$(st get regression_status)" pending
 st init --topic demo-topic >/dev/null 2>&1
 eq "re-init rc" "$?" 3
@@ -31,6 +33,9 @@ eq "force re-init" "$(st get round)" 0
 
 st set session_id=abc-123 implementer_id=cheap regression_command="make test && make lint" >/dev/null
 eq "set string" "$(st get session_id)" abc-123
+st set atdd_subagent_id=tid-1 script_subagent_id=sid-1 >/dev/null
+eq "atdd id" "$(st get atdd_subagent_id)" tid-1
+eq "script id" "$(st get script_subagent_id)" sid-1
 eq "set spaced" "$(st get regression_command)" "make test && make lint"
 eq "round stays int" "$(st get | jq -c '.round | type')" '"number"'
 st set session_id= >/dev/null

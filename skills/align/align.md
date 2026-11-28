@@ -14,7 +14,7 @@ Per topic dir, default `docs/align/<topic>/`. Working notes only: never committe
 
 | Doc | Kind | Holds |
 |---|---|---|
-| `spec.md` | Current | goal, users, scope, non-goals, numbered acceptance criteria (`AC-1`…), constraints, design sources, decisions (links to ADRs), open questions marked `(blocking)` or `(non-blocking)`. Glossary terms marked `[[term]]` |
+| `spec.md` | Current | goal, users, scope, non-goals, numbered acceptance criteria (`AC-1`…), Verification (top-of-pyramid `system` + `api` observables, not unit tests), constraints, design sources, decisions (links to ADRs), open questions marked `(blocking)` or `(non-blocking)`. Glossary terms marked `[[term]]` |
 | `adr/YYYY-MM-DD-<slug>.md` | Dated | `Date:`, `Status:` proposed, accepted or superseded, `Supersedes:`, Context, Decision, Alternatives, Consequences. Never edited after accept; a later ADR supersedes it ([docs-current-or-dated](../../rules/docs-current-or-dated.md)) |
 | `glossary.md` | Current | term, definition, synonyms to avoid, source. Second table: terms the human uses differently than the code |
 | `alignment.md` | Current | task restated in ≤ 5 lines, agreed, assumptions, open questions, `Aligned: yes\|no`, `Confirmed by:` |
@@ -35,7 +35,7 @@ Per topic dir, default `docs/align/<topic>/`. Working notes only: never committe
 5. **Read back.** Summarize in ≤ 10 lines: task, agreed, assumptions, open questions. Ask for explicit yes
    - Yes → `Aligned: yes`, `Confirmed by:` the role or name the human gives
    - Anything else → `Aligned: no`, loop to step 3
-6. **Validate and hand off.** `scripts/check-align.sh <topic dir>` exits 0. Docs never committed. `write-plan` folds them into the plan once (goal, users, terms, decisions with rejected alternatives, acceptance criteria, open questions). No separate spec, ADR, or glossary file ships. DRY: plan is the only copy
+6. **Validate and hand off.** `scripts/check-align.sh <topic dir>` exits 0 (includes `check-pyramid.sh` on the spec). Docs never committed. `write-plan` folds them into the plan once (goal, users, terms, decisions with rejected alternatives, acceptance criteria, Verification pyramid, open questions). No separate spec, ADR, or glossary file ships. DRY: plan is the only copy
 
 ## Rules
 
