@@ -2,7 +2,7 @@
 
 Date: 2026-11-28
 **Branch:** `cursor/repo-front-door-2949`
-**Status:** draft
+**Status:** implemented
 
 ## Context
 
@@ -73,4 +73,4 @@ The pitch is judgment, so a person writes the README. The name list is mechanica
 - `scripts/lint/check-skill-catalog.sh`
 - `scripts/tests/check-skill-catalog.test.sh`
 - `scripts/lint/lint-docs.sh` on the branch
-- `skills/setup-repo/assets/scripts/code-quality-check.sh` on the new shell script
+- `skills/setup-repo/assets/scripts/code-quality-check.sh` on the catalog shell script
