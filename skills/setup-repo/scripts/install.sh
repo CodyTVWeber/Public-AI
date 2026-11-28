@@ -99,7 +99,10 @@ copy_dir() {
 }
 
 install_files() {
-  [ "$rules" -eq 1 ] && copy_dir "$ASSETS/rules" "$target/.claude/rules" '*.md'
+  if [ "$rules" -eq 1 ]; then
+    copy_dir "$ASSETS/rules" "$target/.claude/rules" '*.md'
+    copy_dir "$ASSETS/rules/conversation" "$target/.claude/rules/conversation" '*.md'
+  fi
   copy_dir "$ASSETS/scripts" "$target/scripts/clean-code" '*.sh'
   copy_dir "$ASSETS/scripts/cleancode" "$target/scripts/clean-code/cleancode" '*.mjs'
   copy_dir "$ASSETS/scripts/gitscan" "$target/scripts/clean-code/gitscan" '*.mjs'

@@ -1,3 +1,5 @@
+Human-facing tone and structure for every channel: [rules/conversation.md](../../rules/conversation.md). This file is only the PR/MR section contract (`check-pr-body.sh`).
+
 ## What changed
 
 One or two sentences. Name the behavior a reviewer can observe. Link the task or issue for the why.
