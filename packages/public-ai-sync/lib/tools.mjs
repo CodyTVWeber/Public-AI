@@ -10,14 +10,15 @@ export const TOOLS = {
   "lint-docs": "scripts/lint/lint-docs.sh",
   "lint-explainer": "scripts/lint/lint-explainer.sh",
   lint: "scripts/lint/lint-clean-code.sh",
+  "check-languages": "scripts/lint/check-languages.sh",
+  "check-copies": "scripts/lint/check-copies.sh",
+  "check-duplicates": "scripts/lint/check-duplicates.sh",
+  "check-skill-catalog": "scripts/lint/check-skill-catalog.sh",
+  "check-1k-cross": "scripts/lint/check-1k-cross.sh",
+  "verdict-parse": "scripts/lint/verdict-parse.sh",
   "code-quality": "skills/setup-repo/assets/scripts/code-quality-check.sh",
   privacy: "scripts/check-privacy.sh",
   "install-hooks": "scripts/install-hooks.sh",
-};
-
-export const LIFECYCLE_SCRIPTS = {
-  postinstall: SYNC_BIN,
-  prepare: SYNC_BIN,
 };
 
 export function npmScripts() {

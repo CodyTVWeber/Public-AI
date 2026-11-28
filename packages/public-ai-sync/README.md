@@ -20,7 +20,7 @@ Default paths: `rules`, `skills`, `AI-setup`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.
 2. Create relative symlinks at the consumer root so `$CLAUDE_PROJECT_DIR` hooks resolve. `.claude`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `PRIVACY.md`, `rules`, `skills`, `AI-setup`, `.func-size`, and `.mr-size` link as a whole when those names are free. `scripts/` stays a real directory; each child (`lint`, `guard`, `check-privacy.sh`, `install-hooks.sh`, `tests`, …) is linked. An existing non-link file is left in place
 3. Gitignore the target and every link this package created
 4. Run `scripts/install-hooks.sh` when that script is present. A consumer that is not a git repo, or that already has a foreign hook plus a `.bak`, does not fail the install
-5. Add npm scripts `postinstall` and `prepare` (`public-ai-sync`) when those names are free, plus `public-ai:sync`, `public-ai:lint-docs`, `public-ai:lint-explainer`, `public-ai:lint`, `public-ai:code-quality`, `public-ai:privacy`, and `public-ai:install-hooks`
+5. Add `public-ai:*` npm scripts when those names are free: `public-ai:sync` (manual re-run), `public-ai:lint-docs`, `public-ai:lint-explainer`, `public-ai:lint`, `public-ai:check-languages`, `public-ai:check-copies`, `public-ai:check-duplicates`, `public-ai:check-skill-catalog`, `public-ai:check-1k-cross`, `public-ai:verdict-parse`, `public-ai:code-quality`, `public-ai:privacy`, and `public-ai:install-hooks`. Consumer `postinstall` and `prepare` scripts are not added
 
 ## Config
 
@@ -54,8 +54,16 @@ A missing network, a failed clone, or an empty source exits non-zero and leaves 
 ```sh
 npx public-ai-sync
 npx public-ai-sync ignore
-npx public-ai-sync code-quality
 npx public-ai-sync lint-docs
+npx public-ai-sync lint-explainer
+npx public-ai-sync lint
+npx public-ai-sync check-languages
+npx public-ai-sync check-copies
+npx public-ai-sync check-duplicates
+npx public-ai-sync check-skill-catalog
+npx public-ai-sync check-1k-cross
+npx public-ai-sync verdict-parse
+npx public-ai-sync code-quality
 npx public-ai-sync privacy
 npx public-ai-sync install-hooks
 ```

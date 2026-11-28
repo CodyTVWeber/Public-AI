@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const MARKER = "# public-ai-sync";
@@ -21,7 +21,7 @@ export function ensureGitignore(root, rels) {
 
 export function ignoreLine(root, rel) {
   const normalized = String(rel).replaceAll("\\", "/").replace(/\/$/, "");
-  if (isExistingFile(join(root, normalized))) return normalized;
+  if (bareIgnore(join(root, normalized))) return normalized;
   return `${normalized}/`;
 }
 
@@ -33,12 +33,16 @@ function alreadyListed(text, line) {
   });
 }
 
-function isExistingFile(path) {
+function bareIgnore(path) {
   try {
-    return statSync(path).isFile();
+    return linkOrFile(lstatSync(path));
   } catch (err) {
     return missingPath(err);
   }
+}
+
+function linkOrFile(stat) {
+  return stat.isSymbolicLink() || stat.isFile();
 }
 
 function missingPath(_err) {

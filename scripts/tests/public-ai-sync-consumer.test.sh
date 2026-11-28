@@ -37,7 +37,8 @@ assert_eq "AGENTS.md link" ".public-ai/AGENTS.md" "$(readlink "$consumer/AGENTS.
 [ -d "$consumer/scripts" ] && [ ! -L "$consumer/scripts" ] && ok || bad "scripts should be a real directory"
 [ -L "$consumer/scripts/lint" ] && ok || bad "scripts/lint not linked"
 [ -L "$consumer/.claude" ] && ok || bad ".claude not linked"
-grep -qxF 'scripts/lint/' "$consumer/.gitignore" && ok || bad "gitignore missing scripts/lint/"
+grep -qxF 'scripts/lint' "$consumer/.gitignore" && ok || bad "gitignore missing scripts/lint"
+grep -qxF '.claude' "$consumer/.gitignore" && ok || bad "gitignore missing .claude"
 grep -F '"public-ai:code-quality"' "$consumer/package.json" >/dev/null && ok || bad "npm script public-ai:code-quality missing"
 
 cp -a "$consumer/ai-source" "$later"

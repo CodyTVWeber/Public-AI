@@ -9,14 +9,16 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
-import { LIFECYCLE_SCRIPTS, npmScripts } from "./tools.mjs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { DEFAULT_PATHS } from "./config.mjs";
+import { npmScripts } from "./tools.mjs";
 
 const MERGE_TOP = "scripts";
 const JSON_INDENT = 2;
 
 export function wireConsumer(cfg) {
   const links = cfg.paths.flatMap((rel) => wirePath({ cfg, rel }));
+  pruneStaleOwned(cfg, links);
   injectNpmScripts(cfg.root);
   return links;
 }
@@ -36,26 +38,12 @@ function mergeDir(job) {
   const destDir = join(job.cfg.root, job.rel);
   prepareMergeDest(destDir, job.cfg.target);
   if (!isRealDir(destDir)) return [];
-  pruneMissingChildren({ destDir, srcDir, targetRoot: job.cfg.target });
-  return readdirSync(srcDir).flatMap((name) =>
-    wirePath({ cfg: job.cfg, rel: join(job.rel, name) }),
-  );
+  return linkChildren({ cfg: job.cfg, rel: job.rel, srcDir, destDir });
 }
 
 function prepareMergeDest(destDir, targetRoot) {
   if (isOurLink(destDir, targetRoot)) unlinkSync(destDir);
   if (!hasLstat(destDir)) mkdirSync(destDir, { recursive: true });
-}
-
-function pruneMissingChildren(job) {
-  for (const name of readdirSync(job.destDir)) {
-    if (existsSync(join(job.srcDir, name))) continue;
-    dropStaleLink(join(job.destDir, name), job.targetRoot);
-  }
-}
-
-function dropStaleLink(dest, targetRoot) {
-  if (isOurLink(dest, targetRoot)) unlinkSync(dest);
 }
 
 function placeLink(job, src) {
@@ -71,10 +59,66 @@ function refreshOrSkip(state) {
     makeLink(state.dest, state.src);
     return [state.job.rel];
   }
-  if (!isRealDir(state.dest) || !isRealDir(state.src)) return [];
-  return readdirSync(state.src).flatMap((name) =>
-    wirePath({ cfg: state.job.cfg, rel: join(state.job.rel, name) }),
+  if (!canMerge(state)) return [];
+  return linkChildren({
+    cfg: state.job.cfg,
+    rel: state.job.rel,
+    srcDir: state.src,
+    destDir: state.dest,
+  });
+}
+
+function canMerge(state) {
+  return underScripts(state.job.rel) && isRealDir(state.dest) && isRealDir(state.src);
+}
+
+function underScripts(rel) {
+  const normalized = normalizeRel(rel);
+  return normalized === MERGE_TOP || normalized.startsWith(`${MERGE_TOP}/`);
+}
+
+function linkChildren(state) {
+  pruneMissingChildren({
+    destDir: state.destDir,
+    srcDir: state.srcDir,
+    targetRoot: state.cfg.target,
+  });
+  return readdirSync(state.srcDir).flatMap((name) =>
+    wirePath({ cfg: state.cfg, rel: join(state.rel, name) }),
   );
+}
+
+function pruneMissingChildren(job) {
+  for (const name of readdirSync(job.destDir)) {
+    if (existsSync(join(job.srcDir, name))) continue;
+    dropStaleLink(join(job.destDir, name), job.targetRoot);
+  }
+}
+
+function pruneStaleOwned(cfg, kept) {
+  const keptSet = new Set(kept.map(normalizeRel));
+  for (const rel of staleCandidates(cfg)) {
+    if (keptSet.has(normalizeRel(rel))) continue;
+    dropStaleLink(join(cfg.root, rel), cfg.target);
+  }
+}
+
+function staleCandidates(cfg) {
+  return [...DEFAULT_PATHS, ...cfg.paths, ...scriptChildRels(cfg.root)];
+}
+
+function scriptChildRels(root) {
+  const dir = join(root, MERGE_TOP);
+  if (!isRealDir(dir)) return [];
+  return readdirSync(dir).map((name) => join(MERGE_TOP, name));
+}
+
+function dropStaleLink(dest, targetRoot) {
+  if (isOurLink(dest, targetRoot)) unlinkSync(dest);
+}
+
+function normalizeRel(rel) {
+  return String(rel).replaceAll("\\", "/");
 }
 
 function makeLink(dest, src) {
@@ -92,9 +136,8 @@ function isOurLink(dest, targetRoot) {
 
 function linkResolvesInto(dest, targetRoot) {
   if (!lstatSync(dest).isSymbolicLink()) return false;
-  const resolved = resolve(dirname(dest), readlinkSync(dest));
-  const root = resolve(targetRoot);
-  return resolved === root || resolved.startsWith(`${root}/`);
+  const rel = relative(resolve(targetRoot), resolve(dirname(dest), readlinkSync(dest)));
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
 function isRealDir(path) {
@@ -131,7 +174,7 @@ function injectNpmScripts(root) {
 function nextScripts(current) {
   const scripts = isPlainObject(current) ? { ...current } : {};
   let changed = false;
-  for (const [name, cmd] of Object.entries({ ...LIFECYCLE_SCRIPTS, ...npmScripts() })) {
+  for (const [name, cmd] of Object.entries(npmScripts())) {
     if (scripts[name]) continue;
     scripts[name] = cmd;
     changed = true;
