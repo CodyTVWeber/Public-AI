@@ -1,0 +1,4 @@
+{
+  "kinds": ["script"],
+  "reason": "install-time folder sync; no UI or database"
+}
