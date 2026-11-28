@@ -9,7 +9,7 @@ export const NO_PIPELINE = "No pipeline jobs installed: local and Claude hooks a
 const ALWAYS_INSTALLED = ["scripts"];
 const PUBLIC_AI_VAR = '"$PUBLIC_AI_DIR"/skills/setup-repo/scripts/';
 const INSTALLED_LINES = {
-  rules: "Rules: `.claude/rules/` holds clean-code, ban-comments, small-mrs, docs-current-or-dated and research-latest-main.",
+  rules: "Rules: `.claude/rules/` holds clean-code, ban-comments, ban-workbenches, small-mrs, docs-current-or-dated and research-latest-main.",
   scripts: "Analyzer, size gate and git-command scanner: `scripts/clean-code/`.",
   "git-hooks": "Git hooks: pre-commit runs `check-clean-code.sh` (analyzer on staged lines), pre-push runs `pre-push-gate.sh` (branch size). Wired via {via}.",
   "claude-hooks": "Claude Code hooks in `{settings}`: PreToolUse(Bash) guard on push and MR create (size and clean code), PostToolUse docs lint and analyzer after edits, Stop analyzer.",

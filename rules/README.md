@@ -5,6 +5,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | Rule | One line | Enforced by |
 | --- | --- | --- |
 | [ban-comments.md](ban-comments.md) | No comments; rename or extract. Machine-read lines only. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), `check-clean-code.sh`, `scripts/lint/lint-clean-code.sh` |
+| [ban-workbenches.md](ban-workbenches.md) | Never create, use, or merge workbenches; merges drop changes. | agent judgment; `setup-repo` copies into `.claude/rules/` |
 | [docs-current-or-dated.md](docs-current-or-dated.md) | Docs are current state, or a dated immutable snapshot. | `scripts/lint/lint-docs.sh` |
 | [clean-code.md](clean-code.md) | Portable floor: size, order, nesting, params, naming. | `code-quality-check.sh` (PostToolUse, Stop, pre-commit), linters in `skills/setup-repo/assets/lint/` |
 | [muscles-and-skeleton.md](muscles-and-skeleton.md) | Scripts, CI, hooks take compute; AI is glue and judgment. | review, when writing skills / rules / hooks |
