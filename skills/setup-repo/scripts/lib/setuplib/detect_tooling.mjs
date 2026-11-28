@@ -26,7 +26,7 @@ const BUILD_FILE_LINTERS = ["detekt", "ktlint", "checkstyle"];
 const OWN_MARKER = "managed-by: setup-repo";
 const WIRED_MARKERS = ["scripts/clean-code", "scripts/check-privacy.sh"];
 const RULE_WINDOW = 120;
-const MAX_RULES = [["max-params", 3], ["max-depth", 3], ["max-lines-per-function", 80]];
+const MAX_RULES = [["max-params", 3], ["max-depth", 3], ["max-lines-per-function", 40]];
 const RULE_NUMBER = /(?:max\s*:\s*|,\s*)(\d+)/;
 
 function packageDependencies(repo) {

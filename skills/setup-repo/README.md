@@ -133,8 +133,8 @@ The AGENTS.md section (local: `.git/info/local-guardrails.md`) states these floo
 | Docs lint hook | agent edits a `.md` file | Time-relative wording in current docs; edits to dated docs, exit 2 to the agent |
 | Linter snippets | lint step | Nesting, params, function size, parameter mutation |
 
-Env knobs: `MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `MR_BASE`; one-off bypass
-`CLEAN_CODE_SKIP=1` (or `CC_SKIP=1`).
+Env knobs: `MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `MR_BASE`, `CC_FUNC_SIZE`; one-off bypass
+`CLEAN_CODE_SKIP=1` (or `CC_SKIP=1`). Linter snippets use profile `b` (error at 40).
 
 ## Code-quality analyzer
 
@@ -164,7 +164,7 @@ only hook protocol output: exit 2 plus stderr feeds errors back to the agent; wa
 | `todo-marker`, `banner` | error | TODO/FIXME/XXX in a comment; `STATUS:` or `====` banner lines |
 | `empty-catch` | error | empty `catch` / `except` body (`pass` and `...` count as empty) |
 | `param-count` | error / warn | 4+ params / 3 params (`self`, `cls`, `this` excluded; shell counts the highest `$N`) |
-| `function-length` | error / warn | over 80 / over 40 lines of logic (blank and comment lines excluded) |
+| `function-length` | error / warn | over the `CC_FUNC_SIZE` error / warn cap (default `b`: 40 / 20) of logic lines (blank and comment lines excluded) |
 | `nesting-depth` | error / warn | 4+ / 3 nested control-flow blocks inside one function |
 | `file-size` | error / warn | 400+ / over 200 lines, only when the change grows the file |
 | `param-mutation` | error / warn | `param.x = …`, `param[i] = …`, `param += …` (JS/TS, Python, Kotlin, Java, C#, Scala); warn for `res`, `req`, `ctx`, `event`, `self`, `this`, `ref.current`; functions named `set*`, `fill*`, `apply*`, `update*`, `init*` and similar are exempt |
@@ -180,7 +180,7 @@ Test paths (`test/`, `tests/`, `spec/`, `fixtures/`, `*.test.*`, `*_test.*`, `te
 `file-size`, `function-length`, `magic-number` and `duplicate-string`. Generated paths (`generated/`, `vendor/`,
 `node_modules/`, `*.d.ts`, `*.min.js`, `*.pb.go`) skip everything. Other files are ignored.
 
-Env: `CC_FUNC_WARN` (40), `CC_FUNC_ERROR` (80), `CC_PARAMS_ERROR` (4), `CC_NEST_WARN` (3), `CC_NEST_ERROR` (4),
+Env: `CC_FUNC_SIZE=a|b|c` (default `b`: warn 20 / error 40; `a` 40/80; `c` 50/100) or repo-root `.func-size` line `size: b`. `CC_FUNC_WARN` / `CC_FUNC_ERROR` override. `CC_PARAMS_ERROR` (4), `CC_NEST_WARN` (3), `CC_NEST_ERROR` (4),
 `CC_FILE_WARN` (200), `CC_FILE_ERROR` (400), `CC_DISABLE=rule,rule@ext+ext`, `CC_SKIP=1` / `CLEAN_CODE_SKIP=1`
 (prints that the run was skipped).
 
