@@ -36,8 +36,12 @@
     "implement-review-watch",
     "plan-implement",
     "plan",
+    "verify",
+    "apir",
     "apirw",
+    "apirvw",
     "apirwm",
+    "pirvw",
     "code-review"
   ],
   "design": [

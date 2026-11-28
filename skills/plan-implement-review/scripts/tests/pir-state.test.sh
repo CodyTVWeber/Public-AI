@@ -20,6 +20,10 @@ eq "init rc" "$?" 0
 eq "topic" "$(st get topic)" demo-topic
 eq "round starts 0" "$(st get round)" 0
 eq "max default" "$(st get max_rounds)" 3
+eq "verify_round starts 0" "$(st get verify_round)" 0
+eq "max_verify_rounds default" "$(st get max_verify_rounds)" 3
+eq "atdd id empty" "$(st get atdd_subagent_id)" ""
+eq "script id empty" "$(st get script_subagent_id)" ""
 eq "regression pending" "$(st get regression_status)" pending
 st init --topic demo-topic >/dev/null 2>&1
 eq "re-init rc" "$?" 3
@@ -29,6 +33,9 @@ eq "force re-init" "$(st get round)" 0
 
 st set session_id=abc-123 implementer_id=cheap regression_command="make test && make lint" >/dev/null
 eq "set string" "$(st get session_id)" abc-123
+st set atdd_subagent_id=tid-1 script_subagent_id=sid-1 >/dev/null
+eq "atdd id" "$(st get atdd_subagent_id)" tid-1
+eq "script id" "$(st get script_subagent_id)" sid-1
 eq "set spaced" "$(st get regression_command)" "make test && make lint"
 eq "round stays int" "$(st get | jq -c '.round | type')" '"number"'
 st set session_id= >/dev/null
@@ -53,6 +60,16 @@ eq "no 4th round rc" "$?" 3
 eq "round stays 3" "$(st get round)" 3
 eq "status exhausted" "$(st status | jq -c .exhausted)" true
 eq "status left" "$(st status | jq -c .rounds_left)" 0
+eq "verify status not exhausted" "$(st status | jq -c .verify_exhausted)" false
+eq "inc-verify 1" "$(st inc-verify-round | jq -c .verify_round)" 1
+eq "inc-verify 2" "$(st inc-verify-round | jq -c .verify_round)" 2
+eq "inc-verify 3" "$(st inc-verify-round | jq -c .verify_round)" 3
+st inc-verify-round >/dev/null 2>&1
+eq "no 4th verify round rc" "$?" 3
+eq "verify_round stays 3" "$(st get verify_round)" 3
+eq "verify status exhausted" "$(st status | jq -c .verify_exhausted)" true
+eq "verify status left" "$(st status | jq -c .verify_rounds_left)" 0
+eq "implement round untouched" "$(st get round)" 3
 
 "$S" init --topic custom --state-root "$root/b" --max-rounds 1 >/dev/null 2>&1
 "$S" inc-round --state-root "$root/b" >/dev/null 2>&1

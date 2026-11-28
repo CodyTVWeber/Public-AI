@@ -8,7 +8,7 @@ argument-hint: "[ticket or task] [optional: plan-builder=, implementer=, max-rou
 
 Need final PR/MR watch and UI screenshot evidence → [plan-implement-review-watch](../plan-implement-review-watch/).
 
-Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate before reporting done.
+Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression → verify**. Max **3** implement attempts, each followed by review. Verify may start up to **3** more implement → review cycles. Approve → stop early, but **always** run final regression gate, then verify, before reporting done.
 
 Provider-agnostic. Prefer **connected background agents** over detached shell processes.
 
@@ -37,10 +37,14 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 |------|-----|----------------|
 | **Orchestrator** | Agent that loaded this skill | Drive phases, **review**, **final regression**, stop conditions, user updates |
 | **Plan builder** | Default = orchestrator; override `plan-builder=...` | Write plan doc, commit, push, draft plan PR |
-| **Implementer** | **Background agent**, cheap/fast profile | Code from plan, unit/lint, **commit often**; push only when user/orchestrator says |
+| **Feature implementer** | **Background agent**, cheap/fast profile | Product code and **unit** tests from plan, lint, **commit often**; push only when user/orchestrator says |
+| **ATDD implementer** | **Background agent**, same cheap profile | Test-first from outside the app (`system` + `api`: UI, API, contracts). Writer=`atdd`. Not product code or unit tests |
+| **Script implementer** | **Background agent**, same cheap profile | Plan-folder manual verification scripts, in parallel with feature. Writer=`script` rows |
 
 - No `plan-builder` given → current agent is plan builder (no extra spawn).
 - No `implementer` given → cheap/fast for current stack. See selection in `references/implementers.md`.
+- Pyramid skip line or no Writer=`atdd`/`script` rows → do not spawn that role.
+- `/implement` alone (no orchestrator): one agent covers every role the plan names.
 
 ### Default pairing (same product, medium effort)
 
@@ -62,7 +66,7 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 | `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-medium`) |
 | `plan-builder` | `self` | `self` = orchestrator; or profile id |
 | `max-rounds` | `3` | Implement attempts (not review count alone) |
-| `phases=` · `plan-only` / `implement-only` / `review-only` | `plan,implement,review` | Contiguous run of `align`, `plan`, `implement`, `review`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apirw`, `apirwm`, `pi`, `ir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
+| `phases=` · `plan-only` / `implement-only` / `review-only` / `verify-only` | `plan,implement,review` (verify is inserted after review) | Contiguous run of `align`, `plan`, `implement`, `review`, `verify`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apir`, `apirw`, `apirvw`, `apirwm`, `pi`, `ir`, `pir`, `pirvw`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
 
 State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` creates `/tmp/pir-<topic>/state.json` (exit 3 = exists → `get`). Read and write only via `pir-state.sh get [KEY]` · `set KEY=VALUE…` · `status`. Never hand-edit. Keys:
 
@@ -77,10 +81,18 @@ State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> -
   "implementer_id": "grok-medium",
   "session_id": "...",
   "subagent_id": "...",
+  "atdd_implementer_id": "...",
+  "atdd_session_id": "...",
+  "atdd_subagent_id": "...",
+  "script_implementer_id": "...",
+  "script_session_id": "...",
+  "script_subagent_id": "...",
   "reasoning_effort": "medium",
   "context_cap_tokens": 200000,
   "round": 1,
   "max_rounds": 3,
+  "verify_round": 0,
+  "max_verify_rounds": 3,
   "regression_command": "make regression",
   "regression_status": "pending"
 }
@@ -137,9 +149,19 @@ When user assigns model tiers to roles, **orchestrator must not pre-digest subst
 
 ## Phase B: Implement (round N)
 
-**Canonical:** [`implement`](../implement/implement.md) (also `/implement`). Don't fork. Load and execute **implement** via implementer agent.
+**Canonical:** [`implement`](../implement/implement.md) (also `/implement`). Don't fork. Load and execute **implement** via implementer agents.
 
-Before every attempt (launch or resume): `skills/plan-implement-review/scripts/pir-state.sh inc-round --topic <topic>`. Exit 3 = rounds spent → hand off. Never a 4th attempt. `run-implementer.sh` does this itself.
+When the plan **Verification** table has rows, spawn **three** background agents in one wave (disjoint paths; overlap → sequence). Pyramid contract: [`pyramid`](../verify-change/references/pyramid.md).
+
+| Role | Prompt `role=` | Owns | Round pool |
+| --- | --- | --- | --- |
+| atdd | `atdd` | Writer=`atdd` files only (top-of-pyramid `system`/`api` tests). May stay red until feature lands | none (`atdd_subagent_id`); do not `inc-round` |
+| script | `script` | Plan sibling folder (`plan-dir.sh`): `kinds.json`, `*.sh`, `evidence.md` | none (`script_subagent_id`); do not `inc-round` |
+| feature | `feature` (default) | Product code + unit tests. Not top-of-pyramid tests. Not the plan-folder recipe | `inc-round` as today |
+
+CLI fallback `run-implementer.sh` is the feature role only. ATDD and script roles are connected background agents.
+
+Before every **feature** attempt (launch or resume): `skills/plan-implement-review/scripts/pir-state.sh inc-round --topic <topic>`. Exit 3 = rounds spent → hand off. Never a 4th attempt. `run-implementer.sh` does this itself.
 
 ### Preferred: background agent (connected)
 
@@ -172,16 +194,19 @@ Project rules: repo forbids worktrees → parallel slices use `--mode clone`. Ot
 - "No product changes outside plan; flag plan gaps instead"
 - Project `AGENTS.md` / migration rules if present
 - "You are the cheap/fast implementer; keep changes minimal and plan-faithful"
+- `role=feature|atdd|script` (PIR sets this; standalone implement defaults to all roles the plan names)
 - Commit messages in repo's numbered format: `skills/plan-implement-review/scripts/commit-msg.sh <branch> <item>...`
 - Work from tracker task → one **Implement rN** comment per `plan-implement-review/references/tracker-comments.md`. Comments only, never edit task.
 
 ## Phase C: Review
 
+Review does not own proof. When implement and review both run, `pir-args` inserts `verify` after this loop. Docs-only diffs use the light path (no screenshots).
+
 1. Review **implement** branch or PR vs plan checklist + base branch.
 2. Prefer project review skill. Else structured findings:
    - Severity: bug | suggestion | nit
    - File:line, description, fix suggestion
-3. Count blocking findings (bug severity or missing proof) `k`. Then `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `{next, reason}` (`r`, `m` = `pir-state.sh get round` / `get max_rounds`):
+3. Count blocking findings (bug severity) `k`. Then `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `{next, reason}` (`r`, `m` = `pir-state.sh get round` / `get max_rounds`):
 
 | next | Do |
 |---|---|
@@ -228,15 +253,19 @@ If review finds product/plan gap:
 | Docs-only / plan-only (no app code) | Prefer if cheap. May skip with explicit note if zero runtime surface |
 | `review-only` / `plan-only` flags, or rounds exhausted without approve | No (unless user asks) |
 
-Run on **implement branch** tip. Never substitute unit tests alone when full regression exists. `done` → Final report. `fix` → Phase D with log tail as fix list. `hand_off` → stop and report. Never call PIR complete or merge-ready without a pass or explicit user skip.
+Run on **implement branch** tip. Never substitute unit tests alone when full regression exists. `done` → Phase V when verify is in the run, else Final report. `fix` → Phase D with log tail as fix list. `hand_off` → stop and report. Never call PIR complete or merge-ready without a pass or explicit user skip.
 
 ### Implementer prompt addition
 
 "Write to the repo clean-code floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, and hooks fail the change on a miss. Unit/lint green required each commit. **Orchestrator** runs project regression gate after review approve. You may run it if its local dependencies are up and it speeds feedback."
 
+## Phase V: Verify
+
+Own stage after review and the gate, before watch. Run [`verify-change`](../verify-change/verify-change.md). Completion: kinds picked, evidence on the PR, Try it a pointer. The reviewer's job is looking at that and saying yes. Thin description → stay here and fill it. Product wrong → `verdict.sh --phase verify --round <verify_round> --max <max_verify_rounds> --blocking <k>`. `fix` → `inc-verify-round` (exit 3 = extra rounds spent → hand off), resume implementer, Phase C then E then V. Up to 3 extra implement → review cycles, separate from `max_rounds`. CLI fallback: `PIR_VERIFY_ROUND=1`.
+
 ## Round budget
 
-Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E**, or when 3 attempts are reviewed. No automatic 4th implement: `inc-round` exits 3 at `round == max_rounds`.
+Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E** (+ Phase V when verify is in the run), or when 3 attempts are reviewed. No automatic 4th implement on the original pool: `inc-round` exits 3 at `round == max_rounds`. Verify may start up to 3 more: `inc-verify-round` exits 3 at `verify_round == max_verify_rounds`.
 
 ## Safety
 

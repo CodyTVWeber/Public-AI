@@ -10,9 +10,10 @@ CLI fallback implementer; prefer a connected background agent (see plan-implemen
 Profiles: see references/implementers.md (default Grok at medium effort, low effort for mechanical plans, Grok, Composer, claude-haiku, claude-sonnet)
 Order: validate args and profile, check the CLI exists, then count the round via pir-state.sh.
 A bad profile or a missing CLI never burns a round. Each launch/resume is one implement attempt;
-exit 3 when max_rounds is spent (no extra attempt, CLI not started).
-State: <state-dir>/state.json via pir-state.sh (round, implementer_id, session_id, reasoning_effort).
-Env: PIR_MAX_ROUNDS (init only, default 3), MAX_TURNS (default 80), GROK_EXTRA_ARGS.
+exit 3 when that pool is spent (no extra attempt, CLI not started).
+State: <state-dir>/state.json via pir-state.sh (round, verify_round, implementer_id, session_id, reasoning_effort).
+Env: PIR_MAX_ROUNDS (init only, default 3), PIR_VERIFY_ROUND=1 (count against max_verify_rounds),
+MAX_TURNS (default 80), GROK_EXTRA_ARGS.
 Stdout: JSON {round, profile, model, session_id, exit_code, out, err}.
 Exit: 0 ok, 1 implementer CLI failed, 2 usage/unknown profile, 3 rounds spent, 127 CLI missing
 USAGE
@@ -93,12 +94,19 @@ if [[ ! -f "$state_dir/state.json" ]]; then
   "$state" init --topic "$topic" --state-root "$state_dir" --max-rounds "${PIR_MAX_ROUNDS:-3}" >/dev/null
 fi
 
-"$state" inc-round --state-root "$state_dir" >/dev/null
-round="$("$state" get round --state-root "$state_dir")"
+if [[ "${PIR_VERIFY_ROUND:-}" == 1 ]]; then
+  "$state" inc-verify-round --state-root "$state_dir" >/dev/null
+  round="$("$state" get verify_round --state-root "$state_dir")"
+  tag="verify-round${round}"
+else
+  "$state" inc-round --state-root "$state_dir" >/dev/null
+  round="$("$state" get round --state-root "$state_dir")"
+  tag="implement-round${round}"
+fi
 "$state" set --state-root "$state_dir" "implementer_id=$profile" "reasoning_effort=$EFFORT" >/dev/null
 
-out_json="${state_dir}/implement-round${round}.json"
-err_log="${state_dir}/implement-round${round}.stderr.log"
+out_json="${state_dir}/${tag}.json"
+err_log="${state_dir}/${tag}.stderr.log"
 prompt_text="$(cat "$prompt_file")"
 
 extract_session_id() {

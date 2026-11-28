@@ -179,5 +179,22 @@ check pc-usage "2" "$code"
 run "$here/proof-check.sh" "$tmp/good.md" "$tmp/nope.json"
 check pc-no-scope "2" "$code"
 
+printf '## What changed\n\nAdds a check.\n\n## Risk\n\n`low`: docs. Merge policy: balanced.\n\n## Review guide\n\n- **Start here:** `a.js`\n- **Look hard:** `a.js:1` parse\n- **Not in this change:** UI\n\n## Build\n\n- Command: `npm test`\n- CI: https://ci.example.test/run/1\n- Result: green\n\n## Proof\n\n| Claim | Kind | Evidence |\n| --- | --- | --- |\n| aliases insert verify | script | `out/pir-args.json` |\n\n## Try it\n\n1. Run `docs/plans/x/verify.sh` and see ok\n' >"$tmp/script.md"
+echo '{"kinds":["script"],"ui_changed":true}' >"$tmp/kinds.json"
+run "$here/proof-check.sh" "$tmp/script.md" "$tmp/kinds.json"
+check pc-kinds-script "0" "$code"
+sed 's/verify.sh/verify/' "$tmp/script.md" >"$tmp/noscript.md"
+run "$here/proof-check.sh" "$tmp/noscript.md" "$tmp/kinds.json"
+check pc-kinds-need-sh "1" "$code"
+check pc-kinds-item "true" "$(jq '.missing | index("proof:script") != null' "$tmp/out")"
+
+printf '## Review guide\n\n- **Start here:** a.md\n- **Look hard:** a.md:1 wording\n- **Not in this change:** runtime\n\n## Risk\n\nlow. Merge policy: x\n\n## Build\n\n`make` https://ci.example.test/1\n\nNo behavior change.\n' >"$tmp/nobehave.md"
+echo '{"kinds":[],"ui_changed":true}' >"$tmp/empty-kinds.json"
+run "$here/proof-check.sh" "$tmp/nobehave.md" "$tmp/empty-kinds.json"
+check pc-empty-kinds "0" "$code"
+sed '/No behavior change/d' "$tmp/nobehave.md" >"$tmp/nobehave2.md"
+run "$here/proof-check.sh" "$tmp/nobehave2.md" "$tmp/empty-kinds.json"
+check pc-empty-kinds-line "1" "$code"
+
 echo "passed=$pass failed=$fail"
 [ "$fail" -eq 0 ]

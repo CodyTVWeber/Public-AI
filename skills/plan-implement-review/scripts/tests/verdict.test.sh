@@ -20,6 +20,11 @@ eq "gate failed, rounds spent -> hand_off" "$(next --round 3 --max 3 --blocking 
 eq "gate pending -> wait" "$(next --round 1 --max 3 --blocking 0 --phase gate --regression pending)" wait
 eq "blocking beats passed gate" "$(next --round 1 --max 3 --blocking 1 --phase gate --regression passed)" fix
 eq "max 1 findings -> hand_off" "$(next --round 1 --max 1 --blocking 1)" hand_off
+eq "verify first fail -> fix" "$(next --phase verify --round 0 --max 3 --blocking 1)" fix
+eq "verify mid fail -> fix" "$(next --phase verify --round 2 --max 3 --blocking 1)" fix
+eq "verify rounds spent -> hand_off" "$(next --phase verify --round 3 --max 3 --blocking 1)" hand_off
+eq "verify pass -> done" "$(next --phase verify --round 0 --max 3 --blocking 0)" done
+eq "verify pass after extra rounds -> done" "$(next --phase verify --round 3 --max 3 --blocking 0)" done
 eq "reason present" "$("$S" --round 1 --max 3 --blocking 1 | jq -r '.reason | length > 0')" true
 eq "single-line json" "$("$S" --round 1 --max 3 --blocking 0 | wc -l | tr -d ' ')" 1
 

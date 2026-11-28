@@ -1,0 +1,4 @@
+{
+  "kinds": ["script"],
+  "reason": "skill and parser change; PIRVW stage split; no runtime UI or database"
+}

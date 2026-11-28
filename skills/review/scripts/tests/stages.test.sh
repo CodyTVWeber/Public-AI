@@ -54,7 +54,7 @@ on() { printf '%s' "$out" | jq -r --arg id "$1" '.stages[] | select(.id == $id) 
 reason() { printf '%s' "$out" | jq -r --arg id "$1" '.stages[] | select(.id == $id) | .reason'; }
 
 scenario docs README.md="hello"
-check "docs only" "plan,code-quality,proof" "$(active)"
+check "docs only" "plan,code-quality" "$(active)"
 
 scenario tiny src/util.py="x = 1"
 check "tiny code change skips logic" "false" "$(on logic)"
@@ -62,7 +62,7 @@ check "tiny code change skips tests" "false" "$(on tests)"
 check "tiny code change still gets quality" "true" "$(on code-quality)"
 
 scenario plain src/util.py="$big"
-check "plain code" "plan,logic,tests,code-quality,proof" "$(active)"
+check "plain code" "plan,logic,tests,code-quality" "$(active)"
 check "code without tests says so" "code changed, no test files touched" "$(reason tests)"
 check "skill name" "review-logic" "$(printf '%s' "$out" | jq -r '.stages[] | select(.id == "logic") | .skill')"
 check "added lines counted" "6" "$(printf '%s' "$out" | jq -r .added_code_lines)"
@@ -112,7 +112,7 @@ check "REVIEW_LOGIC_MIN lowers the bar" "true" "$(on logic)"
 
 git checkout -q -B t-empty main
 out=$("$stages" main)
-check "empty diff" "plan,proof" "$(active)"
+check "empty diff" "plan" "$(active)"
 
 rc=0
 "$stages" no-such-ref >/dev/null 2>&1 || rc=$?

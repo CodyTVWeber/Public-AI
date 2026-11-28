@@ -7,7 +7,7 @@ unset PUBLIC_AI_DIR
 
 clone="$TMPROOT/clone"; mkdir -p "$clone"; clone="$(cd "$clone" && pwd -P)"
 CORE="write-plan align implement review watch plan-implement-review-watch plan-implement-review verify-change monitor review-plan review-logic review-non-happy-logic review-tests review-security review-data review-ui review-dependencies review-infra review-concurrency review-code-quality review-proof"
-ALIASES="pirw ir irw rw pi pir review-watch implement-review implement-review-watch plan-implement plan apirw apirwm code-review"
+ALIASES="pirw ir irw rw pi pir review-watch implement-review implement-review-watch plan-implement plan verify apir apirw apirvw apirwm pirvw code-review"
 fake_clone "$clone" $CORE $ALIASES check-work setup-repo
 links_of() { jq -r '[.steps[] | select(.id == "skills") | .reason] | join(" ")' <<<"$1"; }
 linked() { (cd "$1/.claude/skills" 2>/dev/null && ls | tr '\n' ' ' | sed 's/ $//'); }
@@ -20,7 +20,7 @@ assert_eq "default set is the 6 core and 15 support skills" "$(sorted "$CORE")" 
 
 b="$TMPROOT/aliases"; go_bare "$b"
 apply "$b" --skills core+aliases >/dev/null
-assert_eq "core+aliases adds the 14 aliases" "$(sorted "$CORE $ALIASES")" "$(linked "$b")"
+assert_eq "core+aliases adds the 18 aliases" "$(sorted "$CORE $ALIASES")" "$(linked "$b")"
 
 c="$TMPROOT/all"; go_bare "$c"
 apply "$c" --skills all >/dev/null

@@ -14,6 +14,8 @@ Large or vague tasks are offered [`align`](../align/) first; UI tasks get a desi
 
 A change that deploys also gets a Monitoring plan ([template](../monitor/assets/templates/monitoring-plan.md), checked by `skills/monitor/scripts/check-plan.sh`); [`monitor`](../monitor/) runs it after the PROD deploy.
 
+Runtime work carries a **Verification** pyramid (system + api observables, not unit tests), checked by `skills/verify-change/scripts/check-pyramid.sh`. ATDD and script implementers code against those rows; [`verify-change`](../verify-change/) runs them.
+
 ## Install
 
 ### Grok
