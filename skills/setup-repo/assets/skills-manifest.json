@@ -39,7 +39,9 @@
     "verify",
     "apir",
     "apirw",
+    "apirvw",
     "apirwm",
+    "pirvw",
     "code-review"
   ],
   "all": "*"

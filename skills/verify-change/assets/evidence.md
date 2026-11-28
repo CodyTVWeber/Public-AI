@@ -17,4 +17,4 @@ Kinds: script
 
 ## Outputs
 
-Tiny stdout lives in `out/`. Images and video stay on the PR.
+Tiny stdout lives in `out/`. Images and video stay on the PR. This file only points at them.

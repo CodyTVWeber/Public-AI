@@ -1,40 +1,40 @@
 ---
 name: plan-implement-review-watch
-description: Run the full chain [align →] plan → implement → verify → review → watch [→ monitor] as separate skills, with a capped fix loop, verify-change proof in the PR/MR, a final watch, and an optional post-deploy monitor. Use for "plan implement review watch", /plan-implement-review-watch, /pirw, /apir to start with align and stop at review, /apirw to start with align, or /apirwm to end with monitor.
-argument-hint: "<task> [phases=align,plan,implement,verify,review,watch,monitor] [ticket=X] [no-plan] [implementer=<cheap model>] [fix-comments=yes] [max-rounds=3] [window=1h] [cadence=10m]"
+description: Run the full chain [align →] plan → implement → review → verify → watch [→ monitor] as separate skills, with a capped fix loop, a distinct verify stage after review, a final watch, and an optional post-deploy monitor. Use for "plan implement review watch", /plan-implement-review-watch, /pirw or /pirvw, /apir to start with align and stop after verify, /apirw or /apirvw to start with align, or /apirwm to end with monitor.
+argument-hint: "<task> [phases=align,plan,implement,review,verify,watch,monitor] [ticket=X] [no-plan] [implementer=<cheap model>] [fix-comments=yes] [max-rounds=3] [window=1h] [cadence=10m]"
 ---
 
-# Plan → Implement → Review → Watch
+# Plan → Implement → Review → Verify → Watch
 
-Orchestrator drives. Each phase = own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with a [`verify-change`](../verify-change/verify-change.md) phase and watch.
+Orchestrator drives. Each phase = own skill, run in order. Extends [plan-implement-review](../plan-implement-review/) with a [`verify-change`](../verify-change/verify-change.md) stage after review, then watch. Letters: P, I, R, V, W (PIRVW; APIRVW when align is on).
 
 | Phase | Skill | Who runs it |
 |---|---|---|
 | A0 Align | `align` | Orchestrator, interactive |
 | A Plan | `write-plan` (alias `plan`) | Orchestrator |
 | B Implement | `implement` | Background implementer agent (cheap model) |
-| B2 Verify | `verify-change` (alias `verify`) | Orchestrator |
 | C Review | `review` | Orchestrator (read-only) |
 | D Fix | `implement` again | Same implementer, resumed with `review-roundN.md` |
 | E Gate | `skills/plan-implement-review/scripts/regression-gate.sh` (`review` §4) | Orchestrator |
+| V Verify | `verify-change` (alias `verify`) | Orchestrator |
 | F Watch | `watch` | Orchestrator, self-paced |
 | G Monitor | `monitor` | Orchestrator, self-paced, read-only, starts after change deployed to PROD |
 
 ## Phases and aliases
 
-`phases=` picks a contiguous run of the seven skills. Default `plan` through `watch` (includes `verify`). `align` and `monitor` only when asked. `pir-args` inserts `verify` between `implement` and `review` when both are present. Aliases only set it:
+`phases=` picks a contiguous run of the seven skills. Default `plan` through `watch` (PIRVW). `align` and `monitor` only when asked. `pir-args` inserts `verify` after `review` when the run implements or watches. Aliases only set it:
 
 | Phases | Short | Long |
 |---|---|---|
 | plan → implement | `pi` | `plan-implement` |
-| implement → verify → review | `ir` | `implement-review` |
-| review → watch | `rw` | `review-watch` |
-| plan → implement → verify → review | `pir` | `plan-implement-review` |
-| align → plan → implement → verify → review | `apir` | — |
-| implement → verify → review → watch | `irw` | `implement-review-watch` |
-| plan → implement → verify → review → watch | `pirw` | `plan-implement-review-watch` |
-| align → plan → implement → verify → review → watch | `apirw` | — |
-| align → plan → implement → verify → review → watch → monitor | `apirwm` | — |
+| implement → review → verify | `ir` | `implement-review` |
+| review → verify → watch | `rw` | `review-watch` |
+| plan → implement → review → verify | `pir` | `plan-implement-review` |
+| align → plan → implement → review → verify | `apir` | — |
+| implement → review → verify → watch | `irw` | `implement-review-watch` |
+| plan → implement → review → verify → watch | `pirw`, `pirvw` | `plan-implement-review-watch` |
+| align → plan → implement → review → verify → watch | `apirw`, `apirvw` | — |
+| align → plan → implement → review → verify → watch → monitor | `apirwm` | — |
 | verify | `verify` | `verify-change` |
 | monitor | `m` | — |
 
@@ -43,8 +43,8 @@ Orchestrator drives. Each phase = own skill, run in order. Extends [plan-impleme
 Starting mid-chain needs that phase's input. Missing → ask once.
 - align: task or document
 - implement: plan path, ticket, or checklist
-- verify: branch/PR (+ plan path)
 - review: branch/PR (+ plan)
+- verify: branch/PR (+ plan path)
 - watch: PR/MR number
 - monitor: proof of PROD deploy + Monitoring plan or diff
 
@@ -58,7 +58,7 @@ Starting mid-chain needs that phase's input. Missing → ask once.
    - Isolated work = fresh clone under scratch workspace (`<workspace>/<topic>/<repo>`).
    - Worktrees only for parallel implement slices (implement §Parallel slices). Merged and removed before phase ends.
 4. State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` (exit 3 = exists → `get`). Keys: [plan-implement-review](../plan-implement-review/) Configuration. Touch only via `get` / `set KEY=VALUE`.
-5. Mark proof early: any behavior, screen, backend, or database change → `verify` phase mandatory when implement and review both run.
+5. Mark proof early: any behavior, screen, backend, or database change → `verify` phase mandatory after review when implement and review both run.
 
 ## A0. Align
 
@@ -85,21 +85,27 @@ Mismatch, or anything under Needs your OK → stop, ask, even for local-only run
 
 Parallel slices follow implement §Parallel slices. Orchestrator owns merging and cleanup. Evidence and regression gate run once on integrated branch.
 
-## B2. Verify
-
-When phases include `verify` (inserted between implement and review): run [`verify-change`](../verify-change/verify-change.md). Docs, comments, renames, formatting, or any diff with no runtime behavior: light path (`kinds: []`, **no behavior change** line, no screenshots or scripts). Otherwise plan sibling folder + PR description. Blocking: `check-pr-body.sh`, `proof-check.sh` (with `kinds.json` when present), `check-evidence-dir.sh` when the folder exists, `evidence-check.sh` for media. After a fix round, run verify again before review. `pi` / `implement-only`: implement §2.6 still proves.
-
 ## C–E. Review loop
 
-1. Run `review` on branch. Count blocking findings `k`.
+1. Run `review` on branch. Count blocking findings `k`. Review does not own proof.
 2. `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `next`:
    - `gate` → `regression-gate.sh <repo> --base origin/<base>` (exit 3 = dirty tree). `pir-state.sh set regression_status=<status>`. Then `verdict.sh --phase gate --regression <status> …` and follow its `next`.
-   - `done` → push (feature branch only) → draft PR/MR whose body already has verify-change proof → F.
+   - `done` → V.
    - `fix` → write `review-roundN.md`, `inc-round`, resume same implementer, back to 1.
    - `hand_off` → stop. Hand findings + `implementer_id` to user.
    - `wait` → implementer or gate not finished.
 
-Review owns proof check: a runtime change without evidence for the kinds in `kinds.json` (or a claim with no proof row) = `fix required`. Empty kinds on a no-behavior diff is a pass, not a miss.
+## V. Verify
+
+Own stage, after the review loop reaches `done`. Not part of review.
+
+When phases include `verify`: run [`verify-change`](../verify-change/verify-change.md). Docs, comments, renames, formatting, or any diff with no runtime behavior: light path (`kinds: []`, **no behavior change** line, no screenshots or scripts). Otherwise plan sibling folder + a lean PR description (evidence first, then one or two Try it lines). Blocking: `check-pr-body.sh`, `proof-check.sh` (with `kinds.json` when present), `check-evidence-dir.sh` when the folder exists, `evidence-check.sh` for media.
+
+Completion: kinds picked, evidence on the PR, Try it a pointer not a walkthrough. The reviewer's job is looking at that and saying yes.
+
+If the product is wrong: back to D, then C, then V. If only the description is thin: stay in V and fill it. After a fix round that already passed review: run V again. Then push (feature branch only) → PR/MR body from this phase → F.
+
+`pi` / `implement-only`: implement §2.6 still proves. Review-only does not insert verify.
 
 ## F. Watch
 

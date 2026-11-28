@@ -9,7 +9,7 @@ Kinds: script
 
 | Claim | Kind | Where |
 | --- | --- | --- |
-| `pir` and `apir` insert verify | script | `out/pir.json`, `out/apir.json` |
+| `pir` and `apir` insert verify after review | script | `out/pir.json`, `out/apir.json` |
 | Plan folder gate accepts this recipe | script | `out/evidence-dir.json` |
 | Empty kinds is a valid no-evidence pick | script | `check-evidence-dir` and `proof-check` tests |
 

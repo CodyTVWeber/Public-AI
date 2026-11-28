@@ -13,7 +13,7 @@ args="$root/skills/plan-implement-review/scripts/pir-args.sh"
 "$root/skills/verify-change/scripts/check-evidence-dir.sh" "$here" \
   > "$out/evidence-dir.json"
 
-jq -e '.phases == ["plan","implement","verify","review"]' "$out/pir.json" >/dev/null
-jq -e '.phases == ["align","plan","implement","verify","review"]' "$out/apir.json" >/dev/null
+jq -e '.phases == ["plan","implement","review","verify"]' "$out/pir.json" >/dev/null
+jq -e '.phases == ["align","plan","implement","review","verify"]' "$out/apir.json" >/dev/null
 jq -e '.ok == true' "$out/evidence-dir.json" >/dev/null
 echo ok

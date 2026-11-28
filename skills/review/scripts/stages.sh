@@ -5,7 +5,7 @@ usage() {
   cat <<'USAGE'
 usage: stages.sh <base>
 Pick the review skills that apply to `git diff <base>...HEAD` from changed paths and added lines.
-Always on: plan, proof. Each stage maps to the skill review-<id>.
+Always on: plan. Proof is the verify phase, not a review stage. Each stage maps to the skill review-<id>.
 Turned on by a match:
   logic             REVIEW_LOGIC_MIN (default 5) or more added lines in non-test code
   non-happy-logic   logic is on and added lines handle errors, nulls, validation, timeouts or external calls
@@ -109,7 +109,6 @@ jq -Rn --arg base "$base" --argjson min "$logic_min" '
       signal("dependencies"; "no manifest or lockfile"),
       signal("infra"; "no config or deploy change"),
       signal("concurrency"; "no concurrency or query signal"),
-      stage("code-quality"; on("quality"); why("quality"; "no code or docs changed"); []),
-      stage("proof"; true; "always"; [])
+      stage("code-quality"; on("quality"); why("quality"; "no code or docs changed"); [])
     ]}
 ' <"$signals"

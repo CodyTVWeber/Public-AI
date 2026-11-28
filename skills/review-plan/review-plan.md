@@ -18,4 +18,4 @@ One stage of [review](../review/review.md). Findings: format per [review](../rev
 
 ## Not here
 
-Correctness in code → review-logic. Proof → review-proof.
+Correctness in code → review-logic. Proof → the verify phase (`verify-change`), not a review stage.

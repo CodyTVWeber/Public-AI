@@ -13,6 +13,16 @@ cat > "$body" <<'EOF'
 
 Adds a retry so a transient failure no longer drops the export. Task linked in the description.
 
+## Proof
+
+| Claim | Kind | Evidence |
+| --- | --- | --- |
+| retries then succeeds | log | `attempt 2 ok` |
+
+## Try it
+
+1. Run `npm run export`
+
 ## Risk
 
 `medium`: changes how failures are reported. Merge policy: `conservative` (docs/rules/ai-merge-policy.md); one approval.
@@ -32,16 +42,6 @@ Adds a retry so a transient failure no longer drops the export. Task linked in t
 - Command: `npm test`
 - CI: https://example.test/ci/1
 - Result: 120 passed
-
-## Proof
-
-| Claim | Kind | Evidence |
-| --- | --- | --- |
-| retries then succeeds | log | `attempt 2 ok` |
-
-## Try it
-
-1. Run `npm run export` and see `attempt 2 ok`
 EOF
 
 out="$("$tool" "$body")"; rc=$?
@@ -68,6 +68,13 @@ out="$(variant 's/Merge policy: `conservative`/Merge policy: `<profile>`/')"; as
 out="$(variant 's/^- Command:.*/- Command: `<the project check>`/')"; assert_contains "placeholder flagged" "$(miss "$out")" "leftover placeholder"
 out="$(variant 's/^1\. .*/Run it/')"; assert_contains "Try it needs numbered step" "$(miss "$out")" "Try it"
 
+{
+  awk '1; /^1\. /{print "2. extra"; print "3. too many"}' "$body"
+} > "$TMPROOT/longtry.md"
+out="$("$tool" "$TMPROOT/longtry.md")"; rc=$?
+assert_rc "three Try it steps fail" 1 $rc
+assert_contains "caps Try it" "$(miss "$out")" "at most 2 steps"
+
 out="$(variant 's/`medium`:/`high`:/')"; rc=$?
 assert_rc "high without rollback fails" 1 $rc
 assert_contains "rollback required" "$(miss "$out")" "Rollback"
@@ -76,7 +83,7 @@ out="$("$tool" "$TMPROOT/v2.md")"; assert_rc "high with rollback passes" 0 $?
 { cat "$TMPROOT/v.md"; printf '\n## Rollback\n\nFor a high-tier change this section is required.\n'; } > "$TMPROOT/v3.md"
 out="$("$tool" "$TMPROOT/v3.md")"; assert_rc "template rollback text fails" 1 $?
 
-{ sed -n '1,/^## Risk/p' "$body" | sed '$d'; for i in $(seq 1 30); do echo "filler line $i"; done; sed -n '/^## Risk/,$p' "$body"; } > "$TMPROOT/long.md"
+{ sed -n '1,/^## Proof/p' "$body" | sed '$d'; for i in $(seq 1 15); do echo "filler line $i"; done; sed -n '/^## Proof/,$p' "$body"; } > "$TMPROOT/long.md"
 out="$("$tool" "$TMPROOT/long.md")"; rc=$?
 assert_rc "too long before Proof fails" 1 $rc
 assert_contains "length reported" "$(miss "$out")" "length"

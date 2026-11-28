@@ -8,7 +8,7 @@ argument-hint: "[ticket or task] [optional: plan-builder=, implementer=, max-rou
 
 Need final PR/MR watch and UI screenshot evidence → [plan-implement-review-watch](../plan-implement-review-watch/).
 
-Capped loop: **plan → cheap/fast implementer (background agent) → verify → review → resume implementer with fixes → system regression**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate before reporting done.
+Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression → verify**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate, then verify, before reporting done.
 
 Provider-agnostic. Prefer **connected background agents** over detached shell processes.
 
@@ -62,7 +62,7 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 | `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-medium`) |
 | `plan-builder` | `self` | `self` = orchestrator; or profile id |
 | `max-rounds` | `3` | Implement attempts (not review count alone) |
-| `phases=` · `plan-only` / `implement-only` / `review-only` / `verify-only` | `plan,implement,review` (verify is inserted) | Contiguous run of `align`, `plan`, `implement`, `verify`, `review`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apir`, `apirw`, `apirwm`, `pi`, `ir`, `pir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
+| `phases=` · `plan-only` / `implement-only` / `review-only` / `verify-only` | `plan,implement,review` (verify is inserted after review) | Contiguous run of `align`, `plan`, `implement`, `review`, `verify`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apir`, `apirw`, `apirvw`, `apirwm`, `pi`, `ir`, `pir`, `pirvw`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
 
 State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` creates `/tmp/pir-<topic>/state.json` (exit 3 = exists → `get`). Read and write only via `pir-state.sh get [KEY]` · `set KEY=VALUE…` · `status`. Never hand-edit. Keys:
 
@@ -177,13 +177,13 @@ Project rules: repo forbids worktrees → parallel slices use `--mode clone`. Ot
 
 ## Phase C: Review
 
-When implement and review both run, `pir-args` inserts `verify` between them. Run [`verify-change`](../verify-change/verify-change.md) before this review. Docs-only diffs use the light path (no screenshots).
+Review does not own proof. When implement and review both run, `pir-args` inserts `verify` after this loop. Docs-only diffs use the light path (no screenshots).
 
 1. Review **implement** branch or PR vs plan checklist + base branch.
 2. Prefer project review skill. Else structured findings:
    - Severity: bug | suggestion | nit
    - File:line, description, fix suggestion
-3. Count blocking findings (bug severity or missing proof) `k`. Then `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `{next, reason}` (`r`, `m` = `pir-state.sh get round` / `get max_rounds`):
+3. Count blocking findings (bug severity) `k`. Then `skills/plan-implement-review/scripts/verdict.sh --round <r> --max <m> --blocking <k>` → `{next, reason}` (`r`, `m` = `pir-state.sh get round` / `get max_rounds`):
 
 | next | Do |
 |---|---|
@@ -230,15 +230,19 @@ If review finds product/plan gap:
 | Docs-only / plan-only (no app code) | Prefer if cheap. May skip with explicit note if zero runtime surface |
 | `review-only` / `plan-only` flags, or rounds exhausted without approve | No (unless user asks) |
 
-Run on **implement branch** tip. Never substitute unit tests alone when full regression exists. `done` → Final report. `fix` → Phase D with log tail as fix list. `hand_off` → stop and report. Never call PIR complete or merge-ready without a pass or explicit user skip.
+Run on **implement branch** tip. Never substitute unit tests alone when full regression exists. `done` → Phase V when verify is in the run, else Final report. `fix` → Phase D with log tail as fix list. `hand_off` → stop and report. Never call PIR complete or merge-ready without a pass or explicit user skip.
 
 ### Implementer prompt addition
 
 "Write to the repo clean-code floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, and hooks fail the change on a miss. Unit/lint green required each commit. **Orchestrator** runs project regression gate after review approve. You may run it if its local dependencies are up and it speeds feedback."
 
+## Phase V: Verify
+
+Own stage after review and the gate, before watch. Run [`verify-change`](../verify-change/verify-change.md). Completion: kinds picked, evidence on the PR, Try it a pointer. The reviewer's job is looking at that and saying yes. Product wrong → Phase D, then C, then V. Thin description → stay here and fill it.
+
 ## Round budget
 
-Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E**, or when 3 attempts are reviewed. No automatic 4th implement: `inc-round` exits 3 at `round == max_rounds`.
+Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E** (+ Phase V when verify is in the run), or when 3 attempts are reviewed. No automatic 4th implement: `inc-round` exits 3 at `round == max_rounds`.
 
 ## Safety
 

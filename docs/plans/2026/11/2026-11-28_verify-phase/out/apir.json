@@ -3,8 +3,8 @@
     "align",
     "plan",
     "implement",
-    "verify",
-    "review"
+    "review",
+    "verify"
   ],
   "ticket": null,
   "plan_builder": "self",

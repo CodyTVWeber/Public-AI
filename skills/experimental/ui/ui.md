@@ -20,7 +20,7 @@ A person can finish one job. The screen looks considered.
 2. **[Interaction](../ui-interaction/ui-interaction.md).** Job, primary action, feedback, errors, states, access
 3. **[Craft](../ui-craft/ui-craft.md).** Hierarchy, space, color, motion
 4. **Fidelity.** A frame is pixel authority only when the plan marks it `exact` ([figma-fidelity](../../align/references/figma-fidelity.md)). `partial` and `reference` do not override the project system
-5. **Proof.** Motion that travels gets a short recording ([review-proof](../../review-proof/review-proof.md))
+5. **Proof.** Motion that travels gets a short recording ([verify-change](../../verify-change/verify-change.md))
 
 ## Screen note
 

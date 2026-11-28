@@ -7,41 +7,41 @@ Usage: pir-args.sh [--default PHASES] "<argstring>"
   Parses a plan-implement-review argument string into JSON on stdout:
   {phases[],ticket,plan_builder,no_plan,implementer,fix_comments,max_rounds,window,cadence,task}
 Tokens:
-  phases=<list|alias>   comma list of align,plan,implement,verify,review,watch,monitor
-                        (contiguous, in order) or an alias. verify is inserted between
-                        implement and review when both are present and verify is not
+  phases=<list|alias>   comma list of align,plan,implement,review,verify,watch,monitor
+                        (contiguous, in order) or an alias. verify is inserted after
+                        review (PIRV / PIRVW) when review is in a run that implements
+                        or watches, and verify is not already listed
   ticket=X implementer=X plan-builder=X fix-comments=yes|no max-rounds=N
   window=<n>s|m|h|d cadence=<n>s|m|h|d   monitor phase window and tick spacing (null when absent)
   no-plan               skip the plan phase (checklist in the implementer prompt)
   plan-only | implement-only | review-only | verify-only   same as phases=plan | implement | review | verify
   anything else         joins the task text
-Aliases: a align | ap align-plan | apir align-plan-implement-review | apirw align-plan-implement-review-watch
-         m monitor | apirwm align-plan-implement-review-watch-monitor
-         pi plan-implement | ir implement-review | rw review-watch | pir plan-implement-review
-         irw implement-review-watch | pirw plan-implement-review-watch | verify
---default PHASES  phases when none given (default: plan,implement,verify,review,watch)
+Aliases: a align | ap align-plan | apir | apirv | apirw | apirvw | apirwm
+         m monitor | pi plan-implement | ir implement-review | rw review-watch
+         pir | pirv | pirw | pirvw | irw | verify
+--default PHASES  phases when none given (default: plan,implement,review,verify,watch)
 Exit: 0 ok, 2 usage / unknown phase / bad value
 USAGE
 }
 
 die() { echo "pir-args: $*" >&2; exit 2; }
 
-ALL="plan,implement,verify,review,watch"
+ALL="plan,implement,review,verify,watch"
 
 alias_phases() {
   case "$1" in
     a) echo "align" ;;
     ap|align-plan) echo "align,plan" ;;
-    apir|align-plan-implement-review) echo "align,plan,implement,review" ;;
-    apirw|align-plan-implement-review-watch) echo "align,$ALL" ;;
+    apir|apirv|align-plan-implement-review) echo "align,plan,implement,review" ;;
+    apirw|apirvw|align-plan-implement-review-watch) echo "align,$ALL" ;;
     m) echo "monitor" ;;
     apirwm|align-plan-implement-review-watch-monitor) echo "align,$ALL,monitor" ;;
     pi|plan-implement) echo "plan,implement" ;;
     ir|implement-review) echo "implement,review" ;;
     rw|review-watch) echo "review,watch" ;;
-    pir|plan-implement-review) echo "plan,implement,review" ;;
+    pir|pirv|plan-implement-review) echo "plan,implement,review" ;;
     irw|implement-review-watch) echo "implement,review,watch" ;;
-    pirw|plan-implement-review-watch) echo "$ALL" ;;
+    pirw|pirvw|plan-implement-review-watch) echo "$ALL" ;;
     verify) echo "verify" ;;
     *) echo "$1" ;;
   esac
@@ -52,8 +52,8 @@ phase_index() {
     align) echo 0 ;;
     plan) echo 1 ;;
     implement) echo 2 ;;
-    verify) echo 3 ;;
-    review) echo 4 ;;
+    review) echo 3 ;;
+    verify) echo 4 ;;
     watch) echo 5 ;;
     monitor) echo 6 ;;
     *) return 1 ;;
@@ -66,20 +66,20 @@ insert_verify() {
   local IFS=,
   for p in $list; do
     out="${out:+$out,}$p"
-    [[ "$p" == implement ]] && out="$out,verify"
+    [[ "$p" == review ]] && out="$out,verify"
   done
   echo "$out"
 }
 
 needs_verify() {
   case ",$1," in
-    *,implement,*review*) ;;
-    *) return 1 ;;
-  esac
-  case ",$1," in
     *,verify,*) return 1 ;;
   esac
-  return 0
+  case ",$1," in
+    *,review,*watch*) return 0 ;;
+    *,implement,*review*) return 0 ;;
+  esac
+  return 1
 }
 
 validate_phases() {

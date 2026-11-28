@@ -1,16 +1,26 @@
 ---
 name: verify-change
-description: Prove a change works with evidence on the PR, and leave the recipe next to the plan. Use when opening or updating a PR/MR, when the user says verify, /verify, /verify-change, or as the verify phase of plan-implement-review-watch.
+description: Prove a change works with evidence on the PR, and leave the recipe next to the plan. Use when opening or updating a PR/MR, when the user says verify, /verify, /verify-change, or as the verify phase of plan-implement-review-watch (after review, before watch).
 argument-hint: "[PR/MR number or branch] [plan path]"
 ---
 
 # Verify the change
 
-Phase after implement, before review. The PR description is the proof. A sibling folder next to the plan holds the recipe (scripts) and a short index of links, not binaries.
+Own stage after review, before watch. Letters: P, I, R, **V**, W (PIRVW; APIRVW when align is on). Not a review stage. The PR description is the proof. A sibling folder next to the plan holds the recipe (scripts) and a short index of links, not binaries.
 
-- Fill `assets/pr-body.md`. Every **What changed** sentence → a **Proof** row. Every Proof row → a **Try it** step (one paste or one click)
-- Before opening or updating the PR: `skills/verify-change/scripts/check-pr-body.sh <body-file>`
-- Who may merge: merge policy (`skills/ai-risk/rules/merge-policy.md`). Proof does not change it
+The reviewer's job is to look at that evidence and say yes.
+
+## Completion
+
+Done when all of these hold:
+
+- `kinds.json` is a pick (`[]` is the pick when there is no runtime behavior)
+- The PR body leads with **Proof**: UI screenshots or video, or the script/query/command output that proves a non-UI change
+- **Try it** is one or two lines that point at the scenario (run this script; go to this URL and click these buttons). It does not walk through the scenario
+- `check-pr-body.sh`, `proof-check.sh` (with `kinds.json` when present), `check-evidence-dir.sh` when the folder exists, `evidence-check.sh` for media all pass
+- Docs-only: **no behavior change** line, no invented screenshots or scripts
+
+Who may merge: merge policy (`skills/ai-risk/rules/merge-policy.md`). Proof does not change it.
 
 ## Pick what proves this change
 
@@ -22,7 +32,7 @@ Path globs suggest. They do not require. Write `kinds.json` with the kinds that 
 
 Docs, comments, rules text, renames, formatting, or any diff with no runtime behavior: `kinds: []` and a `reason`. Do not invent screenshots, videos, curls, queries, or scripts.
 
-On the PR: Build (the check that still runs), Review guide, and a **no behavior change** line. The Proof table may be one row that says that. Skip Try it commands that do not exist.
+On the PR: Build, Review guide, and a **no behavior change** line. The Proof table may be one row that says that. Skip Try it commands that do not exist.
 
 Skip plan-folder scripts. `kinds.json` plus `evidence.md` (index only) are enough if the folder exists. Omit the folder when there is no recipe to keep.
 
@@ -44,17 +54,15 @@ Never commit images, video, or other binaries. Those go on the PR. `check-eviden
 
 ## PR description
 
-Reader sees the change works, then re-runs it in minutes. Diff = how it is built. Description = proof of behavior.
+Fill `assets/pr-body.md`. Stay lean. The body makes saying yes a breeze: show the evidence, point at how to re-run, stop.
 
-1. **Lead with the answer.** What changed and why, in two sentences. Link the task; do not retell it
-2. **Review guide.** Start file, hunks to look hard at (`file:line` and why), what to skim, what is not here
-3. **Build.** The project check, CI link for this commit, one green line
-4. **Proof table.** Each claim → a kind → evidence in the description (image, video, snippet, or link)
-5. **Try it.** Numbered copy-paste steps. Each says what the reviewer should see. Several commands → one script in the plan folder and the single line that runs it
+1. **What changed.** One or two sentences. Link the task; do not retell it
+2. **Proof.** UI: screenshots or video first. Non-UI: the output that proves it (script stdout, query result). One table row per claim
+3. **Try it.** One or two lines. Point at the scenario; do not dump the steps. Simple UI: "go to this URL and click these buttons." Then Risk, Review guide, Build
 
-~25 lines before evidence. Long output in `<details>`. No diff narration.
+Before opening or updating the PR: `skills/verify-change/scripts/check-pr-body.sh <body-file>`
 
-Match proof to the solution. Use the kinds you picked, not every row in the menu. A still image does not cover a click, type, motion, or sequence. A backend or database change a person reaches through the product also uses that screen's video.
+Match proof to the solution. Use the kinds you picked. A still image does not cover a click, type, motion, or sequence. A backend or database change a person reaches through the product also uses that screen's video.
 
 ## Capture
 
@@ -66,24 +74,26 @@ Match proof to the solution. Use the kinds you picked, not every row in the menu
 - Text that fits the plan-folder cap may be copied next to the plan so the plan still points at what passed
 - App cannot run here: say so in the PR and still leave Try it
 
-## Not ready for review
+## Not ready
 
 `skills/implement/scripts/proof-check.sh <body-file> <scope.json>` (put `kinds` from `kinds.json` into scope when present). Exit 1 lists `missing[]`. Then `check-evidence-dir.sh`. Then:
 
 - A claim with no proof row
 - Still image standing in for a behavior
-- Curl, query, or script the reviewer cannot run as written
+- Try it that walks through the scenario instead of pointing at it
 - Proof showing a failure: fix the product, capture again
+
+By-eye checks live in [`review-proof`](../review-proof/review-proof.md). That skill is this phase's check, not a review stage.
 
 ## Chain
 
-`pir-args` inserts `verify` between `implement` and `review` when both are present. Run this skill then. After a fix round, run it again before review. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`.
+`pir-args` inserts `verify` after `review` when the run implements or watches (PIRV / PIRVW). After a fix round that already passed review, run this skill again. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`. Review-only does not insert verify.
 
 ## Scripts
 
 | Script | Use |
 | --- | --- |
-| `scripts/check-pr-body.sh <body>` | Headers, tier, review guide, placeholders |
+| `scripts/check-pr-body.sh <body>` | Headers, tier, review guide, Try it cap, placeholders |
 | `scripts/plan-dir.sh <plan.md>` | Sibling folder path |
 | `scripts/check-evidence-dir.sh <dir>` | Recipe gate: kinds, scripts, size, no binaries |
 | `../implement/scripts/proof-check.sh` | Body vs picked kinds |

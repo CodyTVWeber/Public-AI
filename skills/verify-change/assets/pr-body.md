@@ -2,6 +2,22 @@
 
 One or two sentences. Name the behavior a reviewer can observe. Link the task or issue for the why.
 
+## Proof
+
+UI: screenshots or a short video here first.
+
+Non-UI: paste the script, query, or command output that proves it.
+
+| Claim | Kind | Evidence |
+| --- | --- | --- |
+| `<what the reviewer can see>` | image, video, script, query, log, or — | `<the screenshot, video, or output>` |
+
+Docs-only: one row, **no behavior change**, no media.
+
+## Try it
+
+1. `<run this script, or go to this URL, log in, and click these buttons>`
+
 ## Risk
 
 `low`, `medium`, or `high`, with one line on why. Then: `Merge policy: <profile>` quoted from its source (`docs/rules/ai-merge-policy.md` or the org policy), and who must approve under it.
@@ -22,52 +38,6 @@ One or two sentences. Name the behavior a reviewer can observe. Link the task or
 - CI: `<link to this commit's run>`
 - Result: `<one green line>`
 
-## Proof
-
-| Claim | Kind | Evidence |
-| --- | --- | --- |
-| `<what the reviewer can see>` | image, video, curl, log, query, diagram, script, or — | `<embedded image, video, output snippet, or "no behavior change">` |
-
-## Try it
-
-1. `<open this preview, or run this one start command>`
-2. `<paste this curl, this query, or this script>` — you should see `<the result>`
-
-```bash
-# replace with the real call; keep it copy-paste
-curl -sS -X POST 'http://localhost:3000/example' \
-  -H 'content-type: application/json' \
-  -d '{"example":true}'
-```
-
-```http
-POST /example HTTP/1.1
-Host: localhost:3000
-Content-Type: application/json
-
-{"example":true}
-```
-
-```sql
--- read-only, against the local or preview database named in the step
-select id, status from example where id = 'example-id';
-```
-
 ## Rollback
 
 How to undo: `revert this merge`, or the exact steps when it is not a clean revert (flag off, down migration, redeploy the previous build). For a high-tier change this section is required.
-
-## Walkthrough
-
-For a deep change: a mermaid diagram of the path. Mark the changed hop. Delete this section when the change is a single screen or a single call.
-
-```mermaid
-sequenceDiagram
-  participant Client
-  participant Api
-  participant Db
-  Client->>Api: example call
-  Api->>Db: example read
-  Db-->>Api: row
-  Api-->>Client: result
-```

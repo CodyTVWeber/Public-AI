@@ -39,7 +39,7 @@ Low-risk repo (`.mr-size` `risk: low`): commit, push, and merge finished work wi
 | `scripts/lint/check-duplicates.sh <repo>` | Files in `<repo>` byte-identical to a tracked file here and absent from its install record (LICENSE allowed); JSON `{duplicates}` | Run on downstream repos |
 | `scripts/lint/check-1k-cross.sh <base>` | Files growing from ≤1000 lines to over 1000 | `code-review` skill step |
 | `scripts/lint/verdict-parse.sh <file>` | Last `VERDICT: PASS` or `FAIL` in `check-work` output | `check-work` skill step |
-| `skills/review/scripts/stages.sh <base>` | Review stage skills (`review-<id>`) applying to diff, from changed paths and added lines. `plan` and `proof` always; rest only on signal and above size threshold | `review` skill step 1 |
+| `skills/review/scripts/stages.sh <base>` | Review stage skills (`review-<id>`) applying to diff, from changed paths and added lines. `plan` always; rest only on signal and above size threshold. Proof is the verify phase, not a review stage | `review` skill step 1 |
 | `skills/ai-risk/scripts/merge-policy.sh` | Declared merge profile (conservative when missing or unknown) | `ai-risk` skill step |
 | `skills/ai-risk/scripts/classify-tier.sh` | Risk tier per path, highest wins, who approves | `ai-risk` skill step |
 | `skills/verify-change/scripts/check-pr-body.sh` | PR body matches `assets/pr-body.md` | `verify-change` skill step |

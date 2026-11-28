@@ -11,7 +11,7 @@ Scan of this public repo (`CodyTVWeber/Public-AI`; owner GitHub search, then thi
 | Piece | Job |
 |---|---|
 | [`verify-change`](../../../skills/verify-change/verify-change.md) | PR body is the proof (Build, Proof, Try it) |
-| [`review-proof`](../../../skills/review-proof/review-proof.md) | Review stage that checks that body |
+| [`review-proof`](../../../skills/review-proof/review-proof.md) | Verify-phase check of that body (not a review stage) |
 | implement §2.6 | Capture media to `/tmp`, attach to the PR, keep it out of git |
 | [`check-work`](../../../skills/check-work/SKILL.md) | Self-verify subagent (`/check-work`) |
 | `evidence-check.sh`, `proof-check.sh`, `check-pr-body.sh`, `upload-evidence.mjs` | Skeleton for capture and body shape |
@@ -30,24 +30,26 @@ Read from: `origin/main` `8d9ccc9`.
 
 The PR description stays canonical so binaries never enter git (privacy blocks them anyway). A sibling folder named like the plan file holds the small recipe: scripts, `kinds.json`, `evidence.md`, tiny stdout. Reviewers still open the PR; later readers of the plan still see what was run and where the proof lives.
 
-`pir-args` already owns the chain. Insert `verify` between `implement` and `review` when both are present (aliases and an auto-insert for old lists). Orchestrator runs `verify-change` there and again after a fix round.
+`pir-args` already owns the chain. Insert `verify` after `review` (PIRVW / APIRVW) when the run implements or watches. Review does not own proof. Orchestrator runs `verify-change` after the review loop and gate.
+
+The PR body stays lean: evidence first (UI screenshots or video; otherwise script or query output), then one or two lines that point at how to re-run. The reviewer's job is looking at that and saying yes.
 
 Proof kinds are a menu. `diff-scope.sh` suggests; the agent writes `kinds.json`; `proof-check.sh` checks the pick, not every glob. Empty `kinds: []` is the pick for docs, comments, renames, and formatting: Build plus a **no behavior change** line. Do not invent screenshots or scripts.
 
 ## Concrete steps
 
-1. `pir-args.sh`: phase `verify` (index after implement); auto-insert when implement and review are both listed; aliases `apir`, `verify` / `verify-only`; default and review-loop aliases include it
-2. Rewrite `verify-change` playbook: pick kinds, plan folder, PR body, capture split (media on PR, small text optional next to the plan)
-3. Scripts: `plan-dir.sh`, `check-evidence-dir.sh` (no binaries, 32KiB cap, kinds allowlist); tests
+1. `pir-args.sh`: phase `verify` (index after review); auto-insert after review; aliases `pir`, `pirw`/`pirvw`, `apir`, `apirw`/`apirvw`, `verify` / `verify-only`; default is PIRVW
+2. Rewrite `verify-change` playbook: own stage with completion criteria; lean PR body (evidence, then a pointer)
+3. Scripts: `plan-dir.sh`, `check-evidence-dir.sh` (no binaries, 32KiB cap, kinds allowlist); `check-pr-body.sh` Try it cap of two steps; tests
 4. `proof-check.mjs`: when `scope.kinds` is set, check those kinds only
-5. Orchestrator (`plan-implement-review-watch`): phase B2 Verify; implement defers when verify is in the run; `review-proof` reads `kinds.json` and the plan folder
-6. Alias skills: `pir`, `pirw`, `ir`, `irw`, `apirw`, `apirwm`, `implement-review`, `implement-review-watch`; add `apir` and `verify`
+5. Orchestrator (`plan-implement-review-watch`): phase V after C–E; implement defers when verify is in the run; `review-proof` is the verify check, not a review stage
+6. Alias skills: `pir`, `pirw`, `pirvw`, `ir`, `irw`, `apirw`, `apirvw`, `apirwm`, `implement-review`, `implement-review-watch`; add `apir` and `verify`
 7. `skills-manifest.json`, bootstrap-skills test, setup-repo README, `AGENTS.md` table, `check-work` description
 8. Dogfood: sibling folder for this plan, `kinds: [script]`, commit script stdout (tiny); paste the same on the PR
 
 ## Risks
 
-- Auto-insert changes `phases=plan,implement,review` output. Tests and alias docs must show `verify` in the middle. Old prompts that listed phases by hand still work because of the insert.
+- Auto-insert changes `phases=plan,implement,review` output. Tests and alias docs must show `verify` after review. Old prompts that listed phases by hand still work because of the insert.
 - `check-work` losing `/verify` is the collision fix. Self-verify stays on `/check-work`.
 
 ## Out of scope
@@ -60,7 +62,7 @@ Proof kinds are a menu. `diff-scope.sh` suggests; the agent writes `kinds.json`;
 
 | Claim | How |
 |---|---|
-| Aliases insert verify | `pir-args.sh` tests |
+| Aliases insert verify after review | `pir-args.sh` tests (`pir` → PIRV) |
 | Plan folder gate | `check-evidence-dir.sh` tests |
 | Picked kinds, not globs | `proof-check.sh` with `{"kinds":["script"]}` |
 | This change proves itself | sibling `verify.sh` stdout on the PR and in `out/` |
