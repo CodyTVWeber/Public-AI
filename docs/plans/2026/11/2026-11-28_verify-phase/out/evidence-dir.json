@@ -1,0 +1,1 @@
+{"ok":true,"missing":[],"kinds":["script"],"files":[{"path":"evidence.md","bytes":614},{"path":"kinds.json","bytes":92},{"path":"out/apir.json","bytes":274},{"path":"out/evidence-dir.json","bytes":0},{"path":"out/pir.json","bytes":261},{"path":"out/plan-dir.json","bytes":187},{"path":"verify.sh","bytes":804}]}

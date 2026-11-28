@@ -96,6 +96,37 @@ function checkProof(ctx, add) {
   if (flag("deep_change") && counts.merm < 1) add("proof:mermaid");
 }
 
+const KIND_OK = new Set(["image", "video", "curl", "query", "diagram", "script", "log", "build"]);
+
+function failKind(kind, ctx, add) {
+  const { parsed, counts } = ctx;
+  if (kind === "image") return counts.imgs < 1 && add("proof:image");
+  if (kind === "video") return counts.vids < 1 && add("proof:video");
+  if (kind === "curl") return checkBackend(counts, add);
+  if (kind === "query") return checkDb(counts.sqls, add);
+  if (kind === "diagram") return counts.merm < 1 && add("proof:mermaid");
+  if (kind === "script") return !/\.sh\b/.test(parsed.prose) && add("proof:script");
+  if (kind === "log") return !/\blog\b/i.test(section(parsed.sections, "proof") || "") && add("proof:log");
+  return false;
+}
+
+function checkPickedKinds(kinds, ctx, add) {
+  checkProofTable(ctx.parsed.sections, add);
+  checkTryIt(ctx.parsed.sections, add);
+  for (const kind of kinds) {
+    if (!KIND_OK.has(kind)) add(`kinds:unknown:${kind}`);
+    else failKind(kind, ctx, add);
+  }
+}
+
+function noBehaviorLine(prose, add) {
+  if (!/no behaviou?r change/i.test(prose)) add("build:no_behavior_change_line");
+}
+
+function productKinds(list) {
+  return list.filter((k) => k && k !== "build");
+}
+
 function run(body, scope) {
   const parsed = parseBody(body);
   const flag = (k) => truthy(scope[k]);
@@ -105,10 +136,14 @@ function run(body, scope) {
   checkBuild(parsed.sections, add);
   checkReviewGuide(parsed.sections, add);
   checkRisk(parsed, add);
+  const picked = Array.isArray(scope.kinds);
+  const kinds = picked ? scope.kinds.filter(Boolean) : [];
   const mediaScope = ["ui_changed", "backend_changed", "db_changed"].some(flag);
   const light = (flag("docs_only") || flag("test_only")) && !mediaScope;
-  if (!light) checkProof({ parsed, flag, counts }, add);
-  else if (!/no behaviou?r change/i.test(parsed.prose)) add("build:no_behavior_change_line");
+  if (picked && productKinds(kinds).length === 0) noBehaviorLine(parsed.prose, add);
+  else if (kinds.length) checkPickedKinds(kinds, { parsed, counts }, add);
+  else if (!light) checkProof({ parsed, flag, counts }, add);
+  else noBehaviorLine(parsed.prose, add);
   if (/`<[^`>\n]+>`|replace with the real call/.test(body)) add("template:placeholder_left");
   const out = { image: counts.imgs, video: counts.vids, curl: counts.curls, http: counts.https, sql: counts.sqls.length, mermaid: counts.merm };
   return { missing, counts: out };

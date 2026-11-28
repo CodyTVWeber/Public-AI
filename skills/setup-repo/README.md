@@ -42,7 +42,7 @@ exit 0 ok, 1 check failed, 2 usage, 3 precondition.
 
 Skill sets: `core` (default: `write-plan`, `align`, `implement`, `review`, `watch`, `plan-implement-review-watch`, plus the support skills they call: `plan-implement-review`, `verify-change`, `monitor` and the twelve `review-*` stage skills),
 `core+aliases` (core plus the one-line aliases `pirw`, `ir`, `irw`, `rw`, `pi`, `pir`, `review-watch`, `implement-review`,
-`implement-review-watch`, `plan-implement`, `plan`, `apirw`, `apirwm`, `code-review`), `all` (every skill with a `SKILL.md`), `none`, or a comma list of names.
+`implement-review-watch`, `plan-implement`, `plan`, `verify`, `apir`, `apirw`, `apirwm`, `code-review`), `all` (every skill with a `SKILL.md`), `none`, or a comma list of names.
 Aliases overlap plugin skills of the same name, so they stay opt-in. One `.git/info/exclude` entry per link
 (`.claude/skills/<name>`) hides the links and leaves the team's own skills visible; entries of removed links drop on the next run.
 

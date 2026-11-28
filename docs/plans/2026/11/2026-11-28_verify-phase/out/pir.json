@@ -1,0 +1,17 @@
+{
+  "phases": [
+    "plan",
+    "implement",
+    "verify",
+    "review"
+  ],
+  "ticket": null,
+  "plan_builder": "self",
+  "no_plan": false,
+  "implementer": null,
+  "fix_comments": false,
+  "max_rounds": 3,
+  "window": null,
+  "cadence": null,
+  "task": "x"
+}

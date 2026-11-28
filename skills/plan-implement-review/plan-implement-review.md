@@ -8,7 +8,7 @@ argument-hint: "[ticket or task] [optional: plan-builder=, implementer=, max-rou
 
 Need final PR/MR watch and UI screenshot evidence → [plan-implement-review-watch](../plan-implement-review-watch/).
 
-Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate before reporting done.
+Capped loop: **plan → cheap/fast implementer (background agent) → verify → review → resume implementer with fixes → system regression**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate before reporting done.
 
 Provider-agnostic. Prefer **connected background agents** over detached shell processes.
 
@@ -62,7 +62,7 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 | `implementer` | cheap/fast for current stack | IDs in `references/implementers.md` (e.g. `grok-medium`) |
 | `plan-builder` | `self` | `self` = orchestrator; or profile id |
 | `max-rounds` | `3` | Implement attempts (not review count alone) |
-| `phases=` · `plan-only` / `implement-only` / `review-only` | `plan,implement,review` | Contiguous run of `align`, `plan`, `implement`, `review`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apirw`, `apirwm`, `pi`, `ir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
+| `phases=` · `plan-only` / `implement-only` / `review-only` / `verify-only` | `plan,implement,review` (verify is inserted) | Contiguous run of `align`, `plan`, `implement`, `verify`, `review`, `watch`, `monitor` (+ `window=`, `cadence=` for monitor). Aliases (`apir`, `apirw`, `apirwm`, `pi`, `ir`, `pir`, …) in [plan-implement-review-watch](../plan-implement-review-watch/) |
 
 State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> --max-rounds <n>` creates `/tmp/pir-<topic>/state.json` (exit 3 = exists → `get`). Read and write only via `pir-state.sh get [KEY]` · `set KEY=VALUE…` · `status`. Never hand-edit. Keys:
 
@@ -176,6 +176,8 @@ Project rules: repo forbids worktrees → parallel slices use `--mode clone`. Ot
 - Work from tracker task → one **Implement rN** comment per `plan-implement-review/references/tracker-comments.md`. Comments only, never edit task.
 
 ## Phase C: Review
+
+When implement and review both run, `pir-args` inserts `verify` between them. Run [`verify-change`](../verify-change/verify-change.md) before this review. Docs-only diffs use the light path (no screenshots).
 
 1. Review **implement** branch or PR vs plan checklist + base branch.
 2. Prefer project review skill. Else structured findings:

@@ -26,7 +26,7 @@ One or two sentences. Name the behavior a reviewer can observe. Link the task or
 
 | Claim | Kind | Evidence |
 | --- | --- | --- |
-| `<what the reviewer can see>` | image, video, curl, log, query, or diagram | `<embedded image, video, or the output snippet>` |
+| `<what the reviewer can see>` | image, video, curl, log, query, diagram, script, or — | `<embedded image, video, output snippet, or "no behavior change">` |
 
 ## Try it
 

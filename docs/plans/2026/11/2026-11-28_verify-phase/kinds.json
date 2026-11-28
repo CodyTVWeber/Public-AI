@@ -1,0 +1,4 @@
+{
+  "kinds": ["script"],
+  "reason": "skill and parser change; no runtime UI or database"
+}
