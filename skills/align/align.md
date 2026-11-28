@@ -14,7 +14,7 @@ Per topic dir, default `docs/align/<topic>/`. Working notes only: never committe
 
 | Doc | Kind | Holds |
 |---|---|---|
-| `spec.md` | Current | goal, users, scope, non-goals, numbered acceptance criteria (`AC-1`…), Verification (system + api observables, not unit tests), constraints, design sources, decisions (links to ADRs), open questions marked `(blocking)` or `(non-blocking)`. Glossary terms marked `[[term]]` |
+| `spec.md` | Current | goal, users, scope, non-goals, numbered acceptance criteria (`AC-1`…), Verification (top-of-pyramid `system` + `api` observables, not unit tests), constraints, design sources, decisions (links to ADRs), open questions marked `(blocking)` or `(non-blocking)`. Glossary terms marked `[[term]]` |
 | `adr/YYYY-MM-DD-<slug>.md` | Dated | `Date:`, `Status:` proposed, accepted or superseded, `Supersedes:`, Context, Decision, Alternatives, Consequences. Never edited after accept; a later ADR supersedes it ([docs-current-or-dated](../../rules/docs-current-or-dated.md)) |
 | `glossary.md` | Current | term, definition, synonyms to avoid, source. Second table: terms the human uses differently than the code |
 | `alignment.md` | Current | task restated in ≤ 5 lines, agreed, assumptions, open questions, `Aligned: yes\|no`, `Confirmed by:` |

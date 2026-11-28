@@ -13,8 +13,8 @@ has_rule() { jq -e --arg r "$1" 'any(.violations[]; .rule == $r)' <<<"$out" >/de
 
 header='| Layer | Cases | AC | Observable | Writer |
 | --- | --- | --- | --- | --- |'
-sys='| system | happy | AC-1 | member opens gallery and sees templates | test |'
-api='| api | happy | AC-2 | GET /templates returns published templates | test |'
+sys='| system | happy | AC-1 | member opens gallery and sees templates | atdd |'
+api='| api | happy | AC-2 | GET /templates returns published templates | atdd |'
 script='| system | happy | AC-1 | go to gallery and open a preview | script |'
 
 write_plan() {
@@ -43,19 +43,19 @@ check
 expect_rule "no table" no-table
 
 write_plan "$header
-| unit | happy | AC-1 | a function returns 1 | test |
+| unit | happy | AC-1 | a function returns 1 | atdd |
 $api"
 check
 expect_rule "unit forbidden" unit-layer
 
 write_plan "$header
-| service | happy | AC-1 | a box glows | test |
+| service | happy | AC-1 | a box glows | atdd |
 $api"
 check
 expect_rule "unknown layer" bad-layer
 
 write_plan "$header
-| system | edge | AC-1 | member sees a spinner | test |
+| system | edge | AC-1 | member sees a spinner | atdd |
 $api"
 check
 expect_rule "edge cases" bad-cases
@@ -74,7 +74,7 @@ expect_rule "AC-2 uncovered" uncovered-criterion
 {
   printf '# Plan\n\n- AC-1: gallery lists templates\n\n## Verification\n\n%s\n' "$header"
   for i in 1 2 3 4 5; do
-    printf '| system | happy | AC-1 | click %s | test |\n' "$i"
+    printf '| system | happy | AC-1 | click %s | atdd |\n' "$i"
   done
 } >"$plan"
 check

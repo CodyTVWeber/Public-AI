@@ -15,7 +15,7 @@ def layer_issue($r):
     else empty end;
 def writer_issue($r):
   ($r.writer | ascii_downcase) as $w
-  | if $w != "test" and $w != "script" then {rule: "bad-writer", detail: "writer '\($r.writer)' is not test or script"}
+  | if $w != "atdd" and $w != "script" then {rule: "bad-writer", detail: "writer '\($r.writer)' is not atdd or script"}
     else empty end;
 def cases_issue($r):
   if ($r.cases | words | length) == 0 or ($r.cases | words | any(ok_case | not)) then
@@ -31,8 +31,8 @@ def cell_issue($r):
 def row_issues($r): layer_issue($r), writer_issue($r), cases_issue($r), cell_issue($r);
 def count(f): [.rows[] | select(f)] | length;
 def caps:
-  too_many(count((.layer | ascii_downcase) == "system" and (.writer | ascii_downcase) == "test"); "system"; .caps.system // 4),
-  too_many(count((.layer | ascii_downcase) == "api" and (.writer | ascii_downcase) == "test"); "api"; .caps.api // 8),
+  too_many(count((.layer | ascii_downcase) == "system" and (.writer | ascii_downcase) == "atdd"); "system"; .caps.system // 4),
+  too_many(count((.layer | ascii_downcase) == "api" and (.writer | ascii_downcase) == "atdd"); "api"; .caps.api // 8),
   too_many(count((.writer | ascii_downcase) == "script"); "script"; .caps.script // 6);
 def uncovered:
   ([.rows[].ac | ac_ids] | add // [] | unique) as $covered

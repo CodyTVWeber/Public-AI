@@ -21,9 +21,9 @@ Align: skipped (`assess.sh` size small). No runtime change: monitoring skipped.
 
 ## Why this approach
 
-Plan and align name the middle and top of the testing pyramid (API-level and system/REST-level). Those rows are observables the human agreed: "user clicks Save and the row appears", "POST /items creates an item". Implementation under them may change; the rows should not. Unit tests stay with the feature implementer.
+Plan and align name the **top** of the testing pyramid (`system` and `api`). Those rows are observables the human agreed: "user clicks Save and the row appears", "POST /items creates an item". Implementation under them may change; the tests should not. Unit tests and other lower-pyramid tests stay with the feature implementer.
 
-Separate test implementers write those tests. Script implementers write plan-folder recipes in parallel with feature. Verify runs that work, adds only extra checks that are still useful, and puts evidence on the PR. It does not write the tests or the recipe.
+**ATDD implementers** write those tests from outside the app (`role=atdd`, Writer=`atdd`: UI, API, contracts). Not unit tests. Script implementers write plan-folder recipes in parallel with feature. Verify runs that work, adds only extra checks that are still useful, and puts evidence on the PR. It does not write the tests or the recipe.
 
 `check-pyramid.sh` is the skeleton for the table shape (layers, cases, caps, AC coverage). Skills are the muscles.
 
@@ -31,15 +31,15 @@ Separate test implementers write those tests. Script implementers write plan-fol
 
 1. `check-pyramid.sh` + tests: system/api only, happy+critical, caps 4/8/6, skip line, no unit layer
 2. Align spec template + `check-align.sh` heading + fixture; write-plan §1b required Verification section
-3. PIR: spawn test, script, and feature roles; `pir-state` keys for test/script ids; CLI fallback stays feature-only
+3. PIR: spawn atdd, script, and feature roles; `pir-state` keys for atdd/script ids; CLI fallback stays feature-only
 4. `implement` role table; verify-change assemble-not-author; review-proof runs `check-pyramid.sh`
 5. AGENTS.md table row; write-plan README pointer
 
 ## Risks
 
 - Three agents on overlapping test paths → planner must name disjoint globs; overlap sequences them
-- Feature round pool must not burn on test/script launches (`inc-round` stays feature-only)
-- Standalone `/implement` still covers every role the plan names so a run without PIR does not skip tests
+- Feature round pool must not burn on atdd/script launches (`inc-round` stays feature-only)
+- Standalone `/implement` still covers every role the plan names so a run without PIR does not skip top-of-pyramid tests
 
 ## Verification
 
@@ -48,5 +48,5 @@ No runtime change: pyramid skipped.
 ## Out of scope
 
 - Moving `evidence-check.sh` / `upload-evidence.mjs` out of `skills/implement/scripts/`
-- Teaching `run-implementer.sh` the test and script roles
+- Teaching `run-implementer.sh` the atdd and script roles
 - Changing product test runners in downstream repos

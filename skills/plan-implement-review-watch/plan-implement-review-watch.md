@@ -78,9 +78,9 @@ Mismatch, or anything under Needs your OK → stop, ask, even for local-only run
 
 ## B. Implement
 
-- Spawn **background sub-agents** if host supports it (cheap model, same effort every resume). Plan **Verification** rows → three roles in one wave: **test** (Writer=`test` pyramid tests), **script** (plan-folder recipes, parallel with feature), **feature** (product + unit tests). Skip a role when the plan has no rows for it. Otherwise one feature agent.
-- Prompt minimum: repo path, branch, plan path or checklist, `role=feature|test|script`, "run `implement`", commit often, **do not push**, do not capture proof (`verify` phase owns it), repo rules. Test/script prompts name owned paths from the plan.
-- Feature attempt: `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`. Test/script: `set test_subagent_id=…` / `script_subagent_id=…` only; do not `inc-round`.
+- Spawn **background sub-agents** if host supports it (cheap model, same effort every resume). Plan **Verification** rows → three roles in one wave: **atdd** (Writer=`atdd` top-of-pyramid tests), **script** (plan-folder recipes, parallel with feature), **feature** (product + unit tests). Skip a role when the plan has no rows for it. Otherwise one feature agent.
+- Prompt minimum: repo path, branch, plan path or checklist, `role=feature|atdd|script`, "run `implement`", commit often, **do not push**, do not capture proof (`verify` phase owns it), repo rules. ATDD/script prompts name owned paths from the plan.
+- Feature attempt: `pir-state.sh inc-round` (exit 3 = rounds spent → hand off), then `set implementer_id=… subagent_id=…`. ATDD/script: `set atdd_subagent_id=…` / `script_subagent_id=…` only; do not `inc-round`.
 - Wait on them. Don't poll transcripts.
 
 Parallel slices follow implement §Parallel slices. Orchestrator owns merging and cleanup. Evidence and regression gate run once on integrated branch.
@@ -110,7 +110,7 @@ If the product is wrong (proof shows a failure, or a runtime change with no evid
 | next | Do |
 |---|---|
 | `done` | push (feature branch only) → PR/MR body from this phase → F |
-| `fix` | `inc-verify-round` (exit 3 → `hand_off`). Write `verify-roundN.md`. Resume the matching role: product failure → feature; missing/red pyramid tests → test; missing recipe → script (`PIR_VERIFY_ROUND=1` if using `run-implementer.sh` for feature). Then C–E using `verify_round` / `max_verify_rounds` for `verdict.sh`, then V again. Up to 3 extra implement → review → verify cycles. Independent of the original `max_rounds` pool |
+| `fix` | `inc-verify-round` (exit 3 → `hand_off`). Write `verify-roundN.md`. Resume the matching role: product failure → feature; missing/red top-of-pyramid tests → atdd; missing recipe → script (`PIR_VERIFY_ROUND=1` if using `run-implementer.sh` for feature). Then C–E using `verify_round` / `max_verify_rounds` for `verdict.sh`, then V again. Up to 3 extra implement → review → verify cycles. Independent of the original `max_rounds` pool |
 | `hand_off` | stop. Hand findings + `implementer_id` to the user |
 
 `pi` / `implement-only`: implement §2.6 still proves. Review-only does not insert verify.

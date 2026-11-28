@@ -25,7 +25,7 @@ Violations:
   missing-heading, no-table     need ## Verification and a table, or the skip line
   unit-layer, bad-layer         Layer is not system or api (unit is forbidden)
   bad-cases                     Cases is not happy and/or critical
-  bad-writer                    Writer is not test or script
+  bad-writer                    Writer is not atdd or script
   empty-cell, placeholder       Observable or AC empty or still a fill-in
   too-many-system|api|script    over the few-rows cap (4 / 8 / 6)
   uncovered-criterion           an AC-n in the file appears in no AC cell

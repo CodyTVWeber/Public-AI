@@ -11,7 +11,8 @@ Usage: pir-state.sh <cmd> [--topic T] [--state-root DIR] [args]
   inc-verify-round                  verify_round += 1; exit 3 when verify_round == max_verify_rounds
   status                            compact JSON summary with rounds_left
 Keys: topic plan_path plan_branch plan_pr feat_branch implement_pr implementer_id session_id
-      subagent_id reasoning_effort test_implementer_id test_session_id test_subagent_id
+      subagent_id reasoning_effort atdd_implementer_id atdd_session_id
+      atdd_subagent_id
       script_implementer_id script_session_id script_subagent_id
       round max_rounds verify_round max_verify_rounds regression_command regression_status
       regression_status: pending|passed|failed|skipped; round keys: integers
@@ -24,7 +25,7 @@ USAGE
 
 die() { echo "pir-state: $1" >&2; exit "${2:-2}"; }
 
-STRING_KEYS="topic plan_path plan_branch plan_pr feat_branch implement_pr implementer_id session_id subagent_id reasoning_effort test_implementer_id test_session_id test_subagent_id script_implementer_id script_session_id script_subagent_id regression_command regression_status"
+STRING_KEYS="topic plan_path plan_branch plan_pr feat_branch implement_pr implementer_id session_id subagent_id reasoning_effort atdd_implementer_id atdd_session_id atdd_subagent_id script_implementer_id script_session_id script_subagent_id regression_command regression_status"
 INT_KEYS="round max_rounds verify_round max_verify_rounds"
 
 is_key() {
@@ -121,7 +122,7 @@ case "$cmd" in
       topic: $topic, plan_path: null, plan_branch: null, plan_pr: null,
       feat_branch: null, implement_pr: null, implementer_id: null,
       session_id: null, subagent_id: null, reasoning_effort: null,
-      test_implementer_id: null, test_session_id: null, test_subagent_id: null,
+      atdd_implementer_id: null, atdd_session_id: null, atdd_subagent_id: null,
       script_implementer_id: null, script_session_id: null, script_subagent_id: null,
       round: 0, max_rounds: $max, verify_round: 0, max_verify_rounds: 3,
       regression_command: null, regression_status: "pending"
@@ -176,7 +177,7 @@ case "$cmd" in
       verify_rounds_left: ((.max_verify_rounds // 3) - (.verify_round // 0)),
       verify_exhausted: ((.verify_round // 0) >= (.max_verify_rounds // 3)),
       implementer_id, session_id, subagent_id,
-      test_implementer_id, test_subagent_id, script_implementer_id, script_subagent_id,
+      atdd_implementer_id, atdd_subagent_id, script_implementer_id, script_subagent_id,
       plan_pr, implement_pr, regression_status
     }' "$file"
     ;;

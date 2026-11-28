@@ -8,7 +8,7 @@ argument-hint: "[PR/MR number or branch] [plan path]"
 
 Own stage after review, before watch. Letters: P, I, R, **V**, W (PIRVW; APIRVW when align is on). Not a review stage. The PR description is the proof.
 
-Plan and align already named the observables ([pyramid](references/pyramid.md)). Test and script implementers already wrote the middle-and-top pyramid tests and the plan-folder recipe. This stage runs that work, adds only extra checks that are still useful, and puts evidence on the PR. It does not write the tests or the recipe.
+Plan and align already named the observables ([pyramid](references/pyramid.md)). ATDD and script implementers already wrote the top-of-pyramid tests and the plan-folder recipe. This stage runs that work, adds only extra checks that are still useful, and puts evidence on the PR. It does not write the tests or the recipe.
 
 The reviewer's job is to look at that evidence and say yes.
 
@@ -17,7 +17,7 @@ The reviewer's job is to look at that evidence and say yes.
 Done when all of these hold:
 
 - `check-pyramid.sh <plan>` exits 0 (skip line when there is no runtime behavior)
-- Writer=`test` rows pass (the commands or files the plan names)
+- Writer=`atdd` rows pass (the commands or files the plan names)
 - Plan-folder `*.sh` ran; stdout on the PR (omit the folder when kinds is empty)
 - Extra manual checks only for gaps those rows do not cover
 - The PR body leads with **Proof**: UI screenshots or video, or the script/query/command/test output that proves a non-UI change
@@ -30,14 +30,14 @@ Who may merge: merge policy (`skills/ai-risk/rules/merge-policy.md`). Proof does
 ## Assemble, do not author
 
 1. `scripts/check-pyramid.sh <plan.md>`
-2. Run each Writer=`test` row
+2. Run each Writer=`atdd` row
 3. Run each plan-folder `*.sh`; copy tiny stdout into `out/`
 4. Capture extra UI or video only when a plan observable has no passing test or script
 5. Fill `assets/pr-body.md` from that evidence
 
 Missing tests or scripts → not this stage's job to write them. Send a verify-round to the matching implementer. Fill `kinds.json` only so the PR can show the miss.
 
-Standalone `/verify` with no prior test/script implementers: run what exists; still do not invent a pyramid the plan never named.
+Standalone `/verify` with no prior atdd/script implementers: run what exists; still do not invent a pyramid the plan never named.
 
 ## Kinds
 
@@ -95,13 +95,13 @@ Match proof to the solution. Use the kinds already picked. A still image does no
 - Still image standing in for a behavior
 - Try it that walks through the scenario instead of pointing at it
 - Proof showing a failure: fix the product, capture again
-- Pyramid tests or scripts missing: resume the test or script implementer, not this stage
+- Top-of-pyramid tests or scripts missing: resume the atdd or script implementer, not this stage
 
 By-eye checks live in [`review-proof`](../review-proof/review-proof.md). That skill is this phase's check, not a review stage.
 
 ## Chain
 
-`pir-args` inserts `verify` after `review` when the run implements or watches (PIRV / PIRVW). Product wrong → orchestrator may run up to 3 more implement → review → verify cycles (`inc-verify-round`, separate from the original 3). Thin description stays in this phase. Missing recipe → resume the script or test implementer. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`. Review-only does not insert verify.
+`pir-args` inserts `verify` after `review` when the run implements or watches (PIRV / PIRVW). Product wrong → orchestrator may run up to 3 more implement → review → verify cycles (`inc-verify-round`, separate from the original 3). Thin description stays in this phase. Missing recipe → resume the script or atdd implementer. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`. Review-only does not insert verify.
 
 ## Scripts
 

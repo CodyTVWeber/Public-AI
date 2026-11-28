@@ -38,12 +38,12 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 | **Orchestrator** | Agent that loaded this skill | Drive phases, **review**, **final regression**, stop conditions, user updates |
 | **Plan builder** | Default = orchestrator; override `plan-builder=...` | Write plan doc, commit, push, draft plan PR |
 | **Feature implementer** | **Background agent**, cheap/fast profile | Product code and **unit** tests from plan, lint, **commit often**; push only when user/orchestrator says |
-| **Test implementer** | **Background agent**, same cheap profile | Middle-and-top pyramid tests (`system` + `api` rows, Writer=`test`). Distinct from feature. Does not write product code or unit tests |
+| **ATDD implementer** | **Background agent**, same cheap profile | Test-first from outside the app (`system` + `api`: UI, API, contracts). Writer=`atdd`. Not product code or unit tests |
 | **Script implementer** | **Background agent**, same cheap profile | Plan-folder manual verification scripts, in parallel with feature. Writer=`script` rows |
 
 - No `plan-builder` given → current agent is plan builder (no extra spawn).
 - No `implementer` given → cheap/fast for current stack. See selection in `references/implementers.md`.
-- Pyramid skip line or no Writer=`test`/`script` rows → do not spawn that role.
+- Pyramid skip line or no Writer=`atdd`/`script` rows → do not spawn that role.
 - `/implement` alone (no orchestrator): one agent covers every role the plan names.
 
 ### Default pairing (same product, medium effort)
@@ -81,9 +81,9 @@ State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> -
   "implementer_id": "grok-medium",
   "session_id": "...",
   "subagent_id": "...",
-  "test_implementer_id": "...",
-  "test_session_id": "...",
-  "test_subagent_id": "...",
+  "atdd_implementer_id": "...",
+  "atdd_session_id": "...",
+  "atdd_subagent_id": "...",
   "script_implementer_id": "...",
   "script_session_id": "...",
   "script_subagent_id": "...",
@@ -155,11 +155,11 @@ When the plan **Verification** table has rows, spawn **three** background agents
 
 | Role | Prompt `role=` | Owns | Round pool |
 | --- | --- | --- | --- |
-| test | `test` | Writer=`test` files only (system/api tests). May stay red until feature lands | none (`test_subagent_id`); do not `inc-round` |
+| atdd | `atdd` | Writer=`atdd` files only (top-of-pyramid `system`/`api` tests). May stay red until feature lands | none (`atdd_subagent_id`); do not `inc-round` |
 | script | `script` | Plan sibling folder (`plan-dir.sh`): `kinds.json`, `*.sh`, `evidence.md` | none (`script_subagent_id`); do not `inc-round` |
-| feature | `feature` (default) | Product code + unit tests. Not pyramid tests. Not the plan-folder recipe | `inc-round` as today |
+| feature | `feature` (default) | Product code + unit tests. Not top-of-pyramid tests. Not the plan-folder recipe | `inc-round` as today |
 
-CLI fallback `run-implementer.sh` is the feature role only. Test and script roles are connected background agents.
+CLI fallback `run-implementer.sh` is the feature role only. ATDD and script roles are connected background agents.
 
 Before every **feature** attempt (launch or resume): `skills/plan-implement-review/scripts/pir-state.sh inc-round --topic <topic>`. Exit 3 = rounds spent → hand off. Never a 4th attempt. `run-implementer.sh` does this itself.
 
@@ -194,7 +194,7 @@ Project rules: repo forbids worktrees → parallel slices use `--mode clone`. Ot
 - "No product changes outside plan; flag plan gaps instead"
 - Project `AGENTS.md` / migration rules if present
 - "You are the cheap/fast implementer; keep changes minimal and plan-faithful"
-- `role=feature|test|script` (PIR sets this; standalone implement defaults to all roles the plan names)
+- `role=feature|atdd|script` (PIR sets this; standalone implement defaults to all roles the plan names)
 - Commit messages in repo's numbered format: `skills/plan-implement-review/scripts/commit-msg.sh <branch> <item>...`
 - Work from tracker task → one **Implement rN** comment per `plan-implement-review/references/tracker-comments.md`. Comments only, never edit task.
 

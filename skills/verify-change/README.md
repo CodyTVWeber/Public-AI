@@ -3,7 +3,7 @@
 Assemble proof in the pull request from pyramid tests and plan-folder scripts
 already written. A person or an agent looks at that and says yes without reconstructing
 the behavior from the diff. Own stage after review, before watch (PIRVW / APIRVW).
-Plan and align name the middle and top of the testing pyramid
+Plan and align name the top of the testing pyramid
 ([pyramid](references/pyramid.md)); this stage runs those rows. Binaries stay off git.
 
 ## Use as a skill

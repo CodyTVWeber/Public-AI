@@ -83,7 +83,7 @@ Before writing any plan file, leave the current feature branch and start clean. 
   - Risks (open non-blocking align questions)
   - Design source of truth (UI work)
   - Monitoring plan (monitored runs; §1a)
-  - Verification (pyramid: system + api only; §1b)
+  - Verification (top-of-pyramid: system + api only; §1b)
   - Out of scope
 - Grep or confirm every file, symbol, table, or route named. Unsure → say so in the plan. Never invent paths
 - Dense: tables over prose; no filler
@@ -99,14 +99,14 @@ A run whose phases include `monitor` (`apirwm`, `m`, `phases=…,monitor`), or a
 
 ## 1b. Verification pyramid
 
-Runtime change: a **Verification** section. Contract for test and script implementers. Observables the human agreed in align or in this plan. Implementation under them may change; these rows should not. Unit tests stay out.
+Runtime change: a **Verification** section. Contract for ATDD and script implementers. Observables the human agreed in align or in this plan. Implementation under them may change; these tests should not. Unit tests stay out.
 
 `skills/verify-change/scripts/check-pyramid.sh <plan>` exits 0. Shape: [pyramid](../verify-change/references/pyramid.md).
 
 | Layer | What | Cases | Writer |
 | --- | --- | --- | --- |
-| system | UI, REST, or other in-system observable | happy and critical only, few | `test` |
-| api | Talks to the app; no external services | happy and critical only, few | `test` |
+| system | UI, REST, or other in-system observable | happy and critical only, few | `atdd` |
+| api | Talks to the app; no external services | happy and critical only, few | `atdd` |
 | (script rows) | Same observables as a shell recipe | happy and critical only, few | `script` |
 
 Each row: Layer, Cases, AC, Observable, Writer. Observable is what a person or API caller sees ("user clicks Save and the row appears", "POST /items creates an item"). Align spec **Verification** folds in here with the acceptance criteria.

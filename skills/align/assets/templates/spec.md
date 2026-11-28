@@ -24,7 +24,7 @@
 
 | Layer | Cases | AC | Observable | Writer |
 | --- | --- | --- | --- | --- |
-| {{system or api}} | {{happy or critical}} | {{AC-1}} | {{user or API observable}} | {{test or script}} |
+| {{system or api}} | {{happy or critical}} | {{AC-1}} | {{user or API observable}} | {{atdd or script}} |
 
 No runtime behavior: replace the table with `No runtime change: pyramid skipped.`
 

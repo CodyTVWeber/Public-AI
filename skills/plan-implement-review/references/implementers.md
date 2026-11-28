@@ -8,7 +8,7 @@ Profiles for cheap / fast / low-effort coding agent. Orchestrator (stronger mode
 |-----------|----------|
 | Host **background subagent** (`spawn_subagent`, `background: true`). Orchestrator stays connected, can `resume_from` | Detached CLI via `scripts/run-implementer.sh` when no agent API exists |
 
-Always persist **`subagent_id`** (background agent) and/or **`session_id`** (CLI) with `skills/plan-implement-review/scripts/pir-state.sh set` (state: `/tmp/pir-<topic>/state.json`) for fix rounds. Feature role uses `subagent_id` / `session_id`. Test and script roles use `test_subagent_id` / `test_session_id` and `script_subagent_id` / `script_session_id`. `run-implementer.sh` is the feature role only.
+Always persist **`subagent_id`** (background agent) and/or **`session_id`** (CLI) with `skills/plan-implement-review/scripts/pir-state.sh set` (state: `/tmp/pir-<topic>/state.json`) for fix rounds. Feature role uses `subagent_id` / `session_id`. ATDD and script roles use `atdd_subagent_id` / `atdd_session_id` and `script_subagent_id` / `script_session_id`. `run-implementer.sh` is the feature role only.
 
 ## Availability check
 
