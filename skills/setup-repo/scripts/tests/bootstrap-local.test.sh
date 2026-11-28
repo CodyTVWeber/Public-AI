@@ -32,7 +32,7 @@ assert_eq "hooksPath never set" "" "$(git -C "$a" config --local --get core.hook
 [ -e "$a/.githooks" ] && bad "no .githooks directory" || ok
 assert_contains "installed scripts excluded" "$(cat "$a/.git/info/exclude")" "scripts/clean-code/"
 assert_contains "rules excluded per file" "$(cat "$a/.git/info/exclude")" ".claude/rules/clean-code.md"
-assert_contains "workbench ban excluded per file" "$(cat "$a/.git/info/exclude")" ".claude/rules/ban-workbenches.md"
+assert_contains "worktree ban excluded per file" "$(cat "$a/.git/info/exclude")" ".claude/rules/ban-worktrees.md"
 assert_contains "settings.local.json excluded" "$(cat "$a/.git/info/exclude")" ".claude/settings.local.json"
 assert_contains "skill links excluded" "$(cat "$a/.git/info/exclude")" ".claude/skills/review"
 assert_eq "skills linked as usual" "$clone/skills/review" "$(readlink "$a/.claude/skills/review")"

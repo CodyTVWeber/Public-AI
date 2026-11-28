@@ -63,7 +63,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 [rules/](rules/README.md) holds repo-independent rules. Apply to every change. Write to these floors on every touched line, before a check runs. Analyzer, docs lint, language check, privacy check, and git hooks fail the edit, commit, or push on a miss. Fix the code; never skip the check.
 
 - No comments: [ban-comments](rules/ban-comments.md)
-- No workbenches: [ban-workbenches](rules/ban-workbenches.md). Merging them drops changes; use branches, PRs, and `implement` workers
+- No worktrees: [ban-worktrees](rules/ban-worktrees.md). Merging them drops changes; use stacked branches and PRs, and split agents to minimize conflicts
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
 - Default: do not implement. Plan (`write-plan` / `plan`), then load `implement` (spawns workers): [delegate-work](rules/delegate-work.md)
