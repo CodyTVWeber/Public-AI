@@ -21,53 +21,13 @@ Unsure which skill? **[`/start-here`](skills/start-here/SKILL.md)** 🧭 is the 
 
 ## The line
 
-Each station is a skill. A script passes or fails the check. The agent judges only what a script cannot.
+Each station is a skill. A script passes or fails the check. The agent judges only what a script cannot. The seven run in order as one factory.
 
-```mermaid
-flowchart TB
-  subgraph inbound["You start"]
-    direction LR
-    you(("👤 You")):::you
-    idea(["Idea · what you want"]):::idea
-    align{{"Align · agree the picture"}}:::align
-    plan[/"Plan · write it down"/]:::plan
-    you --> idea --> align --> plan
-  end
-  subgraph line["Agent runs"]
-    direction LR
-    agent(("🤖 Agent")):::agent
-    impl[["Implement · make it work"]]:::build
-    review{"Review · check it against the plan"}:::review
-    prove(["Verify · prove it on the pull request"]):::prove
-    watch>"Watch · pipeline goes green"]:::watch
-    agent -.-> impl --> review --> prove --> watch
-  end
-  subgraph outbound["You ship"]
-    direction LR
-    merge(("👤 You merge")):::you
-    prod[("Production")]:::prod
-    mon(["Monitor · watch the deploy"]):::mon
-    merge --> prod --> mon
-  end
-  plan --> impl
-  watch --> merge
-  classDef idea fill:#FDE68A,stroke:#B45309,color:#1C1917,stroke-width:2px
-  classDef align fill:#FDBA74,stroke:#C2410C,color:#1C1917,stroke-width:2px
-  classDef plan fill:#99F6E4,stroke:#0F766E,color:#042F2E,stroke-width:2px
-  classDef build fill:#86EFAC,stroke:#15803D,color:#052E16,stroke-width:2px
-  classDef review fill:#93C5FD,stroke:#1D4ED8,color:#172554,stroke-width:2px
-  classDef prove fill:#C4B5FD,stroke:#6D28D9,color:#2E1065,stroke-width:2px
-  classDef watch fill:#F9A8D4,stroke:#BE185D,color:#500724,stroke-width:2px
-  classDef you fill:#FECACA,stroke:#B91C1C,color:#450A0A,stroke-width:2px
-  classDef agent fill:#E2E8F0,stroke:#475569,color:#0F172A,stroke-width:2px
-  classDef prod fill:#6EE7B7,stroke:#047857,color:#022C22,stroke-width:2px
-  classDef mon fill:#A5F3FC,stroke:#0E7490,color:#083344,stroke-width:2px
-  style inbound fill:#FFF7ED,stroke:#FDBA74
-  style line fill:#F0FDF4,stroke:#86EFAC
-  style outbound fill:#ECFEFF,stroke:#67E8F9
-```
+<p align="center">
+  <img src="the-line.svg" alt="Factory line of seven skills: Align, Plan, Implement, Review, Verify, Watch, Monitor. A failing check is a fix round back to Implement. Stations do not skip." width="100%" />
+</p>
 
-Work does not skip a station because the agent feels sure. Agree before building. Tests describe what a person sees. The proof lives on the pull request. You merge. Production 🟢 is the live system.
+A fail is a fix round back to Implement, not a skip. Review is read-only. Verify puts proof on the pull request. Watch never merges. Monitor is read-only after deploy.
 
 Station manuals and every other name: [skills/CATALOG.md](skills/CATALOG.md).
 
@@ -92,6 +52,6 @@ The stations, one at a time:
 - `/watch` (W) — wait for a green pipeline
 - `/monitor` (M) — watch the deploy
 
-String the letters to run a range. `/apirvw` is A through W.
+String the letters to run a range. `/apirvw` is A through W. `/apirwm` adds Monitor.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-2F9E8F)](LICENSE)
