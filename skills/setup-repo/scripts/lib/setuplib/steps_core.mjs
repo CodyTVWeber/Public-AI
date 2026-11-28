@@ -59,7 +59,7 @@ export function coreSteps(ctx) {
   const preview = corePreview(ctx);
   const steps = [];
   if (ctx.on("rules")) {
-    steps.push(...groupSteps(ctx, ["rules", "clean-code, ban-comments, small-MR, docs and research rules"],
+    steps.push(...groupSteps(ctx, ["rules", "clean-code, ban-comments, ban-worktrees, small-MR, docs and research rules"],
       groupFiles(preview, GROUP_PREFIXES[0][1])));
   }
   steps.push(...groupSteps(ctx, ["scripts", "analyzer, size gate, git guards and git-command scanner"],

@@ -9,6 +9,7 @@ Portable agent rules. This file is the source. `CLAUDE.md` and `GEMINI.md` only 
 ## Comments and docs
 
 - No comments: [rules/ban-comments.md](../rules/ban-comments.md). Extract a named function or rename instead
+- No worktrees: [rules/ban-worktrees.md](../rules/ban-worktrees.md). Merging them drops changes; use stacked branches and PRs, and split agents to minimize conflicts
 - Docs are current state or a dated snapshot: [rules/docs-current-or-dated.md](../rules/docs-current-or-dated.md)
 
 ## Thinking

@@ -15,7 +15,7 @@ mk() {
 
 a="$TMPROOT/a"; mk "$a"
 out="$("$install" "$a" 2>&1)"; assert_rc "default install ok" 0 $?
-for f in .claude/rules/ban-comments.md .claude/rules/docs-current-or-dated.md scripts/clean-code/check-clean-code.sh scripts/clean-code/lint-docs.sh .githooks/pre-commit; do
+for f in .claude/rules/ban-comments.md .claude/rules/ban-worktrees.md .claude/rules/docs-current-or-dated.md scripts/clean-code/check-clean-code.sh scripts/clean-code/lint-docs.sh .githooks/pre-commit; do
   [ -e "$a/$f" ] && ok || bad "installed $f"
 done
 assert_eq "hooksPath set" ".githooks" "$(git -C "$a" config --local core.hooksPath)"
@@ -23,6 +23,7 @@ assert_contains "claude hooks wired" "$(cat "$a/.claude/settings.json")" "lint-d
 assert_contains "pre-tool guard wired" "$(cat "$a/.claude/settings.json")" "claude-pre-tool-guard.sh"
 assert_contains "snippet in CLAUDE.md" "$(cat "$a/CLAUDE.md")" "## Clean code and small MRs"
 assert_contains "snippet says a miss fails the change" "$(cat "$a/CLAUDE.md")" "fail the change on a miss"
+assert_contains "snippet names the worktree ban" "$(cat "$a/CLAUDE.md")" "ban-worktrees.md"
 for f in scripts/clean-code/code-quality-check.sh scripts/clean-code/cleancode/cli.mjs scripts/clean-code/cleancode/lexer.mjs; do
   [ -e "$a/$f" ] && ok || bad "installed $f"
 done

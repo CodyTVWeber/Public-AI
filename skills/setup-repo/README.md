@@ -211,7 +211,7 @@ scripts/verify-repo.sh      post-install checks
 scripts/link-skills.sh      symlink skills from a Public-AI clone
 scripts/install.sh          the one file writer (rules, scripts, hooks, add-on copies)
 scripts/lib/                Node modules behind the wrappers (setuplib/*.mjs)
-assets/rules                clean-code.md, ban-comments.md, docs-current-or-dated.md, small-mrs.md, research-latest-main.md
+assets/rules                clean-code.md, ban-comments.md, ban-worktrees.md, docs-current-or-dated.md, small-mrs.md, research-latest-main.md
 assets/scripts              check-mr-size.sh, check-mr-size-app.sh, check-mr-size-support.sh, check-mr-size-docs.sh,
                             check-clean-code.sh, claude-pre-tool-guard.sh, post-git-check.sh,
                             pre-push-gate.sh, git-scan.sh, lint-docs.sh, code-quality-check.sh

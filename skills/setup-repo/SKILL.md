@@ -1,6 +1,6 @@
 ---
 name: setup-repo
-description: Bootstrap a whole repo with the AI guardrails (clean-code rules and analyzer, git hooks, Claude Code pre and post hooks on git commands, AGENTS.md section, skill links), shaped to what the repo already has. Detect the repo, recommend a profile, plan, apply, verify. Use when the user says "set up this repo", "set up the guardrails", "set up clean code", "ban comments", "enforce small MRs", /setup-repo, or starts a new repo that should follow these standards.
+description: Bootstrap a whole repo with the AI guardrails (clean-code rules, worktree ban, analyzer, git hooks, Claude Code pre and post hooks on git commands, AGENTS.md section, skill links), shaped to what the repo already has. Detect the repo, recommend a profile, plan, apply, verify. Use when the user says "set up this repo", "set up the guardrails", "set up clean code", "ban comments", "ban worktrees", "enforce small MRs", /setup-repo, or starts a new repo that should follow these standards.
 argument-hint: "[target repo path, default: current repo]"
 ---
 

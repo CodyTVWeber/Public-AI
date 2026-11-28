@@ -53,7 +53,7 @@ out="$(apply "$a")"; assert_rc "apply ok" 0 $?
 assert_eq "apply reports applied" "true" "$(jq -r .applied <<<"$out")"
 assert_eq "no step failed" "0" "$(summary "$out" failed)"
 assert_eq "hooksPath set" ".githooks" "$(git -C "$a" config --local core.hooksPath)"
-for f in .claude/rules/clean-code.md scripts/clean-code/post-git-check.sh scripts/clean-code/gitscan/cli.mjs .githooks/pre-push .claude/settings.json .claude/ai-guardrails.json AGENTS.md CLAUDE.md GEMINI.md; do
+for f in .claude/rules/clean-code.md .claude/rules/ban-worktrees.md scripts/clean-code/post-git-check.sh scripts/clean-code/gitscan/cli.mjs .githooks/pre-push .claude/settings.json .claude/ai-guardrails.json AGENTS.md CLAUDE.md GEMINI.md; do
   [ -e "$a/$f" ] && ok || bad "applied $f"
 done
 assert_eq "pointer CLAUDE.md" "@AGENTS.md" "$(cat "$a/CLAUDE.md")"
@@ -67,6 +67,8 @@ assert_eq "settings registers the git check" "true" "$(jq -r '[.hooks.PostToolUs
 assert_eq "agents section once" "1" "$(grep -c 'ai-guardrails:begin' "$a/AGENTS.md")"
 assert_contains "no-ci line in the guardrails section" "$(cat "$a/AGENTS.md")" "No pipeline jobs installed: local and Claude hooks are the guardrails"
 assert_contains "while-editing line in the guardrails section" "$(cat "$a/AGENTS.md")" "While editing"
+assert_contains "guardrails section names the worktree ban" "$(cat "$a/AGENTS.md")" "ban-worktrees"
+assert_contains "while-editing forbids worktrees" "$(cat "$a/AGENTS.md")" "no worktrees"
 assert_not_contains "section records no absolute home path" "$(cat "$a/AGENTS.md")" "$clone"
 assert_contains "section names the skills source variable" "$(cat "$a/AGENTS.md")" '$PUBLIC_AI_DIR'
 

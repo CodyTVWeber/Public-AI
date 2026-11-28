@@ -1,4 +1,4 @@
-const RULE_FILES = ["clean-code.md", "ban-comments.md", "small-mrs.md", "docs-current-or-dated.md"];
+const RULE_FILES = ["clean-code.md", "ban-comments.md", "ban-worktrees.md", "small-mrs.md", "docs-current-or-dated.md"];
 
 function foreignHookConflicts(systems) {
   const conflicts = [];
