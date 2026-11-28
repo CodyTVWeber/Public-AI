@@ -10,6 +10,7 @@ Checks
   missing-file, missing-heading   spec.md, glossary.md, alignment.md and their required headings
   placeholder         no {{...}} fill-in left
   ac-number           spec acceptance criteria are `- AC-N: text`, numbered 1..n in order, at least one
+  unit-layer, bad-layer, no-table  Verification pyramid (check-pyramid.sh on spec.md)
   question-unmarked   open questions start `- (blocking)` or `- (non-blocking)`
   design-authority    design source rows use exact | partial | reference
   task-too-long       alignment Task is at most 5 lines
@@ -24,8 +25,9 @@ Exit: 0 clean, 1 violations, 2 usage, 3 DIR missing
 USAGE
 }
 
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OPEN_Q="Open questions"
-SPEC_HEADINGS=("Goal" "Users" "Scope" "Non-goals" "Acceptance criteria" "Constraints" "Design sources" "Decisions" "$OPEN_Q")
+SPEC_HEADINGS=("Goal" "Users" "Scope" "Non-goals" "Acceptance criteria" "Verification" "Constraints" "Design sources" "Decisions" "$OPEN_Q")
 GLOSSARY_HEADINGS=("Terms")
 ALIGNMENT_HEADINGS=("Task" "Agreed" "Assumptions" "$OPEN_Q" "Status")
 ADR_HEADINGS=("Context" "Decision" "Alternatives" "Consequences")
@@ -68,6 +70,16 @@ check_acceptance() {
     fi
   done < <(section "$DIR/spec.md" "Acceptance criteria")
   (( expect > 1 )) || v ac-number spec.md 0 "no acceptance criteria"
+}
+
+check_pyramid() {
+  local tool="$here/../../verify-change/scripts/check-pyramid.sh" raw rule detail
+  [[ -f "$DIR/spec.md" && -x "$tool" ]] || return 0
+  raw="$("$tool" "$DIR/spec.md" 2>/dev/null || true)"
+  while IFS="$TAB" read -r rule detail; do
+    [[ -n "$rule" ]] || continue
+    v "$rule" spec.md 0 "$detail"
+  done < <(jq -r '.violations[]? | [.rule, .detail] | @tsv' <<<"$raw")
 }
 
 blocking_count() {
@@ -176,7 +188,13 @@ check_supersedes() {
 run_checks() {
   local f
   for f in spec.md glossary.md alignment.md; do [[ -f "$DIR/$f" ]] || v missing-file "$f" 0 "required file is absent"; done
-  [[ -f "$DIR/spec.md" ]] && { check_headings spec.md "${SPEC_HEADINGS[@]}"; check_acceptance; check_questions spec.md; check_design; }
+  [[ -f "$DIR/spec.md" ]] && {
+    check_headings spec.md "${SPEC_HEADINGS[@]}"
+    check_acceptance
+    check_pyramid
+    check_questions spec.md
+    check_design
+  }
   [[ -f "$DIR/glossary.md" ]] && check_headings glossary.md "${GLOSSARY_HEADINGS[@]}"
   [[ -f "$DIR/alignment.md" ]] && { check_headings alignment.md "${ALIGNMENT_HEADINGS[@]}"; check_questions alignment.md; check_alignment; }
   [[ -f "$DIR/spec.md" && -f "$DIR/glossary.md" ]] && check_terms

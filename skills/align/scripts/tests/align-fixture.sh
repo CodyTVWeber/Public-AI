@@ -29,6 +29,15 @@ Let a [[member]] browse and preview templates before choosing one.
 - AC-1: the gallery lists every published template
 - AC-2: a preview opens without leaving the gallery
 
+## Verification
+
+| Layer | Cases | AC | Observable | Writer |
+| --- | --- | --- | --- | --- |
+| system | happy | AC-1 | member opens gallery and sees every published template | test |
+| system | happy | AC-2 | member opens a preview without leaving the gallery | test |
+| api | happy | AC-1 | GET /templates returns published templates | test |
+| system | happy | AC-1, AC-2 | go to gallery and open a preview | script |
+
 ## Constraints
 
 - Works at 320 px width

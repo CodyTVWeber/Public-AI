@@ -83,8 +83,8 @@ Before writing any plan file, leave the current feature branch and start clean. 
   - Risks (open non-blocking align questions)
   - Design source of truth (UI work)
   - Monitoring plan (monitored runs; §1a)
+  - Verification (pyramid: system + api only; §1b)
   - Out of scope
-  - Manual verification / test checklist when useful
 - Grep or confirm every file, symbol, table, or route named. Unsure → say so in the plan. Never invent paths
 - Dense: tables over prose; no filler
 
@@ -97,6 +97,22 @@ A run whose phases include `monitor` (`apirwm`, `m`, `phases=…,monitor`), or a
 - Each signal names a failure action and an owner
 - Docs-only or test-only change: write `No runtime change: monitoring skipped.`
 
+## 1b. Verification pyramid
+
+Runtime change: a **Verification** section. Contract for test and script implementers. Observables the human agreed in align or in this plan. Implementation under them may change; these rows should not. Unit tests stay out.
+
+`skills/verify-change/scripts/check-pyramid.sh <plan>` exits 0. Shape: [pyramid](../verify-change/references/pyramid.md).
+
+| Layer | What | Cases | Writer |
+| --- | --- | --- | --- |
+| system | UI, REST, or other in-system observable | happy and critical only, few | `test` |
+| api | Talks to the app; no external services | happy and critical only, few | `test` |
+| (script rows) | Same observables as a shell recipe | happy and critical only, few | `script` |
+
+Each row: Layer, Cases, AC, Observable, Writer. Observable is what a person or API caller sees ("user clicks Save and the row appears", "POST /items creates an item"). Align spec **Verification** folds in here with the acceptance criteria.
+
+No runtime: `No runtime change: pyramid skipped.` under **Verification**.
+
 ## 2. Commit, push, PR
 
 1. Confirm still on the plan branch from §0 (base = `origin/main`, only plan commits). If an **open PR already exists for this topic/plan**, prefer that PR's **head branch** (checkout + push there) over a brand-new branch
@@ -105,7 +121,7 @@ A run whose phases include `monitor` (`apirwm`, `m`, `phases=…,monitor`), or a
 4. **PR: check before create. Never open a second PR for the same work.** `skills/plan-implement-review/scripts/pr-find.sh <branch> <topic-token>` (token = kebab topic slug or task id; read-only). Act on `action`:
    - `reuse` → push to `head_pr`; optionally refresh title/body (`gh pr edit` / `glab mr update`)
    - `conflict` (exit 1) → same-topic PR on another head (`topic_prs`): check out that head and land the plan there, or stop and report. Never create
-   - `create` → open a **draft** PR/MR against the default branch (`gh pr create --draft` / `glab mr create --draft`). Short title; body = plan summary + test-plan checklist from Concrete steps
+   - `create` → open a **draft** PR/MR against the default branch (`gh pr create --draft` / `glab mr create --draft`). Short title; body = plan summary + Verification rows from §1b
    - One PR per head branch, per plan file, per task. Prefer **one** PR that later holds plan + implementation (not plan-only + fix)
 5. Report the PR URL as the final output (and to parent skill state if inside plan-implement-review). Tracker task origin → post the Plan comment (see Tracker comments)
 

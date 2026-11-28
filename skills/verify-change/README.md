@@ -1,9 +1,10 @@
 # Verify the change
 
-Put the proof in the pull request so a person or an agent can look at it and say yes
-without reconstructing the behavior from the diff. Own stage after review, before watch
-(PIRVW / APIRVW). A sibling folder next to the plan holds the recipe (scripts) and a
-short index of links. Binaries stay off git.
+Assemble proof in the pull request from pyramid tests and plan-folder scripts
+already written. A person or an agent looks at that and says yes without reconstructing
+the behavior from the diff. Own stage after review, before watch (PIRVW / APIRVW).
+Plan and align name the middle and top of the testing pyramid
+([pyramid](references/pyramid.md)); this stage runs those rows. Binaries stay off git.
 
 ## Use as a skill
 
@@ -25,6 +26,7 @@ Lead with evidence. Then one or two lines that point at how to re-run. Nothing m
 | Screen, behavior | A short video |
 | Backend | Script or command output (status, response fragment) |
 | Database | A read-only query and the result |
+| Pyramid row (system or api) | The test command the plan named, and its passing output |
 | Anything a command can show | A script next to the plan; stdout on the PR |
 
 Pick the rows that prove this solution. Empty kinds is a pick, not a miss.
