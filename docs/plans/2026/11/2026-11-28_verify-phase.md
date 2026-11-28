@@ -42,7 +42,7 @@ Proof kinds are a menu. `diff-scope.sh` suggests; the agent writes `kinds.json`;
 2. Rewrite `verify-change` playbook: own stage with completion criteria; lean PR body (evidence, then a pointer)
 3. Scripts: `plan-dir.sh`, `check-evidence-dir.sh` (no binaries, 32KiB cap, kinds allowlist); `check-pr-body.sh` Try it cap of two steps; tests
 4. `proof-check.mjs`: when `scope.kinds` is set, check those kinds only
-5. Orchestrator (`plan-implement-review-watch`): phase V after C–E; implement defers when verify is in the run; `review-proof` is the verify check, not a review stage
+5. Orchestrator (`plan-implement-review-watch`): phase V after C–E; implement defers when verify is in the run; `review-proof` is the verify check, not a review stage. Product wrong → up to 3 extra implement → review cycles (`inc-verify-round`)
 6. Alias skills: `pir`, `pirw`, `pirvw`, `ir`, `irw`, `apirw`, `apirvw`, `apirwm`, `implement-review`, `implement-review-watch`; add `apir` and `verify`
 7. `skills-manifest.json`, bootstrap-skills test, setup-repo README, `AGENTS.md` table, `check-work` description
 8. Dogfood: sibling folder for this plan, `kinds: [script]`, commit script stdout (tiny); paste the same on the PR
@@ -66,3 +66,4 @@ Proof kinds are a menu. `diff-scope.sh` suggests; the agent writes `kinds.json`;
 | Plan folder gate | `check-evidence-dir.sh` tests |
 | Picked kinds, not globs | `proof-check.sh` with `{"kinds":["script"]}` |
 | This change proves itself | sibling `verify.sh` stdout on the PR and in `out/` |
+| Verify can start 3 more implement/review rounds | `verdict.sh --phase verify` and `inc-verify-round` tests |

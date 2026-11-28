@@ -87,7 +87,7 @@ By-eye checks live in [`review-proof`](../review-proof/review-proof.md). That sk
 
 ## Chain
 
-`pir-args` inserts `verify` after `review` when the run implements or watches (PIRV / PIRVW). After a fix round that already passed review, run this skill again. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`. Review-only does not insert verify.
+`pir-args` inserts `verify` after `review` when the run implements or watches (PIRV / PIRVW). Product wrong → orchestrator may run up to 3 more implement → review → verify cycles (`inc-verify-round`, separate from the original 3). Thin description stays in this phase. `pi` / `implement-only`: implement still proves. Standalone: `/verify` or `phases=verify`. Review-only does not insert verify.
 
 ## Scripts
 

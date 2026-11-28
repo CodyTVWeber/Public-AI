@@ -8,7 +8,7 @@ argument-hint: "[ticket or task] [optional: plan-builder=, implementer=, max-rou
 
 Need final PR/MR watch and UI screenshot evidence → [plan-implement-review-watch](../plan-implement-review-watch/).
 
-Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression → verify**. Max **3** implement attempts, each followed by review. Approve → stop early, but **always** run final regression gate, then verify, before reporting done.
+Capped loop: **plan → cheap/fast implementer (background agent) → review → resume implementer with fixes → system regression → verify**. Max **3** implement attempts, each followed by review. Verify may start up to **3** more implement → review cycles. Approve → stop early, but **always** run final regression gate, then verify, before reporting done.
 
 Provider-agnostic. Prefer **connected background agents** over detached shell processes.
 
@@ -81,6 +81,8 @@ State: `skills/plan-implement-review/scripts/pir-state.sh init --topic <topic> -
   "context_cap_tokens": 200000,
   "round": 1,
   "max_rounds": 3,
+  "verify_round": 0,
+  "max_verify_rounds": 3,
   "regression_command": "make regression",
   "regression_status": "pending"
 }
@@ -238,11 +240,11 @@ Run on **implement branch** tip. Never substitute unit tests alone when full reg
 
 ## Phase V: Verify
 
-Own stage after review and the gate, before watch. Run [`verify-change`](../verify-change/verify-change.md). Completion: kinds picked, evidence on the PR, Try it a pointer. The reviewer's job is looking at that and saying yes. Product wrong → Phase D, then C, then V. Thin description → stay here and fill it.
+Own stage after review and the gate, before watch. Run [`verify-change`](../verify-change/verify-change.md). Completion: kinds picked, evidence on the PR, Try it a pointer. The reviewer's job is looking at that and saying yes. Thin description → stay here and fill it. Product wrong → `verdict.sh --phase verify --round <verify_round> --max <max_verify_rounds> --blocking <k>`. `fix` → `inc-verify-round` (exit 3 = extra rounds spent → hand off), resume implementer, Phase C then E then V. Up to 3 extra implement → review cycles, separate from `max_rounds`. CLI fallback: `PIR_VERIFY_ROUND=1`.
 
 ## Round budget
 
-Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E** (+ Phase V when verify is in the run), or when 3 attempts are reviewed. No automatic 4th implement: `inc-round` exits 3 at `round == max_rounds`.
+Attempt 1 = first code. 2–3 = fix passes. Stop on approve **+ Phase E** (+ Phase V when verify is in the run), or when 3 attempts are reviewed. No automatic 4th implement on the original pool: `inc-round` exits 3 at `round == max_rounds`. Verify may start up to 3 more: `inc-verify-round` exits 3 at `verify_round == max_verify_rounds`.
 
 ## Safety
 

@@ -103,7 +103,15 @@ When phases include `verify`: run [`verify-change`](../verify-change/verify-chan
 
 Completion: kinds picked, evidence on the PR, Try it a pointer not a walkthrough. The reviewer's job is looking at that and saying yes.
 
-If the product is wrong: back to D, then C, then V. If only the description is thin: stay in V and fill it. After a fix round that already passed review: run V again. Then push (feature branch only) → PR/MR body from this phase → F.
+If only the description is thin: stay in V and fill it. Do not burn a round.
+
+If the product is wrong (proof shows a failure, or a runtime change with no evidence): count those as blocking `k`. Then `verdict.sh --phase verify --round <vr> --max <vm> --blocking <k>` (`vr` / `vm` = `pir-state.sh get verify_round` / `get max_verify_rounds`, default max 3):
+
+| next | Do |
+|---|---|
+| `done` | push (feature branch only) → PR/MR body from this phase → F |
+| `fix` | `inc-verify-round` (exit 3 → `hand_off`). Write `verify-roundN.md`. Resume the same implementer (`PIR_VERIFY_ROUND=1` if using `run-implementer.sh`). Then C–E using `verify_round` / `max_verify_rounds` for `verdict.sh`, then V again. Up to 3 extra implement → review → verify cycles. Independent of the original `max_rounds` pool |
+| `hand_off` | stop. Hand findings + `implementer_id` to the user |
 
 `pi` / `implement-only`: implement §2.6 still proves. Review-only does not insert verify.
 
@@ -123,7 +131,7 @@ Run `monitor` with `window=` (default `1h`) and `cadence=` (default `10m`).
 
 ## Rules
 
-- Max 3 implement rounds, enforced by `inc-round`. No automatic 4th. Watch has own 2 fix rounds.
+- Max 3 implement rounds, enforced by `inc-round`. No automatic 4th. Verify may start up to 3 more implement → review cycles (`inc-verify-round`). Watch has own 2 fix rounds.
 - Never force-push, merge, approve, or mark ready without being asked.
 - Remote branch rewritten under you → never overwrite (see `implement` §1).
 - External posts carry attribution prefix.
@@ -131,4 +139,4 @@ Run `monitor` with `window=` (default `1h`) and `cadence=` (default `10m`).
 
 ## Final report
 
-Plan path (or "no plan") · PR/MR URL · implementer id · rounds used · verdict · regression status · evidence (count, uncaptured screens) · pipeline state · unresolved threads · fix rounds in watch · monitor verdict (when run).
+Plan path (or "no plan") · PR/MR URL · implementer id · rounds used · verify rounds used · verdict · regression status · evidence (count, uncaptured screens) · pipeline state · unresolved threads · fix rounds in watch · monitor verdict (when run).
