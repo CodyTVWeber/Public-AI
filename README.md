@@ -1,67 +1,76 @@
 # Public AI
 
-A factory line for an idea. You say what you want. The line carries it from a shared picture, through a merged pull request, to a watch on production.
+You bring an idea. The line carries it to production.
 
-Generic tech only. [MIT](LICENSE).
+## Start here
 
-## Quick start
+> [!TIP]
+> Say **`/idea-to-production`** and the idea.
+>
+> That name spells the whole range: from the idea to production.
 
-Tell the agent:
+`/idea-to-prod` is the short form of the same range.
 
-```text
-/apirvw <the idea>
-```
+| You want | Say |
+| --- | --- |
+| Nothing on the line yet, and you want it working | `/build` |
+| A run that ends with something shipped | `/deliver` |
+| This run to move one station forward | `/advance` |
 
-That one command runs the whole line up to a green pull request: agree, plan, build, review, prove, watch. You merge. After the change is in production, say `/monitor`.
-
-Want a shorter stop? `/apir` ends once the pull request is proved. Add `/watch` when you are ready for the pipeline, and `/monitor` after deploy.
+> [!NOTE]
+> `/apirvw` is the same line for people who already know the letters. It is a shortcut, not the way in.
 
 ## The line
 
-Each box is a station. A skill runs the station. A script passes or fails the mechanical checks. The agent judges only what a script cannot.
+Read top to bottom. Each box is one station. A skill runs it. A script passes or fails the check. The agent judges only what a script cannot.
 
 ```mermaid
-flowchart LR
-  idea[Idea] --> align[Align]
-  align --> plan[Plan]
-  plan --> build[Implement]
-  build --> review[Review]
-  review --> prove[Verify]
-  prove --> watch[Watch]
-  watch --> merge[You merge]
-  merge --> prod[Production]
-  prod --> monitor[Monitor]
+flowchart TB
+  idea["Idea · what you want"]:::idea
+  align["Align · agree the picture"]:::align
+  plan["Plan · write it down"]:::plan
+  build["Implement · make it work"]:::build
+  review["Review · check it against the plan"]:::review
+  prove["Verify · prove it on the pull request"]:::prove
+  watch["Watch · pipeline goes green"]:::watch
+  merge["You merge"]:::you
+  prod["Production"]:::prod
+  monitor["Monitor · watch the deploy"]:::mon
+  idea --> align --> plan --> build --> review --> prove --> watch --> merge --> prod --> monitor
+  classDef idea fill:#FDE68A,stroke:#B45309,color:#1C1917,stroke-width:2px
+  classDef align fill:#FDBA74,stroke:#C2410C,color:#1C1917,stroke-width:2px
+  classDef plan fill:#99F6E4,stroke:#0F766E,color:#042F2E,stroke-width:2px
+  classDef build fill:#86EFAC,stroke:#15803D,color:#052E16,stroke-width:2px
+  classDef review fill:#93C5FD,stroke:#1D4ED8,color:#172554,stroke-width:2px
+  classDef prove fill:#C4B5FD,stroke:#6D28D9,color:#2E1065,stroke-width:2px
+  classDef watch fill:#F9A8D4,stroke:#BE185D,color:#500724,stroke-width:2px
+  classDef you fill:#FECACA,stroke:#B91C1C,color:#450A0A,stroke-width:2px
+  classDef prod fill:#6EE7B7,stroke:#047857,color:#022C22,stroke-width:2px
+  classDef mon fill:#A5F3FC,stroke:#0E7490,color:#083344,stroke-width:2px
 ```
 
-| Station | You say | What happens |
-| --- | --- | --- |
-| Align | part of `/apirvw` | You and the agent agree the picture: goal, terms, decisions, and what a person can observe |
-| Plan | | That agreement becomes one plan |
-| Implement | | Code, unit tests, and a few outside-in tests (the top of the test pyramid) |
-| Review | | A read of the diff against the plan. Fixes loop back to implement |
-| Verify | | The pull request shows the proof: build, steps, evidence |
-| Watch | | The pipeline stays under watch until it is green. The agent does not merge |
-| Merge | you | The repo's merge rule decides who clicks merge |
-| Monitor | `/monitor` | After deploy, a read-only watch on production |
+| Station | What you get |
+| --- | --- |
+| Align | A shared picture: goal, terms, decisions, and what a person can see |
+| Plan | That picture, written once |
+| Implement | Code, unit tests, and a few tests from outside the app |
+| Review | A read of the diff against the plan |
+| Verify | Proof on the pull request a reviewer can rerun |
+| Watch | A green pipeline. The agent does not merge |
+| You merge | The repo's merge rule decides who clicks merge |
+| Monitor | A read-only watch after deploy. Say `/monitor` |
 
-## How to think about it
+Work does not skip a station because the agent feels sure. Agree before building. Tests describe what a person sees. The proof lives on the pull request.
 
-Work moves forward on the line. It does not skip a station because the agent feels sure.
+Station manuals and every other name: [skills/CATALOG.md](skills/CATALOG.md).
 
-- **Agree before building.** Align writes the picture down and waits for your yes.
-- **Tests describe what a person sees.** System and API checks are named in the plan, written first from outside the app, and kept few. Unit tests stay with the code.
-- **Proof is on the pull request.** A reviewer can rerun it. A story in chat is not the proof.
-- **Production is a station.** Merge is not the end. `/monitor` watches the deploy.
-
-The long skills are the station manuals. Short names (`apir`, `pirvw`, `apirvw`) only pick how far down the line to run. The full list is [skills/CATALOG.md](skills/CATALOG.md).
-
-## Put it on a machine
+## On a machine
 
 | Goal | Do |
 | --- | --- |
 | Rules on your own machine | [AI-setup](AI-setup/README.md) |
 | This line in another repo | `skills/setup-repo/scripts/detect-repo.sh <repo>`, then `bootstrap.sh <repo>` |
 
-The default links are the daily stations. Aliases and the design skills (`tdd`, `diagnosing-bugs`, `codebase-design`, `start-here`) stay opt-in: `--skills core+aliases`, `--skills all`, or a comma list.
-
 Operator manual: [AGENTS.md](AGENTS.md). Rules: [rules/](rules/README.md).
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-2F9E8F)](LICENSE)

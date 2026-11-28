@@ -32,13 +32,13 @@ No runtime change: monitoring skipped.
 | Design skills | Manifest class `design`. Not in `core` or `support` | Adding them to the default install |
 | Aliases | Stay. Stay opt-in | Deleting or renaming them |
 | Distribution | Clone, `AI-setup`, or `setup-repo` | A plugin marketplace |
-| `/apirvw` aliases | Approved: `idea-to-production`, `idea-to-prod`. Neither matches another command. `/apirvw` stays the skill name | Renaming `/apirvw`. Any further alias name, until a later revisit |
+| `/apirvw` aliases | Range: `idea-to-production` (spells the range; the way in) and `idea-to-prod`. Verbs: `/build` (nothing to working), `/deliver` (ends shipped), `/advance` (one station forward). `/apirvw` is the power-user shortcut | Renaming `/apirvw`. Any alias name outside this set |
 
 ## Alias names
 
-`/apirvw` is the skill name. The approved aliases are `idea-to-production` and `idea-to-prod`. A search of skill names and the catalog finds neither string, so they do not clash with another command.
+`/idea-to-production` spells the range and is the primary way in. `/idea-to-prod` is the short form of that same range. The verb names are `/build`, `/deliver`, and `/advance`. `/apirvw` stays the skill name and is only the power-user shortcut.
 
-Further alias naming is deferred. Skill files and `skills/CATALOG.md` stay as they are: these two names are not catalog rows yet, and the catalog has no alias row that needs a rewrite to match this decision.
+Skill files and `skills/CATALOG.md` stay unchanged: these names are not catalog rows, and no catalog row needs a rewrite to match this decision.
 
 ## Why this approach
 
