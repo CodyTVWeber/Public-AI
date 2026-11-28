@@ -6,7 +6,19 @@ argument-hint: "[task]"
 
 # Start here
 
-Read [CATALOG.md](../CATALOG.md). Run one skill.
+Front door: root [README](../../README.md). Read it first. This skill routes.
+
+Say `/idea-to-production` and the idea. That name spells the whole range. `/idea-to-prod` is the short form.
+
+| You want | Say |
+| --- | --- |
+| Nothing on the line yet, and you want it working | `/build` |
+| A run that ends with something shipped | `/deliver` |
+| This run to move one station forward | `/advance` |
+
+Stations one at a time: `/align` (A), `/plan` (P), `/implement` (I), `/review` (R), `/verify` (V), `/watch` (W), `/monitor` (M). String the letters for a range (`/apirvw` is A through W).
+
+Then run one skill.
 
 | Situation | Skill |
 | --- | --- |
@@ -18,7 +30,7 @@ Read [CATALOG.md](../CATALOG.md). Run one skill.
 | Bug will not stay reproduced | `diagnosing-bugs` |
 | Behavior change needs tests | `tdd` |
 | Module shape is the question | `codebase-design` |
-| The idea should ride the whole line | `apirvw` |
+| The idea should ride the whole line | `/idea-to-production` |
 | User typed a chain alias (`apir`, `pirvw`) | That alias, unchanged |
 
-`/apirvw` runs align through watch. `/apir` stops after verify. `/monitor` starts after production. Aliases only select stations. The long skill is the procedure. The default install is manifest `core` plus `support`. Design skills link when named, or with `--skills all`.
+Aliases only select stations. The long skill is the procedure. Default install: manifest `core` plus `support`. Design skills link when named, or with `--skills all`. Full list: [CATALOG.md](../CATALOG.md).
