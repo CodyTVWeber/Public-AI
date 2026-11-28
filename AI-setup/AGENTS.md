@@ -2,9 +2,9 @@
 
 Portable agent rules. This file is the source. `CLAUDE.md` and `GEMINI.md` only point here ([rules/agent-source.md](../rules/agent-source.md)). Symlink this file and each redirect into that product's user dir.
 
-## Density
+## Conversation
 
-[rules/reply-density.md](../rules/reply-density.md): structure replies to minimize reading; conclusion-led bullets and tables; no filler; brief vs thorough.
+[rules/conversation.md](../rules/conversation.md): how to interact with a human on every channel (examples, reply density, teaching mode, external writes). Not the PR body template.
 
 ## Comments and docs
 
@@ -13,19 +13,11 @@ Portable agent rules. This file is the source. `CLAUDE.md` and `GEMINI.md` only 
 
 ## Thinking
 
-[rules/ai-thinking-dense.md](../rules/ai-thinking-dense.md): telegraphic reasoning, fewest tokens that still pick the action. Replies follow [reply-density.md](../rules/reply-density.md).
+[rules/ai-thinking-dense.md](../rules/ai-thinking-dense.md): telegraphic reasoning, fewest tokens that still pick the action. Visible replies follow [conversation/reply-density.md](../rules/conversation/reply-density.md).
 
 ## Context window
 
 [rules/context-window.md](../rules/context-window.md): working context cap is 175000 tokens (175k) unless a user message, skill, or repo rule names another cap. At the cap, autocompact, then continue. The cap holds when the model window is larger.
-
-## Human examples
-
-[rules/human-examples.md](../rules/human-examples.md): illustrative phrases and cited occurrences are open instances, not exclusive lists.
-
-## External systems (red line)
-
-[rules/external-system-writes.md](../rules/external-system-writes.md): ask before human-visible external writes; disclose agency; one approval per write.
 
 ## Entry-point files
 
@@ -51,10 +43,6 @@ Full rule: [rules/delegate-work.md](../rules/delegate-work.md).
 ## Frustration: fix the agent
 
 [rules/frustration-fix-agent.md](../rules/frustration-fix-agent.md): frustration or vague "work harder" → setup tweak, then cleanup rounds across the tree.
-
-## Teaching mode
-
-[rules/teaching-mode.md](../rules/teaching-mode.md): off by default; walk-through only on request.
 
 ## Business capability
 

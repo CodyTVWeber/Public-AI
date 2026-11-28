@@ -1,3 +1,4 @@
 rules/*.md	skills/setup-repo/assets/rules/
 !rules/README.md
+rules/conversation/*.md	skills/setup-repo/assets/rules/conversation/
 scripts/lint/lint-docs.sh	skills/setup-repo/assets/scripts/lint-docs.sh

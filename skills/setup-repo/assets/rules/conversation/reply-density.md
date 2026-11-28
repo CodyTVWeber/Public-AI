@@ -1,6 +1,6 @@
 # Reply density
 
-The reader is slow: structure output to minimize reading, not only word count. All output carries full information in the fewest words.
+The reader is slow: structure output to minimize reading, not only word count. All human-visible output carries full information in the fewest words.
 
 | Do | Don't |
 |---|---|
@@ -13,4 +13,4 @@ The reader is slow: structure output to minimize reading, not only word count. A
 - Thorough means more structure, not more paragraphs
 - Skip examples unless the concept fails without one
 
-Internal reasoning stays in [ai-thinking-dense.md](ai-thinking-dense.md); the visible reply follows this file.
+Internal reasoning stays in [ai-thinking-dense.md](../ai-thinking-dense.md); the visible reply follows this file.

@@ -20,11 +20,10 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [delegate-work.md](delegate-work.md) | Lead decides and does tiny writes; a reused cheaper worker does volume. | review |
 | [frustration-fix-agent.md](frustration-fix-agent.md) | Frustration or vague "work harder" → setup tweak, then cleanup rounds (extract copies, domain grouping). | agent judgment |
 | [business-capability-structure.md](business-capability-structure.md) | Business-capability tree; 2/3 DRY; nest when a folder is crowded (no depth cap); extract generic kits from `shared/`; agents lift, never sink. | review |
-| [human-examples.md](human-examples.md) | "For example" and kin name one instance of a class, not an exhaustive list. | agent judgment |
-| [reply-density.md](reply-density.md) | Visible replies: structure first, conclusion-led bullets, no filler; brief vs thorough. | agent judgment |
-| [teaching-mode.md](teaching-mode.md) | Walk-through only on request; one-line correction or hint; off on "just do it". | agent judgment |
-| [external-system-writes.md](external-system-writes.md) | Human-visible external writes: ask, disclose agency, one approval per write. | agent judgment |
+| [conversation.md](conversation.md) | Human interaction on every channel; index into `conversation/`. Not PR-body-only. | agent judgment |
 
-`skills/setup-repo/assets/rules/` mirrors this directory for installation. `scripts/lint/check-copies.sh` fails on drift (pairs listed in `scripts/lint/copies.list`); `--fix` copies here → there.
+`conversation/` holds [examples.md](conversation/examples.md), [reply-density.md](conversation/reply-density.md), [teaching-mode.md](conversation/teaching-mode.md), [external-system-writes.md](conversation/external-system-writes.md) — same enforcement: agent judgment.
+
+`skills/setup-repo/assets/rules/` mirrors top-level rules and `rules/conversation/` for installation. `scripts/lint/check-copies.sh` fails on drift (pairs listed in `scripts/lint/copies.list`); `--fix` copies here → there.
 - [ai-files-telegraphic](ai-files-telegraphic.md) — AI-facing files: telegraphic, dense, human-scannable
 - [commit-and-ship](commit-and-ship.md) — commit, push, MR by default; merge in low-risk repos
