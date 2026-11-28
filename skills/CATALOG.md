@@ -6,8 +6,10 @@ Every skill in this pack, one class. Classes come from `skills/setup-repo/assets
 | --- | --- | --- |
 | `ai-risk` | other | Risk tier and merge policy before a ship |
 | `align` | core | Agree the picture before planning |
-| `apirw` | aliases | Align, plan, implement, review, watch |
-| `apirwm` | aliases | That chain plus monitor |
+| `apir` | aliases | Align through verify |
+| `apirvw` | aliases | Align through watch |
+| `apirw` | aliases | Align through watch |
+| `apirwm` | aliases | Align through monitor |
 | `calendar-facts` | other | Calendar events that carry their own facts |
 | `check-work` | other | A verification pass over a diff |
 | `code-review` | aliases | Strict maintainability review |
@@ -29,7 +31,8 @@ Every skill in this pack, one class. Classes come from `skills/setup-repo/assets
 | `payments` | other | Estimated, agreed, and receipted amounts |
 | `pi` | aliases | Plan, then implement |
 | `pir` | aliases | Plan, implement, review |
-| `pirw` | aliases | Plan, implement, review, watch |
+| `pirvw` | aliases | Plan through watch |
+| `pirw` | aliases | Plan through watch |
 | `plan` | aliases | write-plan |
 | `plan-implement` | aliases | Plan, then implement |
 | `plan-implement-review` | support | Capped plan, implement, review loop |
@@ -56,6 +59,7 @@ Every skill in this pack, one class. Classes come from `skills/setup-repo/assets
 | `ui` | experimental | A screen with one job |
 | `ui-craft` | experimental | How a screen looks and moves |
 | `ui-interaction` | experimental | How a person moves through a screen |
+| `verify` | aliases | Prove the change on the pull request |
 | `verify-change` | support | Proof in the PR body |
 | `watch` | core | Watch a PR until the pipeline is green |
 | `watch-mr-pipeline` | other | Watch a PR pipeline on a schedule |

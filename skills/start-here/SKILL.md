@@ -18,8 +18,7 @@ Read [CATALOG.md](../CATALOG.md). Run one skill.
 | Bug will not stay reproduced | `diagnosing-bugs` |
 | Behavior change needs tests | `tdd` |
 | Module shape is the question | `codebase-design` |
-| User typed a chain alias (`pir`, `apirw`) | That alias, unchanged |
+| The idea should ride the whole line | `apirvw` |
+| User typed a chain alias (`apir`, `pirvw`) | That alias, unchanged |
 
-`apir` is not an alias. After align, `pir` is plan → implement → review. `apirw` adds watch.
-
-Aliases only select phases. The long skill is the procedure. The default install is manifest `core` plus `support`. Design skills link when named, or with `--skills all`.
+`/apirvw` runs align through watch. `/apir` stops after verify. `/monitor` starts after production. Aliases only select stations. The long skill is the procedure. The default install is manifest `core` plus `support`. Design skills link when named, or with `--skills all`.
