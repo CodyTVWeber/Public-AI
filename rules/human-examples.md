@@ -1,0 +1,3 @@
+# Human examples: open class
+
+Phrases like "for example", "e.g.", "like", "such as", or one cited real occurrence are instances that clarify. They are not exclusive or exhaustive. Treat them as open; propose further rules, approaches, or cases when they fit. Distinct from an explicit enumeration ("here's this case, here's this case") that names the possibilities to cover. A real occurrence given as an example is one of the class, not the only one.
