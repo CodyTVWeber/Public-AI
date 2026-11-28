@@ -1,0 +1,2 @@
+public-ai-sync: next version 0.0.2
+public-ai-sync: skip npm publish (NPM_TOKEN unset)

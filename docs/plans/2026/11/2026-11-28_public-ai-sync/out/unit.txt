@@ -1,0 +1,53 @@
+TAP version 13
+# public-ai-sync: skip
+# Subtest: local source fills the target and gitignore
+ok 1 - local source fills the target and gitignore
+  ---
+  duration_ms: 4.463678
+  type: 'test'
+  ...
+# Subtest: second sync replaces the tree
+ok 2 - second sync replaces the tree
+  ---
+  duration_ms: 4.185826
+  type: 'test'
+  ...
+# Subtest: empty source leaves the target
+ok 3 - empty source leaves the target
+  ---
+  duration_ms: 33.120929
+  type: 'test'
+  ...
+# Subtest: failed fetch leaves the target
+ok 4 - failed fetch leaves the target
+  ---
+  duration_ms: 38.441061
+  type: 'test'
+  ...
+# Subtest: skip env does not write a target
+ok 5 - skip env does not write a target
+  ---
+  duration_ms: 1.081154
+  type: 'test'
+  ...
+# Subtest: nextPatch increments the patch
+ok 6 - nextPatch increments the patch
+  ---
+  duration_ms: 0.195123
+  type: 'test'
+  ...
+# Subtest: bump dry-run skips publish without a token
+ok 7 - bump dry-run skips publish without a token
+  ---
+  duration_ms: 27.615822
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 155.975361

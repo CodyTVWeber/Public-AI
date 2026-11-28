@@ -1,0 +1,23 @@
+{
+  "name": "public-ai-sync",
+  "version": "0.0.1",
+  "description": "Dev dependency that syncs a public AI folder into a consuming repo on install",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "public-ai-sync": "./bin/sync.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "gitignore.snippet",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node bin/sync.mjs",
+    "prepare": "node bin/sync.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

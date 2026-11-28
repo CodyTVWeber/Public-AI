@@ -1,0 +1,5 @@
+version ^packages/public-ai-sync/
+version ^test-consumer/
+version ^scripts/tests/public-ai-sync
+version ^docs/plans/2026/11/2026-11-28_public-ai-sync
+version ^\.github/workflows/public-ai-sync

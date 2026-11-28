@@ -1,0 +1,13 @@
+{
+  "name": "public-ai-sync-consumer",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "public-ai-sync": "file:../packages/public-ai-sync"
+  },
+  "publicAiSync": {
+    "source": "./ai-source",
+    "target": ".public-ai",
+    "paths": ["rules", "skills", "AGENTS.md"]
+  }
+}
