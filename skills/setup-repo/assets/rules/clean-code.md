@@ -7,7 +7,7 @@ Project rules may extend this; this is the floor.
 
 1. No added comments ([ban-comments.md](ban-comments.md)); moved code carries fewer than before
 2. File ≤ ~200 lines (hard stop ~400); one responsibility; extract before growing
-3. Function body ≤ ~40 lines of logic
+3. Function body ≤ the `CC_FUNC_SIZE` warn cap (default `b`: ~20 lines of logic)
 4. Params: 0-1 ideal, 2 ok, 3 painful, 4+ → options object or split
 5. Nesting ≤ 2-3; early return / guard clause over pyramids
 6. Public API on top, helpers below; callers above callees
@@ -68,4 +68,12 @@ Generated code, type barrels, pure data tables, migrations, large fixtures. No m
 - Item 6 is `function-order` (warn): a caller below its callee, or a private helper above a public function in the same block. Cycles are skipped
 - A body that is one `if` with no `else`, once the function reaches 8 logic lines, is `guard-clause` (warn)
 - Judgment stays with review: item 11 (one definition per rule), 12 (names match docs). Item 13 is `lint-docs.sh`
-- Thresholds are env vars (`CC_FUNC_WARN`, `CC_NEST_ERROR`, ...); `code-quality-check.sh -h` lists them. `CC_SKIP=1` and `CLEAN_CODE_SKIP=1` skip a run and say so on stderr; fix the code instead of skipping
+- Function length profiles (`CC_FUNC_SIZE` or repo-root `.func-size` line `size: a|b|c`; default `b`). `CC_FUNC_WARN` / `CC_FUNC_ERROR` override the pair
+
+| Profile | Warn | Error |
+|---|---|---|
+| `a` | 40 | 80 |
+| `b` (default) | 20 | 40 |
+| `c` | 50 | 100 |
+
+- Other thresholds are env vars (`CC_NEST_ERROR`, ...); `code-quality-check.sh -h` lists them. `CC_SKIP=1` and `CLEAN_CODE_SKIP=1` skip a run and say so on stderr; fix the code instead of skipping

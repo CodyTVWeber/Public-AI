@@ -6,11 +6,40 @@ import { HELP, USAGE } from "./help.mjs";
 import * as hooks from "./hooks.mjs";
 import { exitCode, headline, renderHuman, skippedJson, toJson } from "./report.mjs";
 import { analyzeAll } from "./runner.mjs";
-import { loadConfig, skipReason } from "./settings.mjs";
+import { ConfigError, loadConfig, skipReason } from "./settings.mjs";
 import { changedTargets, fileOptions, rangeTargets, stagedTargets } from "./targets.mjs";
 
 const USAGE_ERROR = 2;
 const PRECONDITION_ERROR = 3;
+
+export function main(argv, env = process.env) {
+  const args = parseOrFail(argv);
+  if (args === null) return USAGE_ERROR;
+  const early = earlyExit(args, env);
+  if (early !== null) return early;
+  const config = configOrFail(env);
+  if (config === null) return USAGE_ERROR;
+  if (args.hook || args.stop_hook) return runHook(args, config);
+  if (!hasMode(args)) return missingMode();
+  return runChecked(args, config);
+}
+
+function earlyExit(args, env) {
+  if (args.help) {
+    process.stdout.write(HELP);
+    return 0;
+  }
+  const reason = skipReason(env);
+  if (reason) return skipRun(args, reason);
+  if (!args.list_rules) return null;
+  process.stdout.write(JSON.stringify(describeRules(), null, 2) + "\n");
+  return 0;
+}
+
+function missingMode() {
+  process.stderr.write("clean-code: give FILE..., --staged or --changed (see -h)\n");
+  return USAGE_ERROR;
+}
 
 function collect(args) {
   if (args.staged) return stagedTargets(process.cwd());
@@ -62,24 +91,12 @@ function parseOrFail(argv) {
   }
 }
 
-export function main(argv, env = process.env) {
-  const args = parseOrFail(argv);
-  if (args === null) return USAGE_ERROR;
-  if (args.help) {
-    process.stdout.write(HELP);
-    return 0;
+function configOrFail(env) {
+  try {
+    return loadConfig(env);
+  } catch (error) {
+    if (!(error instanceof ConfigError)) throw error;
+    process.stderr.write(`code-quality-check.sh: error: ${error.message}\n`);
+    return null;
   }
-  const reason = skipReason(env);
-  if (reason) return skipRun(args, reason);
-  if (args.list_rules) {
-    process.stdout.write(JSON.stringify(describeRules(), null, 2) + "\n");
-    return 0;
-  }
-  const config = loadConfig(env);
-  if (args.hook || args.stop_hook) return runHook(args, config);
-  if (!hasMode(args)) {
-    process.stderr.write("clean-code: give FILE..., --staged or --changed (see -h)\n");
-    return USAGE_ERROR;
-  }
-  return runChecked(args, config);
 }

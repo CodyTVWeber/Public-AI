@@ -157,10 +157,10 @@ FIX
 expect_no_rule "guard clauses stay flat" guard.ts nesting-depth
 
 long_body() { local n="$1" i; for i in $(seq 1 "$n"); do printf '  total = total + %s;\n' "$i"; done; }
-{ echo 'export function long(total: number) {'; long_body 45; echo '  return total;'; echo '}'; } > "$TMPROOT/long45.ts"
-{ echo 'export function long(total: number) {'; long_body 85; echo '  return total;'; echo '}'; } > "$TMPROOT/long85.ts"
-assert_eq "46 logic lines warn" "warn" "$(severity_of long45.ts function-length)"
-assert_eq "86 logic lines error" "error" "$(severity_of long85.ts function-length)"
+{ echo 'export function long(total: number) {'; long_body 20; echo '  return total;'; echo '}'; } > "$TMPROOT/long21.ts"
+{ echo 'export function long(total: number) {'; long_body 40; echo '  return total;'; echo '}'; } > "$TMPROOT/long41.ts"
+assert_eq "21 logic lines warn under b" "warn" "$(severity_of long21.ts function-length)"
+assert_eq "41 logic lines error under b" "error" "$(severity_of long41.ts function-length)"
 
 fx inline.ts <<'FIX'
 export function orchestrate(path: string) {

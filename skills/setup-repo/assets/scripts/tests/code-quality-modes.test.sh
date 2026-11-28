@@ -105,6 +105,7 @@ assert_eq "list-rules is JSON with every rule" "17" "$("$CQ" --list-rules | jq '
 assert_contains "help documents modes" "$("$CQ" -h)" "--stop-hook"
 assert_contains "help documents range mode" "$("$CQ" -h)" "--range BASE..HEAD"
 assert_contains "help documents thresholds" "$("$CQ" -h)" "CC_NEST_ERROR"
+assert_contains "help documents function-size profiles" "$("$CQ" -h)" "CC_FUNC_SIZE=a|b|c"
 
 rng="$TMPROOT/range"
 make_repo "$rng"

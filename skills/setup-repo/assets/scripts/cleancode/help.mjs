@@ -42,7 +42,12 @@ Modes: FILE... | --staged | --changed [BASE] | --range BASE..HEAD | --hook | --s
   --list-rules   print the rule catalog as JSON
 
 Env thresholds (defaults from rules/clean-code.md):
-  CC_FUNC_WARN=40 CC_FUNC_ERROR=80 CC_PARAMS_ERROR=4 CC_NEST_WARN=3 CC_NEST_ERROR=4
+  CC_FUNC_SIZE=a|b|c (default b) or repo-root .func-size with a line size: a|b|c
+    a  warn 40  error 80
+    b  warn 20  error 40  (default)
+    c  warn 50  error 100
+  CC_FUNC_WARN / CC_FUNC_ERROR override the chosen profile
+  CC_PARAMS_ERROR=4 CC_NEST_WARN=3 CC_NEST_ERROR=4
   CC_FILE_WARN=200 CC_FILE_ERROR=400 (only when the change grows the file)
   function-order (warn): a caller sits below its callee, or a private helper sits above a public function
   in the same block (cycles skipped). guard-clause (warn): one if with no else holds the whole body once

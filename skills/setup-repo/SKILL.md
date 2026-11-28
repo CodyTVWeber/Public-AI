@@ -27,6 +27,7 @@ Run from this skill's directory. `<t>` = target (argument, else current repo; mu
    - Kotlin/Java: `assets/lint/detekt-clean-code.yml` into detekt config
    - Python: `assets/lint/ruff-clean-code.toml` into `pyproject.toml`
    - Other: pick a linter that can cap nesting depth, parameter count, function length
+   - Snippets use function-size profile `b` (error at 40). For `a` set 80, for `c` set 100
    - Existing violations: set new rules to `warn` first, or baseline them, so the gate blocks only new debt
 8. **Report** in a few lines: profile, steps by action, `manual` steps left, verify result, linter wiring
 
@@ -64,7 +65,7 @@ Run from this skill's directory. `<t>` = target (argument, else current repo; mu
 
 ## Rules for this skill
 
-- Reuse shipped assets; do not rewrite per repo. Tune with env vars (`MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `CC_FUNC_WARN`, `CC_FUNC_ERROR`, `CC_PARAMS_ERROR`, `CC_NEST_WARN`, `CC_NEST_ERROR`, `CC_FILE_WARN`, `CC_FILE_ERROR`, `CC_DISABLE`), not script edits
+- Reuse shipped assets; do not rewrite per repo. Tune with env vars (`MR_SIZE_SOFT`, `MR_SIZE_HARD`, `FILE_SOFT`, `FILE_HARD`, `CC_FUNC_SIZE` a|b|c default b, `CC_FUNC_WARN`, `CC_FUNC_ERROR`, `CC_PARAMS_ERROR`, `CC_NEST_WARN`, `CC_NEST_ERROR`, `CC_FILE_WARN`, `CC_FILE_ERROR`, `CC_DISABLE`) or `.func-size`, not script edits
 - Never weaken an existing stricter rule in the target
 - `CLEAN_CODE_SKIP=1` and `CC_SKIP=1` are one-command overrides. Tell the user whenever either is used
 - A check (git hook, Claude hook, CI, linter snippet) ships with the AGENTS guardrails section, so the agent sees the floors while editing and knows a miss fails the check. `--without agents-doc` is named in the plan; the hooks still fail the change

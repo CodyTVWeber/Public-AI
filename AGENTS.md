@@ -69,6 +69,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - Scripts are Bash or JavaScript: [scripting-languages](rules/scripting-languages.md)
 - Commit, push, open MR by default; merge in low-risk repos: [commit-and-ship](rules/commit-and-ship.md)
 - Root `.mr-size` = `risk: low`: each size hard block (app, support, docs) → advisory. Low-risk repos only ([small-mrs](rules/small-mrs.md#low-risk-repos))
+- Root `.func-size` = `size: b`: function-length profile `b` (warn 20 / error 40). `a` is 40/80, `c` is 50/100 ([clean-code](rules/clean-code.md))
 
 ## No business-specific content
 
