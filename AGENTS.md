@@ -65,6 +65,7 @@ The gate covers commit-like and push-like commands per the guard row. Not caught
 - No comments: [ban-comments](rules/ban-comments.md)
 - Docs are current state or dated snapshot: [docs-current-or-dated](rules/docs-current-or-dated.md)
 - Floors: [clean-code](rules/clean-code.md), [small-mrs](rules/small-mrs.md), [research-latest-main](rules/research-latest-main.md), [glossary-overloaded-terms](rules/glossary-overloaded-terms.md), [delegate-work](rules/delegate-work.md)
+- Default: do not implement. Plan (`write-plan` / `plan`), then load `implement` (spawns workers): [delegate-work](rules/delegate-work.md)
 - Thinking stays telegraphic: [ai-thinking-dense](rules/ai-thinking-dense.md)
 - Scripts, CI, hooks = skeleton; AI = muscles (glue and judgment): [muscles-and-skeleton](rules/muscles-and-skeleton.md)
 - Context cap 175000 tokens (175k); autocompact at the cap unless a user message, skill, or repo rule names another: [context-window](rules/context-window.md)
