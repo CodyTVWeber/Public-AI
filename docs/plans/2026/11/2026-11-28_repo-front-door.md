@@ -32,6 +32,13 @@ No runtime change: monitoring skipped.
 | Design skills | Manifest class `design`. Not in `core` or `support` | Adding them to the default install |
 | Aliases | Stay. Stay opt-in | Deleting or renaming them |
 | Distribution | Clone, `AI-setup`, or `setup-repo` | A plugin marketplace |
+| `/apirvw` aliases | Approved: `idea-to-production`, `idea-to-prod`. Neither matches another command. `/apirvw` stays the skill name | Renaming `/apirvw`. Any further alias name, until a later revisit |
+
+## Alias names
+
+`/apirvw` is the skill name. The approved aliases are `idea-to-production` and `idea-to-prod`. A search of skill names and the catalog finds neither string, so they do not clash with another command.
+
+Further alias naming is deferred. Skill files and `skills/CATALOG.md` stay as they are: these two names are not catalog rows yet, and the catalog has no alias row that needs a rewrite to match this decision.
 
 ## Why this approach
 
