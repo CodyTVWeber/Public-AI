@@ -44,5 +44,33 @@
     "pirvw",
     "code-review"
   ],
+  "design": [
+    "codebase-design",
+    "diagnosing-bugs",
+    "start-here",
+    "tdd"
+  ],
+  "experimental": [
+    "context-reuse",
+    "ui",
+    "ui-craft",
+    "ui-interaction"
+  ],
+  "other": [
+    "ai-risk",
+    "calendar-facts",
+    "check-work",
+    "discover",
+    "email-style",
+    "event-prep",
+    "explain-code",
+    "insights-dash",
+    "outline-output",
+    "payments",
+    "process-recording",
+    "setup-repo",
+    "watch-mr-pipeline",
+    "weekend-list"
+  ],
   "all": "*"
 }

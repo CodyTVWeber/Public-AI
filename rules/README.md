@@ -17,7 +17,7 @@ Canonical, repo-independent rules. Copy into any project's `.claude/rules/`, or 
 | [research-latest-main.md](research-latest-main.md) | Research from the fetched default branch. | `scripts/guard/research-ref.sh` |
 | [glossary-overloaded-terms.md](glossary-overloaded-terms.md) | One glossary entry per term with two meanings; list misleading code names. | review, plan check |
 | [scripting-languages.md](scripting-languages.md) | Scripts are Bash or JavaScript; deps pinned and locked. | `scripts/lint/check-languages.sh` (git `pre-commit`) |
-| [delegate-work.md](delegate-work.md) | Lead decides and does tiny writes; a reused cheaper worker does volume. | review |
+| [delegate-work.md](delegate-work.md) | Plan, then hand off via `implement` (spawns) or `write-plan` / `plan`. Lead does not implement inline. | review |
 | [frustration-fix-agent.md](frustration-fix-agent.md) | Frustration or vague "work harder" → setup tweak, then cleanup rounds (extract copies, domain grouping). | agent judgment |
 | [business-capability-structure.md](business-capability-structure.md) | Business-capability tree; 2/3 DRY; nest when a folder is crowded (no depth cap); extract generic kits from `shared/`; agents lift, never sink. | review |
 | [conversation.md](conversation.md) | Human interaction on every channel; index into `conversation/`. Not PR-body-only. | agent judgment |

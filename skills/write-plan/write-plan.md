@@ -12,11 +12,12 @@ AI-agnostic: any agent that can edit files and run git, `gh` or `glab`. Helpers:
 
 ## When to use
 
-- User asks to "make a plan", "write a plan doc", `/write-plan`
+- User asks to "make a plan", "write a plan doc", `/write-plan`, `/plan`
 - Before multi-step work that should leave a durable record
 - Phase A of **plan-implement-review** (plan builder role)
+- [delegate-work](../../rules/delegate-work.md) hands a plan here when it is more than a tiny note
 
-Not for one-off bug fixes or already-finished work.
+Not for one-off bug fixes or already-finished work. After the plan exists, hand off with [`implement`](../implement/implement.md) (that skill spawns; it does not write).
 
 ## Tracker comments
 

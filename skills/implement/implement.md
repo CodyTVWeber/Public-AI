@@ -1,21 +1,43 @@
 ---
 name: implement
-description: Implement work from a plan file, ticket, or explicit fix list: code, lint/test green, commit, push, ensure PR exists. Use for "implement the plan", "build this", /implement, or the implementer phase of plan-implement-review.
+description: Spawn workers to implement from a plan, ticket, or fix list. Does not write product code. Use for "implement the plan", "build this", /implement, or the implement phase of plan-implement-review.
 argument-hint: "[plan path or ticket]"
 ---
 
 # Implement
 
-Implement work from **plan file**, Asana task, or user fix list: code, lint/test green, commit, push, **ensure PR exists** (create only if none).
+Spawn workers. Do not write the product.
+
+Lead hands off here ([delegate-work](../../rules/delegate-work.md)). Workers edit, test, commit, push, **ensure PR exists** (create only if none).
 
 - AI-agnostic: any agent that edits files and runs `git`, `gh` or `glab`.
 - Helpers: `skills/plan-implement-review/scripts/` (repo-root-relative). Each has `--help`.
 
+## Who
+
+| You are | Do |
+|---|---|
+| Orchestrator (`/implement`, PIR implement phase, prompt has no `role=`) | Spawn. Brief. Resume. Merge slices. Report. No product edits |
+| Worker (prompt has `role=feature`, `atdd`, or `script`) | Skip Spawn. Run §0 onward |
+
+## Spawn
+
+Default: one worker per role the plan names (`feature`; plus `atdd` / `script` when those rows exist). Cheap/fast profile ([implementers](../plan-implement-review/references/implementers.md)).
+
+1. Resolve inputs (§0) enough to brief: plan path, branch, roles
+2. Spawn a background agent per role. Prompt: this file, `role=…`, plan path, branch, owned paths. Pre-authorize feature-branch git when the parent run allows
+3. Wait. Resume the same worker for fix rounds. Never fill the gap yourself
+4. Slices: §Parallel slices. You merge; workers do not
+
+Host cannot spawn → `skills/plan-implement-review/scripts/run-implementer.sh`. Still not inline.
+
+Tiny lead writes stay in [delegate-work](../../rules/delegate-work.md). They are not this skill.
+
 ## When to use
 
 - "implement the plan", "build this", `/implement`
-- Phase B of **plan-implement-review** (implementer)
-- After `/write-plan`, when code is next
+- Phase B of **plan-implement-review** (orchestrator loads this skill; it spawns)
+- After `/write-plan` / `/plan`, when code is next
 
 Not for: investigation with no code change; plan-only docs (`/write-plan`).
 
@@ -63,6 +85,7 @@ Pyramid rows are observables, not internals ([pyramid](../verify-change/referenc
    - A screen follows [ui](../experimental/ui/ui.md): interaction, then craft, on top of that fidelity.
 2. Grep/read before editing. Match project `AGENTS.md` / red lines (migrations immutable, no remote DB without approval, etc.).
    - Write to the repo's clean-code and other floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, docs lint, and git hooks fail the change on a miss. Fix the code; never disable the check.
+   - Behavior change: load `tdd` when that skill is installed. Seams come from the plan. Skill absent → tests cover the public boundary the plan names, failing test first.
 3. Run project checks until green, e.g. `npm run lint && npm run test` (or equivalent). Never disable tests/lint.
 4. **Commits: approval + format**
    - `AGENTS.md` / `docs/rules/git-workflow.md` require approval → **propose message + diff, wait for explicit yes** before `git commit`. Skip only if user/PIR session pre-authorized implementer git writes for this run.
@@ -99,7 +122,7 @@ Pyramid rows are observables, not internals ([pyramid](../verify-change/referenc
 
 ## Project AI (lead agent)
 
-One background agent per repo: plans its slice, delegates to implementers. Orchestrator only aligns, reviews, gates.
+One background agent per repo: plans its slice, loads this skill to spawn. Orchestrator only aligns, reviews, gates.
 
 | Use when | Skip when |
 |---|---|
@@ -190,16 +213,20 @@ Rules:
 
 ## Integration with plan-implement-review
 
-As **implementer** inside `/plan-implement-review`:
+PIR implement phase: orchestrator loads this skill (Spawn). Do not spawn workers outside it.
 
-1. Read plan path + branch from `/tmp/pir-<topic>/state.json` or orchestrator prompt.
-2. Run this skill fully: git start → implement → ensure PR → tracker comment if from a task.
-3. **PIR pre-authorization:** parent run typically authorizes feature-branch commit/push/PR for implementer this session. Never force-push, touch remote DB, or open second PR for same topic.
+As **worker** (prompt has `role=`):
+
+1. Skip Spawn. Read plan path + branch from `/tmp/pir-<topic>/state.json` or orchestrator prompt.
+2. Run §0 onward: git start → implement → ensure PR → tracker comment if from a task.
+3. **PIR pre-authorization:** parent run typically authorizes feature-branch commit/push/PR for this session. Never force-push, touch remote DB, or open second PR for same topic.
 4. Write/update `state.json`: `feat_branch`, `implement_pr`, `session_id` if applicable.
 5. Don't start a plan PR. Attach to existing plan branch/PR.
 
 ## Anti-patterns
 
+- Orchestrator editing product files while this skill is loaded
+- Worker spawning another worker
 - Implementing without reading plan, or inventing extra scope
 - Branching from dirty feature branch instead of `origin/main` or existing ticket PR branch
 - Stashing/discarding WIP without asking

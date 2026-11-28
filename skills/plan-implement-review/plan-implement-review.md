@@ -44,7 +44,8 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 - No `plan-builder` given → current agent is plan builder (no extra spawn).
 - No `implementer` given → cheap/fast for current stack. See selection in `references/implementers.md`.
 - Pyramid skip line or no Writer=`atdd`/`script` rows → do not spawn that role.
-- `/implement` alone (no orchestrator): one agent covers every role the plan names.
+- Implement phase: load `implement`. That skill spawns workers. Do not implement inline. Do not spawn workers outside it.
+- `/implement` alone: same. That skill covers every role the plan names by spawning, not by writing.
 
 ### Default pairing (same product, medium effort)
 
@@ -55,7 +56,7 @@ Provider-agnostic. Prefer **connected background agents** over detached shell pr
 | Claude Sonnet / Opus orchestrator | Background agent: **Claude Haiku** |
 | Explicit `implementer=...` | That profile only |
 
-**Rule:** never default implementer to same high-effort model as orchestrator when low/cheap variant exists. Always run implement as **separate background agent** so orchestrator can review and resume it.
+**Rule:** never default implementer to same high-effort model as orchestrator when low/cheap variant exists. Implement phase = load `implement` (spawns). Never implement inline.
 
 ## Configuration (parse from user message)
 

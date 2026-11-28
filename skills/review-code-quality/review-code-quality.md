@@ -12,6 +12,7 @@ One stage of [review](../review/review.md). Findings: format per [review](../rev
 
 - Run `skills/setup-repo/assets/scripts/code-quality-check.sh --range <base>..HEAD` and `lint-docs.sh <base>` where installed. Error → finding. Warning → suggestion. That script owns file size, function order, length, params, nesting, guard wraps, comments, magic numbers, mutation
 - AI judges only the gaps the script leaves: one definition per business rule, names that match docs, which extraction is the right boundary ([clean-code](../../rules/clean-code.md))
+- Depth, seam, and interface the script cannot see: load `codebase-design` when that skill is installed
 - Docs: current-state or dated snapshot ([docs-current-or-dated](../../rules/docs-current-or-dated.md))
 
 ## Not here
