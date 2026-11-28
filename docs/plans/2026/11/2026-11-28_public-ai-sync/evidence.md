@@ -2,7 +2,7 @@
 
 Date: 2026-11-28
 Plan: ../2026-11-28_public-ai-sync.md
-PR: pending
+PR: https://github.com/CodyTVWeber/Public-AI/pull/23
 Kinds: script
 
 ## Proof
