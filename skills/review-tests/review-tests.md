@@ -11,6 +11,7 @@ One stage of [review](../review/review.md). Findings: format per [review](../rev
 ## Check
 
 - Each changed behavior has a test. Code changed with no test files = bug unless plan says why
+- Load `tdd` when that skill is installed. A test on a private collaborator, or an expected value copied from the implementation, is a bug
 - Assert what happens, not that code ran. Whole-object assertions over field-by-field
 - No test for a case that cannot occur (removed feature, impossible state). Removing a feature deletes its tests
 - Unhappy paths named by review-non-happy-logic covered

@@ -53,6 +53,7 @@ Not for: investigation with no code change; plan-only docs (`/write-plan`).
    - A screen follows [ui](../experimental/ui/ui.md): interaction, then craft, on top of that fidelity.
 2. Grep/read before editing. Match project `AGENTS.md` / red lines (migrations immutable, no remote DB without approval, etc.).
    - Write to the repo's clean-code and other floors while editing (AGENTS.md guardrails, `.claude/rules/`). Analyzer, lint, docs lint, and git hooks fail the change on a miss. Fix the code; never disable the check.
+   - Behavior change: load `tdd` when that skill is installed. Seams come from the plan. Skill absent → tests cover the public boundary the plan names, failing test first.
 3. Run project checks until green, e.g. `npm run lint && npm run test` (or equivalent). Never disable tests/lint.
 4. **Commits: approval + format**
    - `AGENTS.md` / `docs/rules/git-workflow.md` require approval → **propose message + diff, wait for explicit yes** before `git commit`. Skip only if user/PIR session pre-authorized implementer git writes for this run.
