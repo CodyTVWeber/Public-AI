@@ -1,6 +1,6 @@
 # AI thinking: minimum tokens
 
-Internal reasoning before a reply, a tool call, or an edit. The reply still follows the density rules. Files agents read stay in [ai-files-telegraphic.md](ai-files-telegraphic.md).
+Internal reasoning before a reply, a tool call, or an edit. The visible reply follows [conversation/reply-density.md](conversation/reply-density.md). Files agents read stay in [ai-files-telegraphic.md](ai-files-telegraphic.md).
 
 | Do | Don't |
 |---|---|
