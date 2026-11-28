@@ -21,13 +21,13 @@ Unsure which skill? **[`/start-here`](skills/start-here/SKILL.md)** 🧭 is the 
 
 ## The line
 
-Each station is a skill. A script passes or fails the check. The agent judges only what a script cannot.
+Each station is a skill. A script passes or fails the check. The agent judges only what a script cannot. The seven run in order as one factory.
 
 <p align="center">
-  <img src="the-line.svg" alt="The line from idea to production: you start with idea, align, and plan; the agent runs implement, review, verify, and watch; you merge to production and monitor. A failing check stops the line." width="100%" />
+  <img src="the-line.svg" alt="Factory line of seven skills: Align, Plan, Implement, Review, Verify, Watch, Monitor. A failing check is a fix round back to Implement. Stations do not skip." width="100%" />
 </p>
 
-Work does not skip a station because the agent feels sure. Agree before building. Tests describe what a person sees. The proof lives on the pull request. You merge. Production 🟢 is the live system.
+A fail is a fix round back to Implement, not a skip. Review is read-only. Verify puts proof on the pull request. Watch never merges. Monitor is read-only after deploy.
 
 Station manuals and every other name: [skills/CATALOG.md](skills/CATALOG.md).
 
@@ -52,6 +52,6 @@ The stations, one at a time:
 - `/watch` (W) — wait for a green pipeline
 - `/monitor` (M) — watch the deploy
 
-String the letters to run a range. `/apirvw` is A through W.
+String the letters to run a range. `/apirvw` is A through W. `/apirwm` adds Monitor.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-2F9E8F)](LICENSE)
