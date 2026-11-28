@@ -62,7 +62,8 @@ Not for: investigation with no code change; plan-only docs (`/write-plan`).
    - Batch checkpoints locally. Don't push after every commit.
    - Push only when user/orchestrator asks, or at clear end milestone if pre-authorized.
    - Local commits serve recovery. "Implemented" needs no remote update until push requested.
-6. **Prove it for reviewer.** Follow [`verify-change`](../verify-change/verify-change.md). PR/MR body uses its template: what changed, build, proof, Try it steps a person can paste.
+6. **Prove it for reviewer.** If this PIR run's phases include `verify`, skip capture; the verify phase owns proof. Otherwise follow [`verify-change`](../verify-change/verify-change.md).
+   - No runtime behavior (docs, comments, rename, formatting): **no behavior change** line; no screenshots or scripts.
    - Screen look → before/after images. Behavior (click, type, motion, sequence) → short video. Backend → curl + HTTP file, response, trace or log. Database → read-only query + result. Deep change → diagram of path.
    - Before = base branch built from fresh clone in `/tmp/pir-<topic>/before/` (never feature branch). After = branch tip.
    - Captures → `/tmp/pir-<topic>/evidence/`, never in repo. Open every file: blank, error, or identical before/after frames = failed capture.
@@ -174,7 +175,7 @@ Rules:
 - [ ] Slices used: all merged, `worktree-clean.sh` ran, `git worktree list` = main checkout only (stated in report)
 - [ ] Pushed (after approval when required)
 - [ ] **Exactly one** open PR for this work; URL reported
-- [ ] PR/MR description has Build, Proof, Try it from `verify-change`: images for look, video for behavior, curl/log/query for backend and database
+- [ ] PR/MR description has Build, Proof, Try it from `verify-change` for the kinds this change needs (or a **no behavior change** line when it has none)
 - [ ] **Tracker comment** if from a task: one **Implement rN** milestone after the round (PR link + human action if any). Format: [`tracker-comments.md`](../plan-implement-review/references/tracker-comments.md). Comments only, never otherwise edit the task
 
 ## Integration with plan-implement-review

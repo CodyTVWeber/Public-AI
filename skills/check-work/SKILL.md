@@ -3,8 +3,8 @@ name: check-work
 description: >
   Check your work with a verification subagent that reviews diffs, runs builds
   and tests, and evaluates correctness. Read this file for instructions. Use when
-  asked to "check work", "verify changes", "self-verify", "/check-work", "/check",
-  "/verify", or "/self-verify".
+  asked to "check work", "self-verify", "/check-work", "/check", or "/self-verify".
+  Not for proving a PR with screenshots or scripts: that is verify-change.
 metadata:
   short-description: "Verify changes with a subagent"
 ---

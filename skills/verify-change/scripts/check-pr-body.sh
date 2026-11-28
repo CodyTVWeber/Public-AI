@@ -13,7 +13,8 @@ Validates a pull request body against assets/pr-body.md:
     Decisions to check
   - Build labels: Command, CI, Result
   - no leftover `<placeholder>` text or template sample text
-  - at most 30 non-blank lines before "## Proof" (warns above 25)
+  - Try it: numbered step 1, at most 2 numbered steps (point, do not walk through)
+  - at most 12 non-blank lines before "## Proof" (warns above 8)
 Prints JSON: {"ok","tier","lines_before_proof","missing":[...],"warnings":[...]}
 Exit: 0 ok, 1 failed (missing list in JSON), 2 usage
 EOF
@@ -80,7 +81,12 @@ if has_header "Build"; then
 fi
 
 if has_header "Try it"; then
-  section "Try it" | grep -Eq '^[[:space:]]*1\.[[:space:]]+[^[:space:]]' || missing+=("Try it: numbered step 1.")
+  try="$(section "Try it")"
+  printf '%s\n' "$try" | grep -Eq '^[[:space:]]*1\.[[:space:]]+[^[:space:]]' || missing+=("Try it: numbered step 1.")
+  steps="$(printf '%s\n' "$try" | grep -Ec '^[[:space:]]*[0-9]+\.' || true)"
+  if [ "$steps" -gt 2 ]; then
+    missing+=("Try it: at most 2 steps (got $steps); point at the scenario")
+  fi
 fi
 
 if has_header "Proof"; then
@@ -106,10 +112,10 @@ printf '%s\n' "$body" | grep -Fq 'Api->>Db: example read' && missing+=("leftover
 printf '%s\n' "$body" | grep -Fq "One or two sentences. Name the behavior" && missing+=("leftover template text in What changed")
 
 before="$(printf '%s\n' "$body" | awk '/^## Proof[[:space:]]*$/ { exit } NF { n++ } END { print n + 0 }')"
-if [ "$before" -gt 30 ]; then
-  missing+=("length: $before non-blank lines before ## Proof (limit about 25, hard 30)")
-elif [ "$before" -gt 25 ]; then
-  warnings+=("length: $before non-blank lines before ## Proof (target 25)")
+if [ "$before" -gt 12 ]; then
+  missing+=("length: $before non-blank lines before ## Proof (limit about 8, hard 12)")
+elif [ "$before" -gt 8 ]; then
+  warnings+=("length: $before non-blank lines before ## Proof (target 8)")
 fi
 
 ok=true

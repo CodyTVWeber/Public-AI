@@ -8,10 +8,13 @@ Usage: pir-state.sh <cmd> [--topic T] [--state-root DIR] [args]
   get [KEY]                         whole JSON, or one raw value
   set KEY=VALUE...                  update keys (atomic)
   inc-round                         round += 1; exit 3 when round == max_rounds (no extra round)
+  inc-verify-round                  verify_round += 1; exit 3 when verify_round == max_verify_rounds
   status                            compact JSON summary with rounds_left
 Keys: topic plan_path plan_branch plan_pr feat_branch implement_pr implementer_id session_id
-      subagent_id reasoning_effort round max_rounds regression_command regression_status
-      regression_status: pending|passed|failed|skipped; round, max_rounds: integers
+      subagent_id reasoning_effort round max_rounds verify_round max_verify_rounds
+      regression_command regression_status
+      regression_status: pending|passed|failed|skipped; round keys: integers
+      max_verify_rounds defaults to 3 (extra implement/review cycles after verify fails)
 State root defaults to /tmp/pir-<topic>; state file is <root>/state.json.
 --topic is required for init and for any command without --state-root.
 Exit: 0 ok, 2 usage, 3 precondition (missing state, exists, rounds exhausted)
@@ -21,7 +24,7 @@ USAGE
 die() { echo "pir-state: $1" >&2; exit "${2:-2}"; }
 
 STRING_KEYS="topic plan_path plan_branch plan_pr feat_branch implement_pr implementer_id session_id subagent_id reasoning_effort regression_command regression_status"
-INT_KEYS="round max_rounds"
+INT_KEYS="round max_rounds verify_round max_verify_rounds"
 
 is_key() {
   local k
@@ -38,7 +41,7 @@ is_int_key() {
 cmd="${1:-}"
 case "$cmd" in
   -h|--help|"") usage; [[ -n "$cmd" ]] && exit 0 || exit 2 ;;
-  init|get|set|inc-round|status) shift ;;
+  init|get|set|inc-round|inc-verify-round|status) shift ;;
   *) usage; exit 2 ;;
 esac
 
@@ -67,6 +70,21 @@ if [[ -z "$root" ]]; then
 fi
 file="$root/state.json"
 lock="$root/.lock"
+
+bump_round() {
+  local key="$1" maxkey="$2" n max
+  require_state
+  acquire_lock
+  n="$(jq -r --arg k "$key" '.[$k] // 0' "$file")"
+  max="$(jq -r --arg k "$maxkey" '.[$k] // 3' "$file")"
+  if (( n >= max )); then
+    echo "pir-state: $key exhausted ($n/$max); hand off, no extra round" >&2
+    exit 3
+  fi
+  write_state "$(jq --arg k "$key" --arg m "$maxkey" --argjson max "$max" \
+    '.[$k] = ((.[$k] // 0) + 1) | .[$m] = $max' "$file")"
+  jq --arg k "$key" --arg m "$maxkey" '{($k): .[$k], ($m): .[$m]}' "$file"
+}
 
 acquire_lock() {
   local i=0
@@ -102,8 +120,8 @@ case "$cmd" in
       topic: $topic, plan_path: null, plan_branch: null, plan_pr: null,
       feat_branch: null, implement_pr: null, implementer_id: null,
       session_id: null, subagent_id: null, reasoning_effort: null,
-      round: 0, max_rounds: $max, regression_command: null,
-      regression_status: "pending"
+      round: 0, max_rounds: $max, verify_round: 0, max_verify_rounds: 3,
+      regression_command: null, regression_status: "pending"
     }')"
     jq . "$file"
     ;;
@@ -140,16 +158,10 @@ case "$cmd" in
     jq . "$file"
     ;;
   inc-round)
-    require_state
-    acquire_lock
-    round="$(jq -r '.round' "$file")"
-    max="$(jq -r '.max_rounds' "$file")"
-    if (( round >= max )); then
-      echo "pir-state: rounds exhausted ($round/$max); hand off, no extra round" >&2
-      exit 3
-    fi
-    write_state "$(jq '.round += 1' "$file")"
-    jq '{round, max_rounds}' "$file"
+    bump_round round max_rounds round
+    ;;
+  inc-verify-round)
+    bump_round verify_round max_verify_rounds verify_round
     ;;
   status)
     require_state
@@ -157,6 +169,9 @@ case "$cmd" in
       topic, round, max_rounds,
       rounds_left: (.max_rounds - .round),
       exhausted: (.round >= .max_rounds),
+      verify_round, max_verify_rounds,
+      verify_rounds_left: ((.max_verify_rounds // 3) - (.verify_round // 0)),
+      verify_exhausted: ((.verify_round // 0) >= (.max_verify_rounds // 3)),
       implementer_id, session_id, subagent_id,
       plan_pr, implement_pr, regression_status
     }' "$file"

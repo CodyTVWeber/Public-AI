@@ -3,19 +3,22 @@ set -euo pipefail
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: verdict.sh --round N --max M --blocking K [--regression passed|failed|skipped|pending] [--phase review|gate]
+Usage: verdict.sh --round N --max M --blocking K [--regression passed|failed|skipped|pending] [--phase review|gate|verify]
   Pure routing function; prints {"next": ..., "reason": ...} on stdout.
-  --round N        implement attempts used so far (0 = implementer not finished yet)
-  --max M          max implement attempts
-  --blocking K     blocking findings (bug severity or missing proof) from the review
+  --round N        implement attempts used so far (0 = implementer not finished yet).
+                   Phase verify: extra implement/review rounds already used (0 = none yet)
+  --max M          max implement attempts. Phase verify: max extra rounds (default 3)
+  --blocking K     blocking findings from the review. Phase verify: product-wrong findings
   --regression S   gate result (phase gate only; pending = still running)
-  --phase P        review (default): just reviewed. gate: regression gate just ran
+  --phase P        review (default): just reviewed. gate: regression gate just ran.
+                   verify: proof failed or passed after review
 Routes:
-  wait      round 0, or gate still pending
+  wait      round 0 (not verify), or gate still pending
   gate      review phase, no blocking findings: run regression-gate.sh
-  fix       blocking findings or failed gate, round < max: write review-roundN.md, resume implementer
+  fix       blocking findings or failed gate, round < max: write review-roundN.md, resume implementer.
+            Phase verify: product wrong, extra rounds left: implement → review → verify again
   hand_off  blocking findings or failed gate, round >= max: stop, give findings + ids to the user, skip gate
-  done      gate passed or skipped (note skipped in the report)
+  done      gate passed or skipped (note skipped in the report). Phase verify: proof passed
 Exit: 0 routed, 2 usage
 USAGE
 }
@@ -43,13 +46,23 @@ done
 [[ "$max" =~ ^[1-9][0-9]*$ ]] || die "--max must be a positive integer"
 [[ "$blocking" =~ ^[0-9]+$ ]] || die "--blocking must be a non-negative integer"
 case "$regression" in passed|failed|skipped|pending) ;; *) die "bad --regression: $regression" ;; esac
-case "$phase" in review|gate) ;; *) die "bad --phase: $phase" ;; esac
+case "$phase" in review|gate|verify) ;; *) die "bad --phase: $phase" ;; esac
 
 emit() {
   jq -nc --arg next "$1" --arg reason "$2" '{next: $next, reason: $reason}'
 }
 
-if (( round == 0 )); then
+if [[ "$phase" == verify ]]; then
+  if (( blocking > 0 )); then
+    if (( round < max )); then
+      emit fix "verify failed, extra implement/review round $round of $max"
+    else
+      emit hand_off "verify failed, extra rounds spent ($round of $max)"
+    fi
+  else
+    emit done "verify passed"
+  fi
+elif (( round == 0 )); then
   emit wait "no implement attempt finished yet"
 elif (( blocking > 0 )); then
   if (( round < max )); then

@@ -9,14 +9,14 @@ field() { jq -c "$1" <<<"$out"; }
 
 run ""
 eq "empty rc" "$rc" 0
-eq "default phases" "$(field .phases)" '["plan","implement","review","watch"]'
+eq "default phases" "$(field .phases)" '["plan","implement","review","verify","watch"]'
 eq "default max" "$(field .max_rounds)" 3
 eq "default ticket" "$(field .ticket)" null
 eq "default task" "$(field .task)" '""'
 
 run "add a retry to the client phases=ir ticket=tkt_7 no-plan implementer=cheap-model fix-comments=yes max-rounds=2"
 eq "full rc" "$rc" 0
-eq "alias phases" "$(field .phases)" '["implement","review"]'
+eq "alias phases" "$(field .phases)" '["implement","review","verify"]'
 eq "ticket" "$(field .ticket)" '"tkt_7"'
 eq "no_plan" "$(field .no_plan)" true
 eq "implementer" "$(field .implementer)" '"cheap-model"'
@@ -24,17 +24,21 @@ eq "fix_comments" "$(field .fix_comments)" true
 eq "max_rounds" "$(field .max_rounds)" 2
 eq "task" "$(field .task)" '"add a retry to the client"'
 
-for pair in "pi:plan,implement" "plan-implement:plan,implement" "implement-review:implement,review" \
-  "rw:review,watch" "review-watch:review,watch" "pir:plan,implement,review" \
-  "plan-implement-review:plan,implement,review" "irw:implement,review,watch" \
-  "implement-review-watch:implement,review,watch" "pirw:plan,implement,review,watch" \
-  "plan-implement-review-watch:plan,implement,review,watch"; do
+for pair in "pi:plan,implement" "plan-implement:plan,implement" "implement-review:implement,review,verify" \
+  "rw:review,verify,watch" "review-watch:review,verify,watch" "pir:plan,implement,review,verify" \
+  "pirv:plan,implement,review,verify" "plan-implement-review:plan,implement,review,verify" \
+  "irw:implement,review,verify,watch" "implement-review-watch:implement,review,verify,watch" \
+  "pirw:plan,implement,review,verify,watch" "pirvw:plan,implement,review,verify,watch" \
+  "plan-implement-review-watch:plan,implement,review,verify,watch"; do
   run "x phases=${pair%%:*}"
   eq "alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
 done
 
-for pair in "a:align" "ap:align,plan" "align-plan:align,plan" "apirw:align,plan,implement,review,watch" \
-  "align-plan-implement-review-watch:align,plan,implement,review,watch" "align,plan,implement:align,plan,implement"; do
+for pair in "a:align" "ap:align,plan" "align-plan:align,plan" "apir:align,plan,implement,review,verify" \
+  "apirv:align,plan,implement,review,verify" \
+  "apirw:align,plan,implement,review,verify,watch" \
+  "apirvw:align,plan,implement,review,verify,watch" \
+  "align-plan-implement-review-watch:align,plan,implement,review,verify,watch" "align,plan,implement:align,plan,implement"; do
   run "x phases=${pair%%:*}"
   eq "align alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
 done
@@ -47,16 +51,16 @@ eq "align after plan rc" "$rc" 2
 run "x phases=watch,align"
 eq "align after watch rc" "$rc" 2
 run ""
-eq "default stays without align" "$(field .phases)" '["plan","implement","review","watch"]'
+eq "default stays without align" "$(field .phases)" '["plan","implement","review","verify","watch"]'
 
 run "x phases=m"
 eq "monitor alone rc" "$rc" 0
 eq "monitor alone" "$(field .phases)" '["monitor"]'
 run "x phases=monitor"
 eq "monitor long" "$(field .phases)" '["monitor"]'
-for pair in "apirwm:align,plan,implement,review,watch,monitor" \
-  "align-plan-implement-review-watch-monitor:align,plan,implement,review,watch,monitor" \
-  "watch,monitor:watch,monitor" "review,watch,monitor:review,watch,monitor"; do
+for pair in "apirwm:align,plan,implement,review,verify,watch,monitor" \
+  "align-plan-implement-review-watch-monitor:align,plan,implement,review,verify,watch,monitor" \
+  "watch,monitor:watch,monitor" "review,watch,monitor:review,verify,watch,monitor"; do
   run "x phases=${pair%%:*}"
   eq "monitor alias ${pair%%:*}" "$(jq -r '.phases | join(",")' <<<"$out")" "${pair#*:}"
 done
@@ -67,7 +71,7 @@ eq "monitor skips watch rc" "$rc" 2
 run "x phases=monitor,watch"
 eq "monitor first order rc" "$rc" 2
 run "x"
-eq "default excludes monitor" "$(field .phases)" '["plan","implement","review","watch"]'
+eq "default excludes monitor" "$(field .phases)" '["plan","implement","review","verify","watch"]'
 run "ship it phases=apirwm window=2h cadence=5m"
 eq "window" "$(field .window)" '"2h"'
 eq "cadence" "$(field .cadence)" '"5m"'
@@ -98,6 +102,16 @@ run "x review-only"
 eq "review-only" "$(field .phases)" '["review"]'
 run "x implement-only"
 eq "implement-only" "$(field .phases)" '["implement"]'
+run "x verify-only"
+eq "verify-only" "$(field .phases)" '["verify"]'
+run "x phases=verify"
+eq "verify alone" "$(field .phases)" '["verify"]'
+run "x phases=plan,implement,review"
+eq "auto-insert verify" "$(field .phases)" '["plan","implement","review","verify"]'
+run "x phases=plan,implement,review,verify"
+eq "no double insert" "$(field .phases)" '["plan","implement","review","verify"]'
+run "x phases=plan,implement,verify,review"
+eq "verify before review rc" "$rc" 2
 run "x fix-comments=no"
 eq "fix-comments no" "$(field .fix_comments)" false
 
@@ -115,9 +129,9 @@ run "x fix-comments=maybe"
 eq "bad fix rc" "$rc" 2
 
 out="$("$S" --default plan,implement,review "task only" 2>/dev/null)"
-eq "default flag" "$(field .phases)" '["plan","implement","review"]'
+eq "default flag" "$(field .phases)" '["plan","implement","review","verify"]'
 out="$("$S" --default plan,implement,review "x phases=rw" 2>/dev/null)"
-eq "explicit beats default" "$(field .phases)" '["review","watch"]'
+eq "explicit beats default" "$(field .phases)" '["review","verify","watch"]'
 
 "$S" a b >/dev/null 2>&1
 eq "two args rc" "$?" 2

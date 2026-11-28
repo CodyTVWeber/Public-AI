@@ -74,6 +74,7 @@ Before writing any plan file, leave the current feature branch and start clean. 
 
 - Location: `docs/plans/<YYYY>/<MM>/` (create month folder if missing). No `docs/plans/` → match the repo's existing convention; do not invent a third pattern
 - Filename: `YYYY-MM-DD_kebab-case-topic.md` (real current date)
+- Verify may add a sibling folder named like the plan file (no `.md`) for scripts and a short evidence index. Omit it when the change has no product evidence
 - Mirror the structure of existing files in that folder. Floor:
   - Header: title, **Date**, **Branch**, **Status**
   - Context
